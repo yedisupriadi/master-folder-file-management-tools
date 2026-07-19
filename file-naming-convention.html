@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>File Audit Tool</title>
+<title>File Naming Convention Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #eef2f7;
@@ -21,34 +24,124 @@
     --amber-dark: #d97706;
     --sel: #c7d2fe;
     --radius: 12px;
+    --brand: #034F53;
+    /* permukaan yang sebelumnya di-hardcode → dijadikan variabel agar bisa gelap */
+    --bg-grad-a: #e8edf5;
+    --bg-grad-b: #f4f6fa;
+    --input-bg: #f8fafc;
+    --input-disabled: #f1f5f9;
+    --hover: #f1f5f9;
+    --hover-row: #f0f4ff;
+    --stripe: #fafbfd;
+    --chip-bg: #f1f5f9;
+    --tree-ink: #334155;
+    --thead-bg: #1e293b;
+    --thead-ink: #e2e8f0;
+    --td-line: #f1f5f9;
+    --menu-bg: #ffffff;
+    --overlay: rgba(244,246,250,.62);
+  }
+  html[data-theme="dark"] {
+    --bg: #0b1220;
+    --card: #131c2e;
+    --ink: #e5e9f0;
+    --muted: #93a1b5;
+    --line: #2a3650;
+    --sel: #3b3f7a;
+    --bg-grad-a: #0b1220;
+    --bg-grad-b: #0e1626;
+    --input-bg: #0f1728;
+    --input-disabled: #172136;
+    --hover: #1b2740;
+    --hover-row: #18233c;
+    --stripe: #161f33;
+    --chip-bg: #1f2b45;
+    --tree-ink: #c7d2e5;
+    --thead-bg: #0a1120;
+    --thead-ink: #cdd7e6;
+    --td-line: #212c46;
+    --menu-bg: #172136;
+    --overlay: rgba(11,18,32,.62);
+    --brand: #ffffff;   /* ikon & teks brand jadi putih di dark theme agar lebih terlihat */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: "Segoe UI", system-ui, Arial, sans-serif;
-    background: linear-gradient(180deg, #e8edf5 0%, #f4f6fa 240px);
+    font-family: "Lato", "Segoe UI", system-ui, Arial, sans-serif;
+    font-weight: 400;
+    background: linear-gradient(180deg, var(--bg-grad-a) 0%, var(--bg-grad-b) 240px) fixed;
     color: var(--ink);
     padding: 22px 26px;
     min-height: 100vh;
+    transition: background .2s, color .2s;
   }
+
+  /* ---------- Ikon single-color #034F53 tanpa background ---------- */
+  .ico { display: inline-flex; align-items: center; justify-content: center; color: var(--brand); flex-shrink: 0; }
+  .ico svg { display: block; }
+  button .ico { color: currentColor; }        /* ikon di dalam tombol ikut warna teks tombol */
+  .pc-title .ico, .sb-title .ico, .ms-title .ico { color: var(--brand); }
 
   /* ---------- Header ---------- */
   .header { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
   .logo {
     width: 44px; height: 44px; border-radius: 12px;
-    background: linear-gradient(135deg, var(--accent), var(--violet));
+    background: transparent;
     display: flex; align-items: center; justify-content: center;
-    font-size: 22px; box-shadow: 0 6px 16px rgba(99,102,241,.35);
+    color: var(--brand);
   }
-  .header h1 { font-size: 20px; letter-spacing: -.3px; }
-  .header .subtitle { color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+  .header h1 { font-size: 20px; letter-spacing: -.3px; font-weight: 700; }
+  .header .subtitle { color: var(--muted); font-size: 12.5px; margin-top: 2px; font-weight: 300; }
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;
+    padding: 8px 12px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--card); color: var(--brand); text-decoration: none;
+    font-size: 12.5px; font-weight: 700;
+    transition: transform .08s ease, background .15s ease;
+  }
+  .home-link:hover { transform: translateY(-1px); background: var(--hover); }
 
-  /* ---------- Toolbar ---------- */
-  .toolbar {
-    display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+  /* ---------- Topbar: toggle bahasa & tema (pojok kanan atas) ---------- */
+  .topbar {
+    position: fixed; top: 14px; right: 18px; z-index: 200;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; box-shadow: 0 6px 20px -8px rgba(15,23,42,.25);
+  }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--muted); user-select: none; }
+  .toggle .t-lab { min-width: 26px; text-align: center; }
+  .toggle .t-lab.on { color: var(--brand); }
+  .switch { position: relative; width: 46px; height: 24px; flex-shrink: 0; cursor: pointer; }
+  .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .switch .slider {
+    position: absolute; inset: 0; border-radius: 999px;
+    background: #cbd5e1; transition: background .18s;
+  }
+  .switch .slider::before {
+    content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: transform .18s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .switch input:checked + .slider { background: #034F53; }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+  .topbar .divider { width: 1px; height: 22px; background: var(--line); }
+
+  /* ---------- Kartu fungsi & filter (di atas tabelnya masing-masing) ---------- */
+  .panel-card {
     background: var(--card); padding: 14px; border-radius: var(--radius);
     box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
-    margin-bottom: 14px;
+    display: flex; flex-direction: column; gap: 9px;
   }
+  .pc-title {
+    font-size: 12px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; color: var(--muted);
+  }
+  .panel-card button { width: 100%; justify-content: center; }
+  .panel-card .sp-multi-btn { justify-content: space-between; }
+  .side-select {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 13px; font-weight: 600;
+    background: var(--card); color: var(--ink); cursor: pointer;
+  }
+  .side-select:disabled { background: var(--input-disabled); color: #94a3b8; cursor: not-allowed; }
   button {
     border: none; padding: 9px 16px; border-radius: 8px;
     font-size: 13.5px; font-weight: 600; cursor: pointer; color: #fff;
@@ -66,43 +159,143 @@
   #btnExport:hover:not(:disabled) { background: var(--violet-dark); }
   #btnFlatten  { background: var(--amber); box-shadow: 0 4px 12px rgba(245,158,11,.35); }
   #btnFlatten:hover:not(:disabled) { background: var(--amber-dark); }
+  #btnDeleteSelected { background: #ef4444; box-shadow: 0 4px 12px rgba(239,68,68,.28); }
+  #btnDeleteSelected:hover:not(:disabled) { background: #dc2626; }
+  #btnMoveTo { background: #0d9488; box-shadow: 0 4px 12px rgba(13,148,136,.28); }
+  #btnMoveTo:hover:not(:disabled) { background: #0f766e; }
+  #btnSelectAudit { background: #0891b2; box-shadow: 0 4px 12px rgba(8,145,178,.28); }
+  #btnSelectAudit:hover:not(:disabled) { background: #0e7490; }
+  #btnScanFile { background: #c026d3; box-shadow: 0 4px 12px rgba(192,38,211,.3); }
+  #btnScanFile:hover:not(:disabled) { background: #a21caf; }
+  #scanKeyword {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--line);
+    border-radius: 8px; font-size: 13px; background: var(--card); color: var(--ink);
+    outline: none; transition: border .15s, box-shadow .15s;
+  }
+  #scanKeyword:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+  #scanKeyword:disabled { background: var(--input-disabled); color: #94a3b8; cursor: not-allowed; }
   #addressBar {
-    flex: 1; min-width: 240px; padding: 9px 14px;
+    width: 100%; padding: 9px 14px;
     border: 1px solid var(--line); border-radius: 8px;
-    font-size: 12.5px; background: #f8fafc; color: var(--muted);
+    font-size: 12.5px; background: var(--input-bg); color: var(--muted);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 
-  /* ---------- Filter bar ---------- */
-  .filterbar {
-    display: flex; gap: 10px; align-items: center; margin-bottom: 12px; flex-wrap: wrap;
-  }
-  .searchwrap { position: relative; flex: 1; min-width: 220px; }
+  /* ---------- Search input ---------- */
+  .searchwrap { position: relative; width: 100%; }
   .searchwrap .icon {
-    position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-    font-size: 13px; color: var(--muted); pointer-events: none;
+    position: absolute; left: 11px; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; color: var(--brand); pointer-events: none;
   }
-  #filterInput {
-    width: 100%; padding: 9px 12px 9px 34px;
+  .searchwrap input {
+    width: 100%; padding: 9px 32px 9px 34px;
     border: 1px solid var(--line); border-radius: 8px; font-size: 14px;
-    background: var(--card); outline: none;
+    background: var(--card); color: var(--ink); outline: none;
     transition: border .15s, box-shadow .15s;
   }
-  #filterInput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+  .searchwrap input::placeholder { color: var(--muted); opacity: .8; }
+  .searchwrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15); }
+  .searchwrap input:disabled { background: var(--input-disabled); color: #94a3b8; cursor: not-allowed; }
+  /* tombol clear (×): muncul saat hover/fokus di area search dan input ada isinya */
+  .searchwrap .search-clear {
+    position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+    width: 20px; height: 20px; border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    color: #64748b; cursor: pointer; font-size: 13px; line-height: 1;
+    opacity: 0; pointer-events: none; user-select: none;
+    transition: opacity .12s, background .12s, color .12s;
+  }
+  .searchwrap:hover input:not(:placeholder-shown) ~ .search-clear,
+  .searchwrap input:not(:placeholder-shown):focus ~ .search-clear {
+    opacity: 1; pointer-events: auto;
+  }
+  .searchwrap .search-clear:hover { background: var(--hover); color: #ef4444; }
+
+  /* ---------- Multi Table Search (bar lintas tabel, memanjang penuh) ---------- */
+  .multi-search {
+    display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+    background: var(--card); border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
+    padding: 14px 18px; border: 1px solid var(--line);
+  }
+  .multi-search .ms-title {
+    font-size: 14px; font-weight: 800; letter-spacing: .3px; color: var(--brand);
+    white-space: nowrap; display: flex; align-items: center; gap: 8px;
+  }
+  .multi-search .ms-wrap { flex: 1; min-width: 260px; }
+  #btnForceMatch { background: #e11d48; box-shadow: 0 4px 12px rgba(225,29,72,.3); white-space: nowrap; }
+  #btnForceMatch:hover:not(:disabled) { background: #be123c; }
   #btnClearFilter {
-    background: #fff; color: #ef4444; border: 1px solid #fecaca;
+    background: var(--card); color: #ef4444; border: 1px solid #fecaca;
   }
   #btnClearFilter:hover:not(:disabled) { background: #fef2f2; }
   #btnCopy { background: #0ea5e9; box-shadow: 0 4px 12px rgba(14,165,233,.3); }
   #btnCopy:hover:not(:disabled) { background: #0284c7; }
-  #stats { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  #stats { font-size: 12.5px; color: var(--muted); }
 
-  /* ---------- Layout: sidebar + table ---------- */
-  .main { display: flex; gap: 14px; align-items: stretch; }
+  /* ---------- Kolom tabel + status bar di bawah tabel ---------- */
+  .table-col { flex: 1; min-width: 0; display: flex; flex-direction: column; position: relative; }
+
+  /* ---------- Overlay loading: menutupi tabel saat data diproses ---------- */
+  .load-overlay {
+    position: absolute; inset: 0; z-index: 40;
+    display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+    background: var(--overlay); backdrop-filter: blur(2px);
+    border-radius: var(--radius);
+  }
+  .load-overlay.show { display: flex; }
+  .load-overlay .spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 4px solid var(--line); border-top-color: var(--brand);
+    animation: lo-spin .85s linear infinite;
+  }
+  .load-overlay .load-text { font-size: 13.5px; font-weight: 700; color: var(--ink); }
+  @keyframes lo-spin { to { transform: rotate(360deg); } }
+  .status-bar {
+    margin-top: 10px; background: var(--card);
+    border: 1px solid var(--line); border-radius: var(--radius);
+    box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -14px rgba(15,23,42,.12);
+    padding: 9px 14px;
+  }
+  .status-bar > span {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 7px 18px;
+    font-size: 12.5px; color: var(--muted);
+  }
+  .status-bar:has(> span:empty) { display: none; }   /* sembunyikan bar bila belum ada data */
+  .sb-item { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+  .sb-item .ico { color: var(--muted); }
+  .sb-item.brand .ico { color: var(--brand); }
+  .sb-item.ok   .ico { color: #10b981; }
+  .sb-item.warn .ico { color: #f59e0b; }
+  .sb-item.no   .ico { color: #ef4444; }
+  .sb-item b { color: var(--ink); font-weight: 700; }
+
+  /* ---------- Layout: grid 2 kolom (folder kiri, register kanan) ----------
+     baris 1 : kontrol masing-masing tabel (kiri & kanan)
+     baris 2 : fungsi lintas tabel (Multi Table Search + Force Match) memanjang penuh
+     baris 3 : tabel folder (kiri) & tabel register (kanan)                    */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "actrl rctrl"
+      "cross cross"
+      "atbl  rtbl";
+    gap: 16px 14px;
+    align-items: stretch;
+  }
+  #auditCtrlCol  { grid-area: actrl; }
+  #regCtrlCol    { grid-area: rctrl; }
+  .split > .multi-search { grid-area: cross; }
+  #auditTableCol { grid-area: atbl; }
+  #regTableCol   { grid-area: rtbl; }
+  .ctrl-col { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+  .ctrl-cards { display: flex; align-items: stretch; gap: 12px; flex-wrap: wrap; }
+  .ctrl-cards > .panel-card, .ctrl-cards > .sidebar { flex: 1 1 220px; min-width: 220px; }
   .sidebar {
-    width: 280px; flex-shrink: 0;
     background: var(--card); border-radius: var(--radius);
     box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
-    overflow: auto; max-height: 68vh;
+    overflow: auto; max-height: 34vh;
     display: flex; flex-direction: column;
   }
   .sidebar .sb-title {
@@ -110,25 +303,26 @@
     text-transform: uppercase; color: var(--muted);
     border-bottom: 1px solid var(--line);
     position: sticky; top: 0; background: var(--card); z-index: 2;
+    display: flex; align-items: center; gap: 7px;
   }
   .tree { padding: 8px; font-size: 13px; }
   .tnode-row {
     display: flex; align-items: center; gap: 4px;
     padding: 5px 6px; border-radius: 7px; cursor: pointer; user-select: none;
-    color: #334155; transition: background .1s;
+    color: var(--tree-ink); transition: background .1s;
   }
-  .tnode-row:hover { background: #f1f5f9; }
-  .tnode-row.active { background: #eef2ff; color: var(--accent-dark); font-weight: 600; }
+  .tnode-row:hover { background: var(--hover); }
+  .tnode-row.active { background: var(--chip-bg); color: var(--brand); font-weight: 600; }
   .tnode-row .caret {
     width: 16px; text-align: center; font-size: 10px; color: var(--muted);
     flex-shrink: 0; cursor: pointer;
   }
   .tnode-row .fname { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .tnode-row .count {
-    font-size: 11px; color: var(--muted); background: #f1f5f9;
+    font-size: 11px; color: var(--muted); background: var(--chip-bg);
     border-radius: 999px; padding: 1px 7px; flex-shrink: 0;
   }
-  .tnode-row.active .count { background: #e0e7ff; color: var(--accent-dark); }
+  .tnode-row.active .count { background: var(--chip-bg); color: var(--brand); }
   .tchildren { margin-left: 14px; border-left: 1px dashed var(--line); padding-left: 4px; }
   .tchildren.collapsed { display: none; }
   .tree-empty { padding: 20px 14px; color: var(--muted); font-size: 12.5px; text-align: center; }
@@ -139,67 +333,134 @@
     box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
     overflow: auto; max-height: 68vh; min-width: 0;
   }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table {
+    width: max-content; min-width: 100%;
+    table-layout: fixed;   /* lebar kolom mengikuti th, bisa di-resize manual */
+    border-collapse: collapse; font-size: 13px;
+  }
+  #dataTable th[data-key="name"]   { width: 320px; }
+  #dataTable th[data-key="docNo"]  { width: 210px; }
+  #dataTable th[data-key="rev"]    { width: 90px; }
+  #dataTable th[data-key="struct"] { width: 150px; }
+  #dataTable th[data-key="path"]   { width: 360px; }
+  #dataTable th[data-key="url"]    { width: 360px; }
+  #dataTable th[data-key="size"]   { width: 120px; }
+  #dataTable th[data-key="ext"]    { width: 110px; }
+  #dataTable th.check-col, #dataTable td.check-col { width: 48px; text-align: center; }
+  #dataTable th.action-col, #dataTable td.action-col { width: 90px; text-align: center; }
   thead th {
     position: sticky; top: 0; z-index: 3;
-    background: #1e293b; color: #e2e8f0;
+    background: var(--thead-bg); color: var(--thead-ink);
     text-align: left; padding: 11px 14px; cursor: pointer;
     user-select: none; white-space: nowrap; font-size: 12px;
     letter-spacing: .4px; text-transform: uppercase;
   }
   thead th:hover { background: #0f172a; }
   thead th .arrow { margin-left: 6px; font-size: 10px; color: #a5b4fc; }
+  thead th { overflow: hidden; text-overflow: ellipsis; }
+  thead th .col-grip {
+    position: absolute; top: 0; right: 0; width: 7px; height: 100%;
+    cursor: col-resize; z-index: 5;
+  }
+  thead th .col-grip:hover { background: rgba(165,180,252,.45); }
+  body.col-resizing, body.col-resizing * { cursor: col-resize !important; user-select: none; }
   tbody { user-select: none; }
   tbody td {
-    padding: 8px 14px; border-bottom: 1px solid #f1f5f9; word-break: break-all;
+    padding: 8px 14px; border-bottom: 1px solid var(--td-line);
+    white-space: normal; overflow-wrap: anywhere; /* word wrap: value panjang tetap terlihat utuh */
+  }
+  tbody td.editing { padding: 4px 8px; }
+  tbody td.editing input {
+    width: 100%; padding: 5px 8px; border: 2px solid var(--accent); border-radius: 6px;
+    font: inherit; outline: none; background: var(--card); color: var(--ink);
   }
   tbody td.selectable { cursor: cell; }
-  tbody tr:nth-child(even) { background: #fafbfd; }
-  tbody tr:hover { background: #f0f4ff; }
+  tbody tr:nth-child(even) { background: var(--stripe); }
+  tbody tr:hover { background: var(--hover-row); }
   tbody td.sel { background: var(--sel) !important; box-shadow: inset 0 0 0 1px #818cf8; }
+  .file-check { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
+  .file-url {
+    color: var(--brand); text-decoration: none; font-weight: 700;
+    display: inline-block; max-width: 100%;
+  }
+  .file-url:hover { text-decoration: underline; }
+  .row-delete {
+    background: var(--card); color: #dc2626; border: 1px solid #fecaca;
+    box-shadow: none; padding: 5px 9px; border-radius: 7px; font-size: 12px;
+  }
+  .row-delete:hover:not(:disabled) { background: #fef2f2; transform: none; }
   .ext-badge {
     display: inline-block; border-radius: 6px; padding: 2px 9px;
     font-size: 11.5px; font-weight: 700; text-transform: lowercase;
   }
+  .cross-badge {
+    display: inline-block; border-radius: 6px; padding: 2px 9px;
+    font-size: 11.5px; font-weight: 700; white-space: nowrap;
+  }
+  .cross-badge.ok   { background: #d1fae5; color: #065f46; }
+  .cross-badge.warn { background: #fef3c7; color: #92400e; }
+  .cross-badge.no   { background: #fee2e2; color: #991b1b; }
+  /* badge kolom Duplikat: KEEP = file yang dipertahankan, dup = salinan yang bisa dibuang */
+  .dup-badge {
+    display: inline-block; border-radius: 6px; padding: 2px 9px;
+    font-size: 11.5px; font-weight: 700; white-space: nowrap;
+  }
+  .dup-badge.keep { background: #d1fae5; color: #065f46; }
+  .dup-badge.dup  { background: #ffe4e6; color: #9f1239; }
+  .dup-badge .gid { opacity: .65; font-weight: 700; margin-right: 4px; }
   .empty { padding: 46px; text-align: center; color: #94a3b8; font-size: 14px; }
   .num { color: #94a3b8; text-align: right; width: 46px; font-size: 12px; }
 
-  /* ---------- Section: Register SharePoint ---------- */
-  .section-head { display: flex; align-items: center; gap: 14px; margin: 30px 0 14px; }
-  .section-head h2 { font-size: 17px; letter-spacing: -.2px; }
-  .logo.sp {
-    background: linear-gradient(135deg, #0ea5e9, #10b981);
-    box-shadow: 0 6px 16px rgba(14,165,233,.35);
-  }
-  .sp-input {
-    flex: 1; min-width: 280px; padding: 9px 14px;
-    border: 1px solid var(--line); border-radius: 8px;
-    font-size: 12.5px; background: #fff; outline: none;
-    transition: border .15s, box-shadow .15s;
-  }
-  .sp-input:focus { border-color: #0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.15); }
-  #btnSpFetch { background: #0ea5e9; box-shadow: 0 4px 12px rgba(14,165,233,.3); }
-  #btnSpFetch:hover:not(:disabled) { background: #0284c7; }
+  /* ---------- Judul section di atas tiap kolom kontrol ---------- */
+  .section-head { display: flex; align-items: center; gap: 14px; }
+  .section-head h2 { font-size: 17px; letter-spacing: -.2px; font-weight: 700; }
+  .logo.sp { background: transparent; color: var(--brand); }
   #btnSpLocal { background: #475569; box-shadow: 0 4px 12px rgba(71,85,105,.3); }
   #btnSpLocal:hover:not(:disabled) { background: #334155; }
-  #btnSpClear { background: #fff; color: #ef4444; border: 1px solid #fecaca; }
+  #btnSpClear { background: var(--card); color: #ef4444; border: 1px solid #fecaca; }
   #btnSpClear:hover:not(:disabled) { background: #fef2f2; }
   #btnSpCopy { background: #0ea5e9; box-shadow: 0 4px 12px rgba(14,165,233,.3); }
   #btnSpCopy:hover:not(:disabled) { background: #0284c7; }
-  .sp-select {
-    padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
-    font-size: 13px; background: #fff; color: var(--ink); cursor: pointer;
-  }
-  .sp-note { font-size: 12px; color: var(--muted); margin: -6px 0 12px 2px; }
-  .sp-label { font-size: 12.5px; font-weight: 600; color: var(--muted); margin-left: 4px; }
+  .sp-note { font-size: 12px; color: var(--muted); }
+  .sp-label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
   .sp-filename {
-    flex: 1; min-width: 160px; padding: 9px 14px;
+    width: 100%; padding: 9px 14px;
     border: 1px solid var(--line); border-radius: 8px;
-    font-size: 12.5px; background: #f8fafc; color: var(--muted);
+    font-size: 12.5px; background: var(--input-bg); color: var(--muted);
     overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
-  .sp-select:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
-  #spStats { font-size: 12.5px; color: var(--muted); white-space: nowrap; }
+  .sp-sheet {
+    width: 100%; padding: 9px 14px;
+    border: 1px solid var(--line); border-radius: 8px;
+    font-size: 12.5px; background: var(--input-bg); color: var(--brand); font-weight: 700;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sp-multi { position: relative; width: 100%; }
+  .sp-multi-btn {
+    width: 100%; justify-content: space-between;
+    padding: 9px 12px; border: 1px solid var(--line); border-radius: 8px;
+    background: var(--card); color: var(--ink); box-shadow: none;
+    font-size: 13px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .sp-multi-btn::after { content: "\25BE"; color: var(--muted); font-size: 11px; }
+  .sp-multi-btn:hover:not(:disabled) { background: var(--hover); transform: none; }
+  .sp-multi-btn:disabled { background: var(--input-disabled) !important; color: #94a3b8; }
+  .sp-multi-menu {
+    position: absolute; left: 0; right: 0; top: calc(100% + 6px);
+    background: var(--menu-bg); border: 1px solid var(--line); border-radius: 8px;
+    box-shadow: 0 16px 35px rgba(15,23,42,.16);
+    max-height: 280px; overflow: auto; padding: 6px; z-index: 30;
+  }
+  .sp-multi-menu[hidden] { display: none; }
+  .sp-multi-option {
+    display: flex; align-items: center; gap: 8px;
+    padding: 7px 8px; border-radius: 6px; cursor: pointer;
+    color: var(--tree-ink); font-size: 12.5px; line-height: 1.25;
+  }
+  .sp-multi-option:hover { background: var(--hover); }
+  .sp-multi-option input { flex-shrink: 0; }
+  .sp-multi-empty { padding: 9px 8px; color: var(--muted); font-size: 12.5px; }
+  #spStats { font-size: 12.5px; color: var(--muted); }
 
   /* ---------- Toast ---------- */
   #toast {
@@ -212,108 +473,510 @@
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-  @media (max-width: 900px) {
-    .main { flex-direction: column; }
-    .sidebar { width: 100%; max-height: 30vh; }
+  /* layar sempit: susun vertikal — kontrol folder, tabel folder, bar lintas
+     tabel, kontrol register, lalu tabel register */
+  @media (max-width: 1100px) {
+    .split {
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "actrl" "atbl" "cross" "rctrl" "rtbl";
+    }
+    .sidebar { max-height: 30vh; }
   }
 </style>
 </head>
 <body>
 
+<div class="topbar">
+  <label class="toggle" title="Bahasa / Language">
+    <span class="t-lab" id="labID">ID</span>
+    <span class="switch"><input type="checkbox" id="langToggle"><span class="slider"></span></span>
+    <span class="t-lab" id="labEN">EN</span>
+  </label>
+  <span class="divider"></span>
+  <label class="toggle" title="Light / Dark">
+    <span class="ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg></span>
+    <span class="switch"><input type="checkbox" id="themeToggle"><span class="slider"></span></span>
+    <span class="ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+  </label>
+</div>
+
 <div class="header">
-  <div class="logo">📁</div>
+  <a class="home-link" href="index.html" data-i18n-title="backHomeTip" title="Kembali ke halaman utama"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span data-i18n="backHome">Home</span></a>
+  <div class="logo"><span class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span></div>
   <div>
-    <h1>File Audit Tool</h1>
-    <div class="subtitle">Pilih folder → Generate → browse, sortir, filter, copy ke Excel, dan flatten file</div>
+    <h1 data-i18n="appTitle">File Naming Convention Management</h1>
+    <div class="subtitle" data-i18n="appSubtitle">Pilih folder → Generate → cek struktur nama, deteksi duplikat isi file, filter, copy ke Excel, flatten, dan klik 2× nama file untuk rename</div>
   </div>
 </div>
 
-<div class="toolbar">
-  <button id="btnPick">📂 Pilih Folder</button>
-  <input type="text" id="addressBar" placeholder="Folder terpilih akan tampil di sini..." readonly>
-  <button id="btnGenerate" disabled>⚡ Generate</button>
-  <button id="btnExport" disabled>⬇ Export CSV</button>
-  <button id="btnFlatten" disabled title="Pindahkan semua file dari subfolder ke folder utama, lalu hapus folder kosong">🗜 Flatten</button>
-  <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
-</div>
+<div class="split">
+  <!-- ============ KIRI: kontrol tabel folder ============ -->
+  <div class="ctrl-col" id="auditCtrlCol">
+    <div class="section-head">
+      <div class="logo"><span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span></div>
+      <div>
+        <h2 data-i18n="folderTitle">Tabel Folder</h2>
+        <div class="subtitle" data-i18n="folderSubtitle">Fungsi & filter untuk file hasil scan folder</div>
+      </div>
+    </div>
+    <div class="ctrl-cards">
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span data-i18n="mainFunctions">Fungsi Utama</span></div>
+      <button id="btnPick"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span data-i18n="pickFolder">Pilih Folder</span></button>
+      <input type="text" id="addressBar" placeholder="Folder terpilih akan tampil di sini..." data-i18n-placeholder="addressBarPh" readonly>
+      <button id="btnGenerate" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span data-i18n="generate">Generate</span></button>
+      <button id="btnExport" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportCsv">Export CSV</span></button>
+      <button id="btnFlatten" disabled data-i18n-title="flattenTip" title="Pindahkan semua file dari subfolder ke folder utama, lalu hapus folder kosong"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span><span data-i18n="flatten">Flatten</span></button>
+      <button id="btnDeleteSelected" disabled data-i18n-title="deleteSelTip" title="Hapus file yang dicentang dari disk"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span><span data-i18n="deleteSelected">Delete Selected</span></button>
+      <button id="btnMoveTo" disabled data-i18n-title="moveToTip" title="Pindahkan file yang dicentang ke folder tujuan"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg></span><span data-i18n="moveTo">Move To...</span></button>
+      <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+    </div>
 
-<div class="filterbar">
-  <div class="searchwrap">
-    <span class="icon">🔍</span>
-    <input type="text" id="filterInput" placeholder="Ketik untuk memfilter nama file, folder, atau extension..." disabled>
-  </div>
-  <button id="btnClearFilter" disabled>✕ Clear Filter</button>
-  <button id="btnCopy" disabled>📋 Copy</button>
-  <span id="stats"></span>
-</div>
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><span data-i18n="filter">Filter</span></div>
+      <div class="searchwrap">
+        <span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span>
+        <input type="text" id="filterInput" placeholder="Filter nama file, folder, extension..." data-i18n-placeholder="filterPh" disabled>
+        <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
+      </div>
+      <label class="sp-label" for="structFilter" data-i18n="structNameLabel">Struktur Nama:</label>
+      <select id="structFilter" class="side-select" disabled>
+        <option value="" data-i18n="allStruct">Semua Struktur</option>
+        <option value="ok" data-i18n="structOk">Sesuai</option>
+        <option value="warn" data-i18n="structWarn">Hampir Sesuai</option>
+        <option value="no" data-i18n="structNo">Tidak Sesuai</option>
+      </select>
+      <button id="btnClearFilter" disabled><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span><span data-i18n="clearFilter">Clear Filter</span></button>
+      <button id="btnCopy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copy">Copy</span></button>
+    </div>
 
-<div class="main">
-  <div class="sidebar">
-    <div class="sb-title">🗂 Browse Folder</div>
-    <div class="tree" id="treeContainer">
-      <div class="tree-empty">Struktur folder akan tampil di sini setelah Generate.</div>
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/><circle cx="11.5" cy="14.5" r="2.5"/><line x1="13.3" y1="16.3" x2="15.5" y2="18.5"/></svg></span><span data-i18n="scanTitle">Scan Isi File (PDF)</span></div>
+      <div class="sp-note" data-i18n="scanNote">Deteksi file PDF yang halaman pertamanya memuat kata kunci — mis. lembar cover Submittal dari Procore — lalu otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.</div>
+      <label class="sp-label" for="scanKeyword" data-i18n="scanKeywordLabel">Kata kunci di halaman pertama:</label>
+      <input type="text" id="scanKeyword" value="Submittal #" disabled>
+      <button id="btnScanFile" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><span data-i18n="scanBtn">Scan File PDF</span></button>
+    </div>
+
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="dupTitle">Deteksi Duplikat File</span></div>
+      <div class="sp-note" data-i18n="dupNote">Cari file yang ISI-nya sama walau namanya berbeda. Tiap grup duplikat menyisakan satu file KEEP (penamaan paling sesuai), sisanya otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.</div>
+      <label class="sp-label" for="dupMode" data-i18n="dupModeLabel">Kedalaman pemeriksaan:</label>
+      <select id="dupMode" class="side-select" disabled>
+        <option value="byte" data-i18n="dupModeByte">Isi identik (semua tipe file) — cepat</option>
+        <option value="text" data-i18n="dupModeText">Isi identik + teks PDF sama — lebih dalam</option>
+      </select>
+      <button id="btnFindDup" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="dupBtn">Cari Duplikat</span></button>
+      <label class="sp-label" for="dupFilter" data-i18n="dupFilterLabel">Duplikat:</label>
+      <select id="dupFilter" class="side-select" disabled>
+        <option value="" data-i18n="dupFilterAll">Semua File</option>
+        <option value="only" data-i18n="dupFilterOnly">Hanya Duplikat</option>
+        <option value="remove" data-i18n="dupFilterRemove">Hanya Non-KEEP</option>
+      </select>
+    </div>
+
+    <div class="sidebar">
+      <div class="sb-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span data-i18n="browseFolder">Browse Folder</span></div>
+      <div class="tree" id="treeContainer">
+        <div class="tree-empty" data-i18n="treeEmpty">Struktur folder akan tampil di sini setelah Generate.</div>
+      </div>
+    </div>
     </div>
   </div>
 
+  <!-- ============ TABEL KIRI: hasil scan folder ============ -->
+  <div class="table-col" id="auditTableCol">
+  <div class="load-overlay" id="auditLoading"><div class="spinner"></div><div class="load-text" data-i18n="loadingData">Memproses data...</div></div>
   <div class="table-wrap">
     <table id="dataTable">
       <thead>
         <tr>
+          <th class="check-col"><input type="checkbox" id="selectAllFiles" class="file-check" data-i18n-title="selectAllTip" title="Pilih semua file yang terlihat" disabled></th>
           <th class="num">No</th>
-          <th data-key="name">File Name <span class="arrow"></span></th>
-          <th data-key="path">Folder Path <span class="arrow"></span></th>
-          <th data-key="ext">Extension <span class="arrow"></span></th>
+          <th data-key="name"><span data-i18n="colFileName">File Name</span> <span class="arrow"></span></th>
+          <th data-key="docNo"><span data-i18n="colDocNo">DOC NO</span> <span class="arrow"></span></th>
+          <th data-key="rev"><span data-i18n="colRev">Revision Status</span> <span class="arrow"></span></th>
+          <th data-key="struct"><span data-i18n="colStruct">Struktur Nama</span> <span class="arrow"></span></th>
+          <th data-key="path"><span data-i18n="colPath">Folder Path</span> <span class="arrow"></span></th>
+          <th data-key="url"><span data-i18n="colUrl">URL</span> <span class="arrow"></span></th>
+          <th data-key="size"><span data-i18n="colSize">File Size</span> <span class="arrow"></span></th>
+          <th data-key="ext"><span data-i18n="colExt">Extension</span> <span class="arrow"></span></th>
+          <th data-key="dupLabel"><span data-i18n="colDup">Duplikat</span> <span class="arrow"></span></th>
+          <th class="action-col" data-i18n="colDelete">Delete</th>
         </tr>
       </thead>
       <tbody id="tableBody">
-        <tr><td colspan="4" class="empty">Belum ada data. Pilih folder lalu klik Generate.</td></tr>
+        <tr><td colspan="12" class="empty" data-i18n="tableEmpty">Belum ada data. Pilih folder lalu klik Generate.</td></tr>
       </tbody>
     </table>
   </div>
-</div>
-
-<!-- ================= SECTION: TARIK REGISTER EXCEL SHAREPOINT ================= -->
-<div class="section-head">
-  <div class="logo sp">📥</div>
-  <div>
-    <h2>Tarik Register dari File Excel</h2>
-    <div class="subtitle">Pilih file Excel register, tentukan sheet yang ditampilkan, lalu filter berdasarkan Company</div>
+  <div class="status-bar"><span id="stats"></span></div>
   </div>
-</div>
 
-<div class="toolbar">
-  <button id="btnSpLocal">📄 Pilih File Excel</button>
-  <span id="spFileName" class="sp-filename">Belum ada file dipilih</span>
-  <label class="sp-label" for="spSheetSel">Sheet:</label>
-  <select id="spSheetSel" class="sp-select" disabled><option>—</option></select>
-  <label class="sp-label" for="spCompanySel">Company:</label>
-  <select id="spCompanySel" class="sp-select" disabled><option value="">Semua Company</option></select>
-  <input type="file" id="spFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display:none">
-</div>
-<div class="sp-note">💡 Tips: pilih file dari folder OneDrive/SharePoint sync di komputermu — itu file yang sama dengan di SharePoint dan selalu ter-update otomatis.</div>
-
-<div class="filterbar">
-  <div class="searchwrap">
-    <span class="icon">🔍</span>
-    <input type="text" id="spFilter" placeholder="Filter isi register..." disabled>
+  <!-- ============ FUNGSI LINTAS TABEL (memanjang penuh di antara kontrol & kedua tabel) ============ -->
+  <div class="multi-search">
+  <div class="ms-title"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><span data-i18n="multiTableSearch">Multi Table Search</span></div>
+  <div class="searchwrap ms-wrap">
+    <span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span>
+    <input type="text" id="multiSearch" placeholder="Ketik untuk memfilter File Name (folder) & Document Number (register) di kedua tabel sekaligus..." data-i18n-placeholder="multiSearchPh">
+    <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
   </div>
-  <button id="btnSpClear" disabled>✕ Clear Filter</button>
-  <button id="btnSpCopy" disabled>📋 Copy</button>
-  <span id="spStats"></span>
-</div>
+  <button id="btnForceMatch" disabled data-i18n-title="forceMatchTip" title="Rename file di folder mengikuti Usulan Nama File register bila DOC NO-nya sama (sesuai filter register aktif)"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span data-i18n="forceMatch">Force Match File Name</span></button>
+  </div>
 
-<div class="table-wrap">
-  <table>
-    <thead id="spHead"></thead>
-    <tbody id="spBody">
-      <tr><td class="empty" colspan="99">Belum ada data register. Pilih file Excel untuk menampilkan register.</td></tr>
-    </tbody>
-  </table>
+  <!-- ============ KANAN: kontrol register excel ============ -->
+  <div class="ctrl-col" id="regCtrlCol">
+    <div class="section-head">
+      <div class="logo sp"><span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span></div>
+      <div>
+        <h2 data-i18n="regTitle">Tarik Register dari File Excel</h2>
+        <div class="subtitle" data-i18n="regSubtitle">Pilih file Excel register, pilih sheet & atur mapping kolom, lalu filter berdasarkan Company</div>
+      </div>
+    </div>
+    <div class="ctrl-cards">
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span data-i18n="mainFunctions">Fungsi Utama</span></div>
+      <button id="btnSpLocal"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></span><span data-i18n="pickExcel">Pilih File Excel</span></button>
+      <span id="spFileName" class="sp-filename">Belum ada file dipilih</span>
+      <label class="sp-label" for="spSheetSelect" data-i18n="sheetLabel">Sheet:</label>
+      <select id="spSheetSelect" class="side-select" disabled>
+        <option value="" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option>
+      </select>
+      <div class="sp-note"><span class="ico" style="vertical-align:-2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg></span> <span data-i18n="tips">Tips: pilih file dari folder OneDrive/SharePoint sync di komputermu — itu file yang sama dengan di SharePoint dan selalu ter-update otomatis.</span></div>
+      <input type="file" id="spFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display:none">
+    </div>
+
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span data-i18n="mappingTitle">Mapping Kolom</span></div>
+      <div class="sp-note" data-i18n="mappingHint">Tentukan kolom pembentuk Usulan Nama File & crosscheck: DocNo_REV Rev_Title. Terdeteksi otomatis, bisa diganti.</div>
+      <label class="sp-label" for="mapDocNo" data-i18n="mapDocNoLabel">Kolom Document Number:</label>
+      <select id="mapDocNo" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
+      <label class="sp-label" for="mapRev" data-i18n="mapRevLabel">Kolom Revision:</label>
+      <select id="mapRev" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
+      <label class="sp-label" for="mapTitle" data-i18n="mapTitleLabel">Kolom Document Title:</label>
+      <select id="mapTitle" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
+    </div>
+
+    <div class="panel-card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><span data-i18n="filter">Filter</span></div>
+      <label class="sp-label" for="spCompanyBtn" data-i18n="companyLabel">Company:</label>
+      <div class="sp-multi" id="spCompanyMulti">
+        <button type="button" id="spCompanyBtn" class="sp-multi-btn" disabled data-i18n="allCompany">Semua Company</button>
+        <div class="sp-multi-menu" id="spCompanyMenu" hidden>
+          <label class="sp-multi-option"><input type="checkbox" id="spCompanyAll" checked> <span data-i18n="allCompany">Semua Company</span></label>
+          <div id="spCompanyOptions"></div>
+        </div>
+      </div>
+      <label class="sp-label" for="spColsBtn" data-i18n="columnLabel">Kolom:</label>
+      <div class="sp-multi" id="spColsMulti">
+        <button type="button" id="spColsBtn" class="sp-multi-btn" disabled data-i18n="allColumns">Semua Kolom</button>
+        <div class="sp-multi-menu" id="spColsMenu" hidden>
+          <label class="sp-multi-option"><input type="checkbox" id="spColsAll" checked> <span data-i18n="allColumns">Semua Kolom</span></label>
+          <div id="spColsOptions"></div>
+        </div>
+      </div>
+      <label class="sp-label" for="spCrossFilter" data-i18n="crossStatusLabel">Status Crosscheck:</label>
+      <select id="spCrossFilter" class="side-select" disabled>
+        <option value="" data-i18n="allStatus">Semua Status</option>
+        <option value="ada" data-i18n="statusAda">Ada di File</option>
+        <option value="beda" data-i18n="statusBeda">Nama File Tidak Cocok</option>
+        <option value="belum" data-i18n="statusBelum">Belum ada di File</option>
+      </select>
+      <div class="searchwrap">
+        <span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span>
+        <input type="text" id="spDocSearch" placeholder="Cari No. / Nama Dokumen..." data-i18n-placeholder="docSearchPh" disabled>
+        <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
+      </div>
+      <button id="btnSpClear" disabled><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span><span data-i18n="clearFilter">Clear Filter</span></button>
+      <button id="btnSpCopy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copy">Copy</span></button>
+      <button id="btnSelectAudit" disabled data-i18n-title="selectAuditTip" title="Pilih file di Tabel Folder yang DOC NO-nya ada di daftar register (sesuai filter aktif)"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span data-i18n="selectAudit">Pilih File di Tabel Folder</span></button>
+    </div>
+    </div>
+  </div>
+
+  <!-- ============ TABEL KANAN: register excel ============ -->
+  <div class="table-col" id="regTableCol">
+  <div class="load-overlay" id="regLoading"><div class="spinner"></div><div class="load-text" data-i18n="loadingData">Memproses data...</div></div>
+  <div class="table-wrap">
+    <table>
+      <thead id="spHead"></thead>
+      <tbody id="spBody">
+        <tr><td class="empty" colspan="99" data-i18n="regEmpty">Belum ada data register. Pilih file Excel untuk menampilkan register.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="status-bar"><span id="spStats"></span></div>
+  </div>
 </div>
 
 <div id="toast"></div>
 
 <script>
+/* ================= I18N (Bahasa) & THEME (Light/Dark) ================= */
+(function () {
+  const I18N = {
+    id: {
+      appTitle: 'File Naming Convention Management',
+      appSubtitle: 'Pilih folder → Generate → cek struktur nama, deteksi duplikat isi file, filter, copy ke Excel, flatten, dan klik 2× nama file untuk rename',
+      folderTitle: 'Tabel Folder', folderSubtitle: 'Fungsi & filter untuk file hasil scan folder',
+      backHome: 'Home', backHomeTip: 'Kembali ke halaman utama',
+      mainFunctions: 'Fungsi Utama', pickFolder: 'Pilih Folder',
+      addressBarPh: 'Folder terpilih akan tampil di sini...',
+      generate: 'Generate', exportCsv: 'Export CSV', flatten: 'Flatten',
+      flattenTip: 'Pindahkan semua file dari subfolder ke folder utama, lalu hapus folder kosong',
+      deleteSelected: 'Hapus Terpilih', deleteSelTip: 'Hapus file yang dicentang dari disk',
+      moveTo: 'Pindahkan ke...', moveToTip: 'Pindahkan file yang dicentang ke folder tujuan',
+      selectAudit: 'Pilih File di Tabel Folder', selectAuditTip: 'Pilih file di Tabel Folder yang DOC NO-nya ada di daftar register (sesuai filter aktif)',
+      filter: 'Filter', filterPh: 'Filter nama file, folder, extension...', clearSearch: 'Bersihkan pencarian',
+      structNameLabel: 'Struktur Nama:', allStruct: 'Semua Struktur',
+      structOk: 'Sesuai', structWarn: 'Hampir Sesuai', structNo: 'Tidak Sesuai',
+      clearFilter: 'Bersihkan Filter', copy: 'Salin',
+      browseFolder: 'Telusuri Folder', treeEmpty: 'Struktur folder akan tampil di sini setelah Generate.',
+      selectAllTip: 'Pilih semua file yang terlihat',
+      scanTitle: 'Scan Isi File (PDF)',
+      scanNote: 'Deteksi file PDF yang halaman pertamanya memuat kata kunci — mis. lembar cover Submittal dari Procore — lalu otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.',
+      scanKeywordLabel: 'Kata kunci di halaman pertama:', scanBtn: 'Scan File PDF',
+      dupTitle: 'Deteksi Duplikat File',
+      dupNote: 'Cari file yang ISI-nya sama walau namanya berbeda. Tiap grup duplikat menyisakan satu file KEEP (penamaan paling sesuai), sisanya otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.',
+      dupModeLabel: 'Kedalaman pemeriksaan:',
+      dupModeByte: 'Isi identik (semua tipe file) — cepat',
+      dupModeText: 'Isi identik + teks PDF sama — lebih dalam',
+      dupBtn: 'Cari Duplikat',
+      dupFilterLabel: 'Duplikat:',
+      dupFilterAll: 'Semua File', dupFilterOnly: 'Hanya Duplikat', dupFilterRemove: 'Hanya Non-KEEP',
+      colDup: 'Duplikat',
+      dupKeep: 'KEEP', dupByte: 'Isi sama', dupText: 'Teks PDF sama',
+      colFileName: 'Nama File', colDocNo: 'DOC NO', colRev: 'Revision Status', colStruct: 'Struktur Nama', colPath: 'Lokasi Folder',
+      colUrl: 'URL', colSize: 'Ukuran File', colExt: 'Ekstensi', colDelete: 'Hapus',
+      tableEmpty: 'Belum ada data. Pilih folder lalu klik Generate.',
+      multiTableSearch: 'Multi Table Search',
+      multiSearchPh: 'Ketik untuk memfilter File Name (folder) & Document Number (register) di kedua tabel sekaligus...',
+      forceMatch: 'Force Match File Name',
+      forceMatchTip: 'Rename file di folder mengikuti Usulan Nama File register bila DOC NO-nya sama (sesuai filter register aktif)',
+      regTitle: 'Tarik Register dari File Excel',
+      regSubtitle: 'Pilih file Excel register, pilih sheet & atur mapping kolom, lalu filter berdasarkan Company',
+      pickExcel: 'Pilih File Excel', noFileSelected: 'Belum ada file dipilih',
+      sheetLabel: 'Sheet:', sheetPlaceholder: 'Pilih file Excel dulu',
+      mappingTitle: 'Mapping Kolom',
+      mappingHint: 'Tentukan kolom pembentuk Usulan Nama File & crosscheck: DocNo_REV Rev_Title. Terdeteksi otomatis, bisa diganti.',
+      mapDocNoLabel: 'Kolom Document Number:', mapRevLabel: 'Kolom Revision:', mapTitleLabel: 'Kolom Document Title:',
+      mapNone: '— Tidak dipakai —',
+      tips: 'Tips: pilih file dari folder OneDrive/SharePoint sync di komputermu — itu file yang sama dengan di SharePoint dan selalu ter-update otomatis.',
+      companyLabel: 'Company:', allCompany: 'Semua Company', columnLabel: 'Kolom:', allColumns: 'Semua Kolom',
+      crossStatusLabel: 'Status Crosscheck:', allStatus: 'Semua Status',
+      statusAda: 'Ada di File', statusBeda: 'Nama File Tidak Cocok', statusBelum: 'Belum ada di File',
+      docSearchPh: 'Cari No. / Nama Dokumen...',
+      regEmpty: 'Belum ada data register. Pilih file Excel untuk menampilkan register.',
+      loadingData: 'Memproses data...'
+    },
+    en: {
+      appTitle: 'File Naming Convention Management',
+      appSubtitle: 'Pick a folder → Generate → check the naming structure, detect duplicate file content, filter, copy to Excel, flatten, and double-click a filename to rename',
+      folderTitle: 'Folder Table', folderSubtitle: 'Functions & filters for the scanned folder files',
+      backHome: 'Home', backHomeTip: 'Back to the home page',
+      mainFunctions: 'Main Functions', pickFolder: 'Pick Folder',
+      addressBarPh: 'Selected folder will appear here...',
+      generate: 'Generate', exportCsv: 'Export CSV', flatten: 'Flatten',
+      flattenTip: 'Move all files from subfolders to the main folder, then delete empty folders',
+      deleteSelected: 'Delete Selected', deleteSelTip: 'Delete the checked files from disk',
+      moveTo: 'Move To...', moveToTip: 'Move the checked files to a destination folder',
+      selectAudit: 'Select Files in Folder Table', selectAuditTip: 'Select files in the Folder Table whose DOC NO appears in the register list (current filter)',
+      filter: 'Filter', filterPh: 'Filter file name, folder, extension...', clearSearch: 'Clear search',
+      structNameLabel: 'Name Structure:', allStruct: 'All Structures',
+      structOk: 'Compliant', structWarn: 'Almost', structNo: 'Non-compliant',
+      clearFilter: 'Clear Filter', copy: 'Copy',
+      browseFolder: 'Browse Folder', treeEmpty: 'Folder structure will appear here after Generate.',
+      selectAllTip: 'Select all visible files',
+      scanTitle: 'Scan File Content (PDF)',
+      scanNote: 'Detect PDF files whose first page contains the keyword — e.g. the Procore Submittal cover sheet — then auto-check them so you can Delete Selected / Move To right away.',
+      scanKeywordLabel: 'First-page keyword:', scanBtn: 'Scan PDF Files',
+      dupTitle: 'Duplicate File Detection',
+      dupNote: 'Find files whose CONTENT is identical even when the names differ. Each duplicate group keeps one KEEP file (best-matching name); the rest are auto-checked so you can Delete Selected / Move To right away.',
+      dupModeLabel: 'Detection depth:',
+      dupModeByte: 'Identical content (any file type) — fast',
+      dupModeText: 'Identical content + same PDF text — deeper',
+      dupBtn: 'Find Duplicates',
+      dupFilterLabel: 'Duplicates:',
+      dupFilterAll: 'All Files', dupFilterOnly: 'Duplicates Only', dupFilterRemove: 'Non-KEEP Only',
+      colDup: 'Duplicate',
+      dupKeep: 'KEEP', dupByte: 'Same content', dupText: 'Same PDF text',
+      colFileName: 'File Name', colDocNo: 'DOC NO', colRev: 'Revision Status', colStruct: 'Name Structure', colPath: 'Folder Path',
+      colUrl: 'URL', colSize: 'File Size', colExt: 'Extension', colDelete: 'Delete',
+      tableEmpty: 'No data yet. Pick a folder then click Generate.',
+      multiTableSearch: 'Multi Table Search',
+      multiSearchPh: 'Type to filter File Name (folder) & Document Number (register) across both tables...',
+      forceMatch: 'Force Match File Name',
+      forceMatchTip: 'Rename folder files to the register Suggested File Name when the DOC NO matches (current register filter)',
+      regTitle: 'Pull Register from Excel File',
+      regSubtitle: 'Pick the register Excel file, choose a sheet & map the columns, then filter by Company',
+      pickExcel: 'Pick Excel File', noFileSelected: 'No file selected',
+      sheetLabel: 'Sheet:', sheetPlaceholder: 'Pick an Excel file first',
+      mappingTitle: 'Column Mapping',
+      mappingHint: 'Set the columns that build the Suggested File Name & crosscheck: DocNo_REV Rev_Title. Auto-detected, can be changed.',
+      mapDocNoLabel: 'Document Number column:', mapRevLabel: 'Revision column:', mapTitleLabel: 'Document Title column:',
+      mapNone: '— Not used —',
+      tips: 'Tip: pick the file from your OneDrive/SharePoint sync folder — it is the same file as on SharePoint and always auto-updates.',
+      companyLabel: 'Company:', allCompany: 'All Companies', columnLabel: 'Columns:', allColumns: 'All Columns',
+      crossStatusLabel: 'Crosscheck Status:', allStatus: 'All Statuses',
+      statusAda: 'In Folder', statusBeda: 'File Name Mismatch', statusBelum: 'Not in Folder',
+      docSearchPh: 'Search Doc. No. / Title...',
+      regEmpty: 'No register data yet. Pick an Excel file to show the register.',
+      loadingData: 'Processing data...'
+    }
+  };
+
+  window.__lang = localStorage.getItem('audit-lang') || 'id';
+
+  function TR(key) {
+    const d = I18N[window.__lang] || I18N.id;
+    return (key in d) ? d[key] : (key in I18N.id ? I18N.id[key] : null);
+  }
+  // helper untuk string dinamis di JS: TL(teksInggris, teksIndonesia)
+  window.TL = (en, id) => (window.__lang === 'en' ? en : id);
+
+  // label tampilan badge (nilai internal tetap Bahasa Indonesia agar logika filter tak berubah)
+  window.__structLabel = (s) =>
+    s === 'Sesuai' ? window.TL('Compliant', 'Sesuai')
+    : s === 'Hampir Sesuai' ? window.TL('Almost', 'Hampir Sesuai')
+    : s === 'Tidak Sesuai' ? window.TL('Non-compliant', 'Tidak Sesuai') : s;
+  window.__crossLabel = (v) => {
+    if (!v) return '';
+    const m = v.match(/\((\d+)\)\s*$/);
+    const cnt = m ? ' (' + m[1] + ')' : '';
+    if (v.startsWith('Ada'))   return window.TL('In Folder', 'Ada di File') + cnt;
+    if (v.startsWith('Nama'))  return window.TL('File Name Mismatch', 'Nama File Tidak Cocok') + cnt;
+    if (v.startsWith('Belum')) return window.TL('Not in Folder', 'Belum ada di File');
+    return v;
+  };
+  // set teks tombol tanpa menghapus ikon SVG (yang ada di span pertama)
+  window.__btnLabel = (btn, text) => {
+    const s = btn.querySelector('span:last-child');
+    if (s) s.textContent = text; else btn.textContent = text;
+  };
+
+  // overlay loading di atas tabel: __tableLoading('audit'|'reg', tampil?, teks opsional)
+  window.__tableLoading = (which, show, msg) => {
+    const el = document.getElementById(which === 'reg' ? 'regLoading' : 'auditLoading');
+    if (!el) return;
+    const t = el.querySelector('.load-text');
+    if (t) t.textContent = msg || window.TL('Processing data...', 'Memproses data...');
+    el.classList.toggle('show', !!show);
+  };
+
+  // ---------- Ikon status bar (single-color, mengikuti tema) ----------
+  const SB_ICONS = {
+    list:   '<line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/>',
+    hidden: '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>',
+    ok:     '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    warn:   '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    no:     '<circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>',
+    cols:   '<rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/>',
+    company:'<path d="M3 21h18"/><path d="M5 21V7l8-4v18"/><path d="M19 21V11l-6-4"/>',
+    search: '<circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/>',
+    dup:    '<rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>'
+  };
+  window.__sbItem = function (iconKey, html, cls) {
+    const svg = '<span class="ico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + (SB_ICONS[iconKey] || '') + '</svg></span>';
+    return '<span class="sb-item ' + (cls || '') + '">' + svg + '<span>' + html + '</span></span>';
+  };
+
+  function applyStaticI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n')); if (v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-placeholder')); if (v != null) el.placeholder = v;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-title')); if (v != null) el.title = v;
+    });
+    document.documentElement.lang = window.__lang;
+    document.title = TR('appTitle');
+  }
+
+  function updateLangLabels() {
+    const id = document.getElementById('labID'), en = document.getElementById('labEN');
+    if (id) id.classList.toggle('on', window.__lang === 'id');
+    if (en) en.classList.toggle('on', window.__lang === 'en');
+    const t = document.getElementById('langToggle');
+    if (t) t.checked = (window.__lang === 'en');
+  }
+
+  window.__setLang = function (lang) {
+    window.__lang = (lang === 'en') ? 'en' : 'id';
+    localStorage.setItem('audit-lang', window.__lang);
+    applyStaticI18n();
+    updateLangLabels();
+    // minta kedua tabel merender ulang teks dinamis (stats, badge, tree, tombol)
+    if (window.__auditReloadUI) window.__auditReloadUI();
+    if (window.__registerReloadUI) window.__registerReloadUI();
+  };
+
+  // ---------- THEME ----------
+  window.__setTheme = function (theme) {
+    const t = (theme === 'dark') ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', t);
+    localStorage.setItem('audit-theme', t);
+    const tog = document.getElementById('themeToggle');
+    if (tog) tog.checked = (t === 'dark');
+  };
+
+  // init sedini mungkin (data-theme) supaya tak ada flash
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('audit-theme') || 'light');
+
+  document.addEventListener('DOMContentLoaded', () => {
+    applyStaticI18n();
+    updateLangLabels();
+    window.__setTheme(localStorage.getItem('audit-theme') || 'light');
+    const langToggle = document.getElementById('langToggle');
+    if (langToggle) langToggle.addEventListener('change', () => window.__setLang(langToggle.checked ? 'en' : 'id'));
+    const themeToggle = document.getElementById('themeToggle');
+    if (themeToggle) themeToggle.addEventListener('change', () => window.__setTheme(themeToggle.checked ? 'dark' : 'light'));
+  });
+})();
+</script>
+
+<script>
+/* ===== Util global: lebar kolom bisa di-resize dengan drag di tepi kanan header ===== */
+window.__colResizeGuard = false;
+window.__attachColResizers = function (ths, onResize) {
+  ths.forEach((th) => {
+    if (th.querySelector('.col-grip')) return;
+    const grip = document.createElement('span');
+    grip.className = 'col-grip';
+    grip.title = 'Tarik untuk mengubah lebar kolom';
+    th.appendChild(grip);
+    grip.addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); });
+    grip.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      // bekukan lebar semua kolom dulu supaya kolom lain tidak ikut bergeser saat drag
+      [...th.parentElement.children].forEach((h) => {
+        h.style.width = h.offsetWidth + 'px';
+        if (onResize) onResize(h, h.offsetWidth);
+      });
+      const startX = e.clientX;
+      const startW = th.offsetWidth;
+      window.__colResizeGuard = true;
+      document.body.classList.add('col-resizing');
+      const move = (ev) => {
+        const w = Math.max(40, startW + (ev.clientX - startX));
+        th.style.width = w + 'px';
+        if (onResize) onResize(th, w);
+      };
+      const up = () => {
+        document.removeEventListener('mousemove', move);
+        document.removeEventListener('mouseup', up);
+        document.body.classList.remove('col-resizing');
+        // guard dilepas setelah event click header (sort) sempat lewat
+        setTimeout(() => { window.__colResizeGuard = false; }, 0);
+      };
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', up);
+    });
+  });
+};
+
 (function () {
   // ===== File bantuan/sistem yang disembunyikan dari daftar =====
   const HIDDEN_NAMES = ['path-map.txt', 'thumbs.db', 'desktop.ini', '.ds_store'];
@@ -333,10 +996,12 @@
   let selectedFolder = null;
   let collapsedSet = new Set();
   let busy = false;        // sedang scan / flatten
+  let dupGroupCount = 0;   // jumlah grup duplikat dari deteksi terakhir (0 = belum pernah / sudah basi)
+  let selectedDeleteKeys = new Set();
 
   // seleksi sel
   let selAnchor = null, selFocus = null, dragging = false;
-  const COLS = ['name', 'path', 'ext'];
+  const COLS = ['name', 'docNo', 'rev', 'struct', 'path', 'url', 'sizeText', 'ext', 'dupLabel'];
 
   const folderInput = document.getElementById('folderInput');
   const addressBar  = document.getElementById('addressBar');
@@ -344,9 +1009,18 @@
   const btnGenerate = document.getElementById('btnGenerate');
   const btnExport   = document.getElementById('btnExport');
   const btnFlatten  = document.getElementById('btnFlatten');
+  const btnDeleteSelected = document.getElementById('btnDeleteSelected');
+  const btnMoveTo   = document.getElementById('btnMoveTo');
+  const btnScanFile = document.getElementById('btnScanFile');
+  const scanKeyword = document.getElementById('scanKeyword');
+  const btnFindDup  = document.getElementById('btnFindDup');
+  const dupMode     = document.getElementById('dupMode');
+  const dupFilter   = document.getElementById('dupFilter');
   const btnClear    = document.getElementById('btnClearFilter');
   const btnCopy     = document.getElementById('btnCopy');
   const filterInput = document.getElementById('filterInput');
+  const structFilter = document.getElementById('structFilter');
+  const selectAllFiles = document.getElementById('selectAllFiles');
   const tableBody   = document.getElementById('tableBody');
   const treeContainer = document.getElementById('treeContainer');
   const stats       = document.getElementById('stats');
@@ -386,8 +1060,10 @@
     async function walk(dir, path) {
       for await (const entry of dir.values()) {
         if (entry.kind === 'file') {
+          let size = 0;
+          try { size = (await entry.getFile()).size; } catch (err) { size = 0; }
           fsaFiles.push({
-            name: entry.name, path: path, handle: entry, parent: dir,
+            name: entry.name, path: path, handle: entry, parent: dir, size,
             inRoot: dir === dirHandle
           });
         } else {
@@ -396,13 +1072,13 @@
       }
     }
     await walk(dirHandle, dirHandle.name);
-    return fsaFiles.map(f => ({ name: f.name, path: f.path }));
+    return fsaFiles.map(f => ({ name: f.name, path: f.path, handle: f.handle, parent: f.parent, size: f.size }));
   }
 
   function scanInputFiles() {
     return pickedFiles.map(f => {
       const parts = f.webkitRelativePath.split('/');
-      return { name: parts[parts.length - 1], path: parts.slice(0, -1).join('\\') };
+      return { name: parts[parts.length - 1], path: parts.slice(0, -1).join('\\'), file: f, size: f.size };
     });
   }
 
@@ -412,6 +1088,7 @@
     busy = true;
     btnGenerate.disabled = true;
     stats.textContent = '⏳ Memindai folder...';
+    window.__tableLoading('audit', true, TL('Scanning folder...', 'Memindai folder...'));
     try {
       const entries = dirHandle ? await scanFSA() : scanInputFiles();
       processEntries(entries);
@@ -419,11 +1096,22 @@
       stats.textContent = '';
       showToast('⚠️ Gagal memindai folder: ' + err.message);
     }
+    window.__tableLoading('audit', false);
     busy = false;
     btnGenerate.disabled = false;
   });
 
-  function processEntries(entries) {
+  function processEntries(entries, options = {}) {
+    const preserveView = !!options.preserveView;
+    const viewState = preserveView ? {
+      filter: filterInput.value,
+      struct: structFilter.value,
+      sortKey,
+      sortAsc,
+      selectedFolder,
+      collapsedSet: new Set(collapsedSet)
+    } : null;
+
     hiddenCount = 0;
     allRows = [];
     entries.forEach(e => {
@@ -434,20 +1122,60 @@
                        HIDDEN_PREFIXES.some(p => low.startsWith(p)) ||
                        HIDDEN_EXTS.includes(ext);
       if (isHidden) { hiddenCount++; return; }
-      allRows.push({ name: e.name, path: e.path, ext });
+      const url = fileAddress(e.path, e.name);
+      const size = Number.isFinite(e.size) ? e.size : (e.file ? e.file.size : 0);
+      const sizeText = formatFileSize(size);
+      const dr = parseDocRev(e.name);
+      allRows.push({
+        name: e.name, path: e.path, url, size, sizeText, ext,
+        docNo: dr.docNo, rev: dr.rev,
+        handle: e.handle || null, parent: e.parent || null, file: e.file || null,
+        struct: checkStructure(e.name),
+        // diisi oleh Deteksi Duplikat File; 0 = belum/bukan duplikat
+        dupGroup: 0, dupKeep: false, dupKind: '', dupLabel: '',
+        search: (e.name + '\n' + e.path + '\n' + url + '\n' + sizeText + '\n' + ext).toLowerCase()
+      });
     });
 
     filterInput.disabled = false;
+    structFilter.disabled = false;
     btnExport.disabled = false;
     btnClear.disabled = false;
     btnFlatten.disabled = !dirHandle; // flatten hanya via File System Access API
-    filterInput.value = '';
-    sortKey = null;
-    selectedFolder = null;
-    collapsedSet = new Set();
+    btnScanFile.disabled = false;
+    scanKeyword.disabled = false;
+    btnFindDup.disabled = false;
+    dupMode.disabled = false;
+    // daftar file berubah → hasil deteksi duplikat lama tidak berlaku lagi
+    dupFilter.value = '';
+    dupFilter.disabled = true;
+    dupGroupCount = 0;
+    selectedDeleteKeys.clear();
+
+    if (preserveView && viewState) {
+      filterInput.value = viewState.filter;
+      structFilter.value = viewState.struct;
+      sortKey = viewState.sortKey;
+      sortAsc = viewState.sortAsc;
+      collapsedSet = viewState.collapsedSet;
+      selectedFolder = viewState.selectedFolder;
+      if (selectedFolder !== null && !allRows.some(r => r.path === selectedFolder || r.path.startsWith(selectedFolder + '\\'))) {
+        selectedFolder = null;
+      }
+    } else {
+      structFilter.value = '';
+      filterInput.value = '';
+      sortKey = null;
+      selectedFolder = null;
+      collapsedSet = new Set();
+    }
+
     clearSelection();
     buildTree();
     render();
+    updateDeleteControls();
+    // daftar file berubah — hitung ulang crosscheck di tabel register
+    if (window.__spRecrosscheck) window.__spRecrosscheck();
   }
 
   // ================= FLATTEN =================
@@ -471,10 +1199,12 @@
     busy = true;
     btnFlatten.disabled = true;
     stats.textContent = '⏳ Memindai ulang sebelum flatten...';
+    window.__tableLoading('audit', true, TL('Flattening folder...', 'Flatten folder...'));
     try {
       await scanFSA();
     } catch (err) {
       showToast('⚠️ Gagal memindai: ' + err.message);
+      window.__tableLoading('audit', false);
       busy = false; btnFlatten.disabled = false;
       return;
     }
@@ -482,6 +1212,7 @@
 
     if (toMove.length === 0) {
       showToast('ℹ️ Tidak ada file di subfolder — semua sudah di folder utama.');
+      window.__tableLoading('audit', false);
       busy = false; btnFlatten.disabled = false;
       render();
       return;
@@ -496,6 +1227,7 @@
       'Tindakan ini TIDAK BISA di-undo. Lanjutkan?'
     );
     if (!okConfirm) {
+      window.__tableLoading('audit', false);
       busy = false; btnFlatten.disabled = false;
       stats.textContent = 'Flatten dibatalkan.';
       return;
@@ -538,6 +1270,7 @@
       processEntries(entries);
     } catch (err) { /* tampilan lama tetap dipakai */ }
 
+    window.__tableLoading('audit', false);
     busy = false;
     btnFlatten.disabled = false;
 
@@ -569,6 +1302,28 @@
   }
 
   // beri nama unik: "laporan.pdf" → "laporan (2).pdf" bila sudah ada
+  function formatFileSize(bytes) {
+    const n = Number(bytes) || 0;
+    if (n < 1024) return n + ' B';
+    const units = ['KB', 'MB', 'GB', 'TB'];
+    let value = n / 1024;
+    let unit = units[0];
+    for (let i = 1; i < units.length && value >= 1024; i++) {
+      value /= 1024;
+      unit = units[i];
+    }
+    const digits = value >= 100 ? 0 : (value >= 10 ? 1 : 2);
+    return value.toFixed(digits).replace(/\.0+$/, '') + ' ' + unit;
+  }
+
+  function fileAddress(path, name) {
+    return path ? path + '\\' + name : name;
+  }
+
+  function rowKey(row) {
+    return row.path + '\u0000' + row.name;
+  }
+
   function uniqueName(name, takenNames) {
     if (!takenNames.has(name.toLowerCase())) return name;
     const dot = name.lastIndexOf('.');
@@ -602,19 +1357,65 @@
     return removed;
   }
 
+  // ================= CEK STRUKTUR NAMA FILE =================
+  // Struktur benar: <DocumentNumber>_<Rev X>_<Judul bebas...>  (delimiter '_')
+  //   field 1  = document number (kode ber-hyphen + angka, mis. DF-SD-0102PM-E-96567-03)
+  //   field 2  = revision, ditulis "Rev A" / "REV 0" (kata "rev" + spasi + token)
+  //   field 3+ = judul dokumen (bebas)
+  // Fokus penilaian: pembagian delimiter '_' dan penulisan revision.
+  function checkStructure(fname) {
+    const dot = fname.lastIndexOf('.');
+    const base = dot > 0 ? fname.slice(0, dot) : fname;
+    const parts = base.split('_');                 // TANPA trim — spasi liar di tepi field = tidak rapi
+    const field1 = parts[0] || '';
+    const field2 = parts[1] || '';
+    // field 2 harus PERSIS "REV <token>" lalu langsung delimiter '_':
+    // "REV A_..."  → sesuai;  "REV A _..." (ada spasi sebelum '_') → TIDAK sesuai
+    const cleanRev = /^rev\s+[a-z0-9]+$/i.test(field2);
+    // field 1 seperti document number, tanpa spasi di tepi ("DOCNO _REV..." tidak rapi)
+    const docLike  = field1 === field1.trim() && field1.includes('-') && /[0-9]/.test(field1);
+    const revAnywhere = /(^|[^a-z0-9])rev[\s._-]+[a-z0-9]+(?![a-z0-9])/i.test(base);
+
+    if (parts.length >= 3 && docLike && cleanRev) return 'Sesuai';
+    if (parts.length >= 3 || revAnywhere) return 'Hampir Sesuai';
+    return 'Tidak Sesuai';
+  }
+  function structClass(s) {
+    return s === 'Sesuai' ? 'ok' : (s === 'Hampir Sesuai' ? 'warn' : 'no');
+  }
+
+  // Ambil DOC NO (field-1) & Revision (field-2, tanpa kata "REV") dari nama file
+  //   contoh: "DF-DI-0101PM-E-96379-33_REV B_JUDUL.pdf" → { docNo:'DF-DI-0101PM-E-96379-33', rev:'B' }
+  function parseDocRev(fname) {
+    const dot = fname.lastIndexOf('.');
+    const base = dot > 0 ? fname.slice(0, dot) : fname;
+    const parts = base.split('_');
+    const docNo = (parts[0] || '').trim();
+    let rev = (parts[1] || '').trim();
+    const m = rev.match(/^rev[\s._-]*(.+)$/i);
+    if (m) rev = m[1].trim();
+    return { docNo, rev };
+  }
+
   // ================= FILTER / SORT =================
   filterInput.addEventListener('input', () => { clearSelection(); render(); });
+  structFilter.addEventListener('change', () => { clearSelection(); render(); });
 
   btnClear.addEventListener('click', () => {
     filterInput.value = '';
+    structFilter.value = '';
     selectedFolder = null;
     clearSelection();
     buildTree();
     render();
   });
 
+  // kolom tabel utama bisa di-resize (thead statis, cukup dipasang sekali)
+  window.__attachColResizers([...document.querySelectorAll('#dataTable thead th')]);
+
   document.querySelectorAll('thead th[data-key]').forEach(th => {
     th.addEventListener('click', () => {
+      if (window.__colResizeGuard) return; // abaikan click sisa drag resize
       const key = th.dataset.key;
       if (sortKey === key) { sortAsc = !sortAsc; }
       else { sortKey = key; sortAsc = true; }
@@ -639,10 +1440,11 @@
     });
 
     let html = '<div class="tnode-row' + (selectedFolder === null ? ' active' : '') +
-               '" data-path=""><span class="caret"></span><span class="fname">📄 Semua File</span>' +
+               '" data-path=""><span class="caret"></span><span class="fname"><span class="ico" style="vertical-align:-2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></span> ' +
+               TL('All Files', 'Semua File') + '</span>' +
                '<span class="count">' + allRows.length + '</span></div>';
     html += renderNodes(root.children);
-    treeContainer.innerHTML = html || '<div class="tree-empty">Tidak ada folder.</div>';
+    treeContainer.innerHTML = html || '<div class="tree-empty">' + TL('No folders.', 'Tidak ada folder.') + '</div>';
 
     treeContainer.querySelectorAll('.tnode-row').forEach(row => {
       row.addEventListener('click', (e) => {
@@ -672,7 +1474,7 @@
       const isActive = selectedFolder === node.full;
       html += '<div class="tnode-row' + (isActive ? ' active' : '') + '" data-path="' + escapeAttr(node.full) + '">' +
               '<span class="caret">' + (hasKids ? (isCollapsed ? '▶' : '▼') : '') + '</span>' +
-              '<span class="fname">📁 ' + escapeHtml(n) + '</span>' +
+              '<span class="fname"><span class="ico" style="vertical-align:-2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span> ' + escapeHtml(n) + '</span>' +
               '<span class="count">' + node.count + '</span></div>';
       if (hasKids) {
         html += '<div class="tchildren' + (isCollapsed ? ' collapsed' : '') + '">' +
@@ -685,20 +1487,31 @@
   // ================= RENDER TABEL =================
   function render() {
     const q = filterInput.value.trim().toLowerCase();
+    const sf = structFilter.value;
+    const df = dupFilter.value;
+    const mq = (window.__multiSearchTerm || '').trim().toLowerCase(); // Multi Table Search → File Name
 
     viewRows = allRows.filter(r => {
       if (selectedFolder !== null &&
           r.path !== selectedFolder &&
           !r.path.startsWith(selectedFolder + '\\')) return false;
-      if (q && !r.name.toLowerCase().includes(q) &&
-              !r.path.toLowerCase().includes(q) &&
-              !r.ext.toLowerCase().includes(q)) return false;
+      if (q && !r.search.includes(q)) return false;
+      if (mq && !r.name.toLowerCase().includes(mq)) return false;
+      if (sf) {
+        if (sf === 'ok'   && r.struct !== 'Sesuai') return false;
+        if (sf === 'warn' && r.struct !== 'Hampir Sesuai') return false;
+        if (sf === 'no'   && r.struct !== 'Tidak Sesuai') return false;
+      }
+      if (df === 'only'   && !r.dupGroup) return false;
+      if (df === 'remove' && !(r.dupGroup && !r.dupKeep)) return false;
       return true;
     });
 
     if (sortKey) {
       viewRows.sort((a, b) => {
-        const cmp = a[sortKey].localeCompare(b[sortKey], undefined, { numeric: true, sensitivity: 'base' });
+        const cmp = sortKey === 'size'
+          ? ((a.size || 0) - (b.size || 0))
+          : String(a[sortKey] ?? '').localeCompare(String(b[sortKey] ?? ''), undefined, { numeric: true, sensitivity: 'base' });
         return sortAsc ? cmp : -cmp;
       });
     }
@@ -709,22 +1522,64 @@
     });
 
     if (viewRows.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="4" class="empty">Tidak ada file yang cocok.</td></tr>';
+      tableBody.innerHTML = '<tr><td colspan="12" class="empty">' + TL('No matching files.', 'Tidak ada file yang cocok.') + '</td></tr>';
     } else {
-      tableBody.innerHTML = viewRows.map((r, i) =>
-        '<tr>' +
+      tableBody.innerHTML = viewRows.map((r, i) => {
+        const canDelete = !!(r.handle && r.parent);
+        const canOpen = !!(r.handle || r.file);
+        const checked = selectedDeleteKeys.has(rowKey(r)) ? ' checked' : '';
+        return '<tr>' +
+        '<td class="check-col"><input type="checkbox" class="file-check row-check" data-r="' + i + '"' +
+            (canDelete ? checked : ' disabled') + ' title="' + escapeAttr(TL('Select file to delete', 'Pilih file untuk dihapus')) + '"></td>' +
         '<td class="num">' + (i + 1) + '</td>' +
-        '<td class="selectable" data-r="' + i + '" data-c="0">' + escapeHtml(r.name) + '</td>' +
-        '<td class="selectable" data-r="' + i + '" data-c="1">' + escapeHtml(r.path) + '</td>' +
-        '<td class="selectable" data-r="' + i + '" data-c="2"><span class="ext-badge" style="' +
+        '<td class="selectable" data-r="' + i + '" data-c="0"' +
+            (r.handle ? ' title="' + escapeAttr(TL('Double-click to rename this file', 'Klik 2× untuk rename file ini')) + '"' : '') + '>' + escapeHtml(r.name) + '</td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="1">' + escapeHtml(r.docNo) + '</td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="2">' + escapeHtml(r.rev) + '</td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="3"><span class="cross-badge ' +
+            structClass(r.struct) + '">' + escapeHtml(window.__structLabel(r.struct)) + '</span></td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="4">' + escapeHtml(r.path) + '</td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="5">' +
+            (canOpen ? '<a href="#" class="file-url open-file" data-r="' + i + '" title="' + escapeAttr(TL('Open file in new tab', 'Buka file di tab baru')) + '">' + escapeHtml(r.url) + '</a>' : escapeHtml(r.url)) + '</td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="6">' + escapeHtml(r.sizeText) + '</td>' +
+        '<td class="selectable" data-r="' + i + '" data-c="7"><span class="ext-badge" style="' +
             extStyle(r.ext) + '">' + escapeHtml(r.ext) + '</span></td>' +
-        '</tr>'
-      ).join('');
+        '<td class="selectable" data-r="' + i + '" data-c="8">' + dupCell(r) + '</td>' +
+        '<td class="action-col"><button type="button" class="row-delete" data-r="' + i + '"' +
+            (canDelete ? '' : ' disabled') + '>' + TL('Delete', 'Hapus') + '</button></td>' +
+        '</tr>';
+      }).join('');
     }
+    const seg = [];
+    seg.push(window.__sbItem('list', '<b>' + viewRows.length + '</b>' + TL(' of ', ' dari ') + allRows.length + TL(' files', ' file'), 'brand'));
+    if (hiddenCount > 0) seg.push(window.__sbItem('hidden', hiddenCount + TL(' helper files hidden', ' file bantuan disembunyikan'), ''));
+    if (allRows.length > 0) {
+      const ok = viewRows.filter(r => r.struct === 'Sesuai').length;
+      const wa = viewRows.filter(r => r.struct === 'Hampir Sesuai').length;
+      const no = viewRows.filter(r => r.struct === 'Tidak Sesuai').length;
+      seg.push(window.__sbItem('ok',   '<b>' + ok + '</b> ' + TL('compliant', 'sesuai'), 'ok'));
+      seg.push(window.__sbItem('warn', '<b>' + wa + '</b> ' + TL('almost', 'hampir'), 'warn'));
+      seg.push(window.__sbItem('no',   '<b>' + no + '</b> ' + TL('non-compliant', 'tidak sesuai'), 'no'));
+    }
+    if (dupGroupCount > 0) {
+      const extra = viewRows.filter(r => r.dupGroup && !r.dupKeep).length;
+      seg.push(window.__sbItem('dup', '<b>' + dupGroupCount + '</b>' + TL(' duplicate groups · ', ' grup duplikat · ') +
+                                      '<b>' + extra + '</b>' + TL(' non-KEEP', ' non-KEEP'), 'no'));
+    }
+    stats.innerHTML = seg.join('');
+    updateDeleteControls();
+  }
 
-    let s = 'Menampilkan ' + viewRows.length + ' dari ' + allRows.length + ' file';
-    if (hiddenCount > 0) s += ' • ' + hiddenCount + ' file bantuan disembunyikan';
-    stats.textContent = s;
+  // sel kolom Duplikat: "D3 · KEEP" (hijau) atau "D3 · Isi sama" (merah)
+  function dupCell(r) {
+    if (!r.dupGroup) return '';
+    const kind = r.dupKind === 'text' ? TL('Same PDF text', 'Teks PDF sama') : TL('Same content', 'Isi sama');
+    return '<span class="dup-badge ' + (r.dupKeep ? 'keep' : 'dup') + '" title="' +
+      escapeAttr(r.dupKeep
+        ? TL('Best-named copy in this group — kept', 'Salinan dengan penamaan terbaik di grup ini — dipertahankan')
+        : TL('Duplicate of the KEEP file in group D' + r.dupGroup, 'Duplikat dari file KEEP di grup D' + r.dupGroup)) + '">' +
+      '<span class="gid">D' + r.dupGroup + '</span>' +
+      escapeHtml(r.dupKeep ? 'KEEP' : kind) + '</span>';
   }
 
   function extStyle(ext) {
@@ -735,6 +1590,7 @@
 
   // ================= SELEKSI SEL (drag, shift+klik, copy) =================
   tableBody.addEventListener('mousedown', (e) => {
+    if (e.target.tagName === 'INPUT') return; // sedang rename — biarkan input bekerja normal
     const td = e.target.closest('td.selectable');
     if (!td) return;
     e.preventDefault();
@@ -780,7 +1636,7 @@
     });
     const n = rect ? (rect.r2 - rect.r1 + 1) * (rect.c2 - rect.c1 + 1) : 0;
     btnCopy.disabled = n === 0;
-    btnCopy.textContent = n > 1 ? ('📋 Copy (' + n + ' sel)') : '📋 Copy';
+    window.__btnLabel(btnCopy, n > 1 ? (TL('Copy', 'Salin') + ' (' + n + ')') : TL('Copy', 'Salin'));
   }
 
   function clearSelection() {
@@ -788,7 +1644,7 @@
     dragging = false;
     if (tableBody.querySelector('.sel')) paintSelection();
     btnCopy.disabled = true;
-    btnCopy.textContent = '📋 Copy';
+    window.__btnLabel(btnCopy, TL('Copy', 'Salin'));
   }
 
   function copySelection() {
@@ -829,10 +1685,815 @@
 
   btnCopy.addEventListener('click', copySelection);
 
+  tableBody.addEventListener('click', (e) => {
+    const openLink = e.target.closest('.open-file');
+    if (openLink) {
+      e.preventDefault();
+      const row = viewRows[+openLink.dataset.r];
+      if (row) openRowFile(row);
+      return;
+    }
+
+    const delBtn = e.target.closest('.row-delete');
+    if (delBtn) {
+      e.preventDefault();
+      const row = viewRows[+delBtn.dataset.r];
+      if (row) deleteRows([row], 'file ini');
+    }
+  });
+
+  tableBody.addEventListener('change', (e) => {
+    const cb = e.target.closest('.row-check');
+    if (!cb) return;
+    const row = viewRows[+cb.dataset.r];
+    if (!row) return;
+    const key = rowKey(row);
+    if (cb.checked) selectedDeleteKeys.add(key);
+    else selectedDeleteKeys.delete(key);
+    updateDeleteControls();
+  });
+
+  selectAllFiles.addEventListener('change', () => {
+    const rows = viewRows.filter(r => r.handle && r.parent);
+    rows.forEach(r => {
+      if (selectAllFiles.checked) selectedDeleteKeys.add(rowKey(r));
+      else selectedDeleteKeys.delete(rowKey(r));
+    });
+    render();
+  });
+
+  btnDeleteSelected.addEventListener('click', () => {
+    const rows = getSelectedDeleteRows();
+    deleteRows(rows, rows.length + ' file terpilih');
+  });
+
+  // ===== Pilih file berdasarkan daftar DOC NO dari register (dipanggil tabel register) =====
+  // Mencocokkan: nama file mengandung DOC NO, ATAU DOC NO hasil parse sama persis.
+  window.__auditSelectByDocNos = (docNos) => {
+    if (!allRows.length) { showToast(TL('⚠️ Generate a folder first in the Folder Table.', '⚠️ Generate folder dulu di Tabel Folder.')); return 0; }
+    const list = (docNos || []).map(d => String(d).trim().toLowerCase()).filter(Boolean);
+    if (!list.length) return 0;
+    selectedDeleteKeys.clear();
+    let count = 0;
+    allRows.forEach(r => {
+      if (!(r.handle && r.parent)) return;     // hanya file yang bisa diproses (mode Edge/Chrome)
+      const low = r.name.toLowerCase();
+      const dnLow = (r.docNo || '').toLowerCase();
+      if (list.some(d => low.includes(d) || (dnLow && dnLow === d))) {
+        selectedDeleteKeys.add(rowKey(r));
+        count++;
+      }
+    });
+    render();
+    updateDeleteControls();
+    return count;
+  };
+
+  // ================= SCAN ISI FILE (PDF) =================
+  // Deteksi file PDF yang teks halaman PERTAMA-nya memuat kata kunci (default
+  // "Submittal #" — lembar cover submittal Procore), lalu centang otomatis agar
+  // bisa langsung dipakai Hapus Terpilih / Pindahkan. Library pdf.js dimuat
+  // sekali dari CDN saat pertama dipakai (butuh internet, sama seperti XLSX).
+  const PDFJS_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js';
+  const PDFJS_WORKER_CDN = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+
+  function ensurePdfJs() {
+    return new Promise((resolve, reject) => {
+      if (window.pdfjsLib) return resolve();
+      const s = document.createElement('script');
+      s.src = PDFJS_CDN;
+      s.onload = () => {
+        window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS_WORKER_CDN;
+        resolve();
+      };
+      s.onerror = () => reject(new Error(TL('Failed to load the PDF library — internet needed the first time', 'Gagal memuat library PDF — butuh koneksi internet saat pertama kali')));
+      document.head.appendChild(s);
+    });
+  }
+
+  // teks halaman pertama saja — cukup untuk mengenali lembar cover & tetap cepat
+  async function firstPageText(file) {
+    const buf = await file.arrayBuffer();
+    const doc = await pdfjsLib.getDocument({ data: buf }).promise;
+    try {
+      const page = await doc.getPage(1);
+      const tc = await page.getTextContent();
+      return tc.items.map(it => it.str).join(' ');
+    } finally {
+      doc.destroy();
+    }
+  }
+
+  btnScanFile.addEventListener('click', async () => {
+    if (busy) return;
+    if (!allRows.length) { showToast(TL('⚠️ Pick a folder and click Generate first.', '⚠️ Pilih folder lalu klik Generate dulu.')); return; }
+    const kw = scanKeyword.value.trim();
+    if (!kw) { showToast(TL('⚠️ Type the keyword to detect first.', '⚠️ Isi dulu kata kunci yang mau dideteksi.')); return; }
+    // hanya file PDF yang sedang TAMPIL (mengikuti filter aktif tabel)
+    const targets = viewRows.filter(r => r.ext === 'pdf' && (r.handle || r.file));
+    if (!targets.length) { showToast(TL('⚠️ No PDF files in the current table view.', '⚠️ Tidak ada file PDF pada tampilan tabel saat ini.')); return; }
+
+    busy = true;
+    btnScanFile.disabled = true;
+    updateDeleteControls();
+    window.__tableLoading('audit', true, TL('Loading PDF library...', 'Memuat library PDF...'));
+    try {
+      await ensurePdfJs();
+    } catch (err) {
+      showToast('⚠️ ' + err.message);
+      window.__tableLoading('audit', false);
+      busy = false; btnScanFile.disabled = false;
+      updateDeleteControls();
+      return;
+    }
+
+    const kwLow = kw.toLowerCase();
+    const matched = [];
+    let errors = 0, done = 0;
+    const queue = targets.slice();
+    async function scanWorker() {
+      while (queue.length) {
+        const r = queue.shift();
+        try {
+          const file = r.handle ? await r.handle.getFile() : r.file;
+          const text = await firstPageText(file);
+          if (text.toLowerCase().includes(kwLow)) matched.push(r);
+        } catch (err) { errors++; }
+        done++;
+        window.__tableLoading('audit', true, TL('Scanning PDF ', 'Scan PDF ') + done + '/' + targets.length + '...');
+      }
+    }
+    // 3 file diproses paralel: cepat tanpa membebani memori
+    await Promise.all([scanWorker(), scanWorker(), scanWorker()]);
+
+    // centang hasil scan (menggantikan centang sebelumnya)
+    selectedDeleteKeys.clear();
+    let selectable = 0;
+    matched.forEach(r => { if (r.handle && r.parent) { selectedDeleteKeys.add(rowKey(r)); selectable++; } });
+
+    window.__tableLoading('audit', false);
+    busy = false;
+    btnScanFile.disabled = false;
+    render();
+    updateDeleteControls();
+
+    let msg = TL('🔍 ' + matched.length + ' of ' + targets.length + ' PDF files contain "' + kw + '"',
+                 '🔍 ' + matched.length + ' dari ' + targets.length + ' file PDF memuat "' + kw + '"');
+    if (selectable > 0) msg += TL(' — auto-checked, ready for Delete Selected / Move To', ' — sudah dicentang, siap Hapus Terpilih / Pindahkan');
+    else if (matched.length > 0) msg += TL(' (checking needs Edge/Chrome)', ' (centang butuh Edge/Chrome)');
+    if (errors > 0) msg += TL(' · ' + errors + ' file(s) failed to read', ' · ' + errors + ' file gagal dibaca');
+    showToast(msg);
+  });
+
+  // ================= DETEKSI DUPLIKAT FILE =================
+  // Duplikat ditentukan dari ISI file, bukan namanya. Bertahap supaya tidak
+  // membaca seluruh folder dari disk:
+  //   1. ukuran file   — dua file mustahil identik kalau ukurannya beda (tanpa I/O)
+  //   2. hash 64 KB awal — menyingkirkan mayoritas kandidat tanpa baca file penuh
+  //   3. SHA-256 penuh   — bukti duplikat byte-per-byte
+  //   4. hash teks PDF   — opsional; menangkap PDF yang di-save/print ulang
+  //                        (byte beda, isi sama). PDF tanpa layer teks (hasil
+  //                        scan) DILEWATI agar tidak dianggap kembar karena
+  //                        sama-sama kosong.
+  const DUP_HEAD_BYTES = 64 * 1024;
+  const DUP_MIN_TEXT   = 200;   // teks PDF di bawah ini dianggap bukan bukti yang cukup
+
+  async function sha256Hex(buf) {
+    const d = await crypto.subtle.digest('SHA-256', buf);
+    return Array.from(new Uint8Array(d)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  const fileOf = (r) => r.handle ? r.handle.getFile() : Promise.resolve(r.file);
+
+  // seluruh halaman + jumlah halaman ikut di-hash: dokumen dengan jumlah
+  // halaman berbeda tidak akan pernah masuk grup yang sama
+  async function pdfFullText(file) {
+    const doc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+    try {
+      const parts = ['p:' + doc.numPages];
+      for (let p = 1; p <= doc.numPages; p++) {
+        const tc = await doc.getPage(p).then(pg => pg.getTextContent());
+        parts.push(tc.items.map(it => it.str).join(' '));
+      }
+      return parts.join('\n');
+    } finally {
+      doc.destroy();
+    }
+  }
+
+  const normText = (s) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+
+  // Urutan KEEP: penamaan paling sesuai → paling dekat folder utama → nama terpendek.
+  const STRUCT_RANK = { 'Sesuai': 0, 'Hampir Sesuai': 1 };
+  function keepFirst(rows) {
+    return rows.slice().sort((a, b) =>
+      (STRUCT_RANK[a.struct] ?? 2) - (STRUCT_RANK[b.struct] ?? 2) ||
+      a.path.split('\\').length - b.path.split('\\').length ||
+      a.path.length - b.path.length ||
+      a.name.length - b.name.length ||
+      a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+    );
+  }
+
+  function clearDupMarks() {
+    allRows.forEach(r => { r.dupGroup = 0; r.dupKeep = false; r.dupKind = ''; r.dupLabel = ''; });
+    dupGroupCount = 0;
+  }
+
+  // label kolom Duplikat ditulis ulang tiap ganti bahasa
+  function refreshDupLabels() {
+    allRows.forEach(r => {
+      if (!r.dupGroup) { r.dupLabel = ''; return; }
+      const kind = r.dupKind === 'text' ? TL('Same PDF text', 'Teks PDF sama') : TL('Same content', 'Isi sama');
+      r.dupLabel = 'D' + r.dupGroup + ' · ' + (r.dupKeep ? 'KEEP' : kind);
+    });
+  }
+
+  btnFindDup.addEventListener('click', async () => {
+    if (busy) return;
+    if (!allRows.length) { showToast(TL('⚠️ Pick a folder and click Generate first.', '⚠️ Pilih folder lalu klik Generate dulu.')); return; }
+    if (!(window.crypto && crypto.subtle)) {
+      showToast(TL('⚠️ Duplicate detection needs Edge/Chrome (Web Crypto).', '⚠️ Deteksi duplikat butuh Edge/Chrome (Web Crypto).'));
+      return;
+    }
+    const deepPdf = dupMode.value === 'text';
+    // hanya file yang sedang TAMPIL (mengikuti filter aktif tabel), sama seperti Scan PDF
+    const targets = viewRows.filter(r => r.handle || r.file);
+    if (targets.length < 2) { showToast(TL('⚠️ Need at least 2 files in the current table view.', '⚠️ Butuh minimal 2 file pada tampilan tabel saat ini.')); return; }
+
+    busy = true;
+    btnFindDup.disabled = true;
+    updateDeleteControls();
+    clearDupMarks();
+
+    const groups = [];
+    let errors = 0, errSeq = 0, noText = 0;
+
+    // hash sebuah baris; kembalikan key unik saat gagal supaya file error tidak saling dikelompokkan
+    async function hashOf(r, headOnly) {
+      try {
+        const f = await fileOf(r);
+        const blob = headOnly ? f.slice(0, DUP_HEAD_BYTES) : f;
+        return await sha256Hex(await blob.arrayBuffer());
+      } catch (err) { errors++; return 'err:' + (++errSeq); }
+    }
+
+    const groupBy = async (rows, headOnly, onStep) => {
+      const m = new Map();
+      for (const r of rows) {
+        const k = await hashOf(r, headOnly);
+        if (!m.has(k)) m.set(k, []);
+        m.get(k).push(r);
+        if (onStep) onStep();
+      }
+      return [...m.values()].filter(g => g.length > 1);
+    };
+
+    try {
+      // --- Tahap 1: kelompokkan berdasarkan ukuran (tanpa baca disk) ---
+      const bySize = new Map();
+      targets.forEach(r => {
+        const k = r.size || 0;
+        if (!bySize.has(k)) bySize.set(k, []);
+        bySize.get(k).push(r);
+      });
+      const sizeGroups = [...bySize.values()].filter(g => g.length > 1);
+      const totalWork = sizeGroups.reduce((n, g) => n + g.length, 0);
+      let done = 0;
+      const step = () => {
+        done++;
+        window.__tableLoading('audit', true, TL('Comparing content ', 'Membandingkan isi ') + done + '/' + totalWork + '...');
+      };
+      window.__tableLoading('audit', true, TL('Comparing content...', 'Membandingkan isi file...'));
+
+      // --- Tahap 2 & 3: hash 64 KB awal, lalu hash penuh bila file besar ---
+      for (const g of sizeGroups) {
+        for (const sub of await groupBy(g, true, step)) {
+          if (sub[0].size <= DUP_HEAD_BYTES) { groups.push({ rows: sub, kind: 'byte' }); continue; }
+          for (const full of await groupBy(sub, false)) groups.push({ rows: full, kind: 'byte' });
+        }
+      }
+
+      // --- Tahap 4: teks PDF, hanya untuk PDF yang belum masuk grup mana pun ---
+      if (deepPdf) {
+        const taken = new Set();
+        groups.forEach(gr => gr.rows.forEach(r => taken.add(rowKey(r))));
+        const pdfs = targets.filter(r => r.ext === 'pdf' && !taken.has(rowKey(r)));
+        if (pdfs.length > 1) {
+          window.__tableLoading('audit', true, TL('Loading PDF library...', 'Memuat library PDF...'));
+          await ensurePdfJs();
+          const byText = new Map();
+          let n = 0;
+          for (const r of pdfs) {
+            try {
+              const t = normText(await pdfFullText(await fileOf(r)));
+              if (t.length < DUP_MIN_TEXT) { noText++; }
+              else {
+                const k = await sha256Hex(new TextEncoder().encode(t));
+                if (!byText.has(k)) byText.set(k, []);
+                byText.get(k).push(r);
+              }
+            } catch (err) { errors++; }
+            n++;
+            window.__tableLoading('audit', true, TL('Reading PDF text ', 'Membaca teks PDF ') + n + '/' + pdfs.length + '...');
+          }
+          [...byText.values()].filter(g => g.length > 1).forEach(g => groups.push({ rows: g, kind: 'text' }));
+        }
+      }
+    } catch (err) {
+      window.__tableLoading('audit', false);
+      busy = false; btnFindDup.disabled = false;
+      updateDeleteControls();
+      showToast('⚠️ ' + err.message);
+      return;
+    }
+
+    // --- Tandai grup & centang otomatis semua yang BUKAN KEEP ---
+    selectedDeleteKeys.clear();
+    let dupFiles = 0, selectable = 0;
+    groups.forEach((gr, i) => {
+      const ordered = keepFirst(gr.rows);
+      ordered.forEach((r, j) => {
+        r.dupGroup = i + 1;
+        r.dupKind = gr.kind;
+        r.dupKeep = (j === 0);
+        if (j > 0) {
+          dupFiles++;
+          if (r.handle && r.parent) { selectedDeleteKeys.add(rowKey(r)); selectable++; }
+        }
+      });
+    });
+    dupGroupCount = groups.length;
+    refreshDupLabels();
+
+    dupFilter.disabled = dupGroupCount === 0;
+    if (dupGroupCount === 0) dupFilter.value = '';
+
+    window.__tableLoading('audit', false);
+    busy = false;
+    btnFindDup.disabled = false;
+    render();
+    updateDeleteControls();
+
+    let msg;
+    if (dupGroupCount === 0) {
+      msg = TL('✅ No duplicate content found among ' + targets.length + ' files.',
+               '✅ Tidak ada duplikat isi di antara ' + targets.length + ' file.');
+    } else {
+      msg = TL('🔍 ' + dupGroupCount + ' duplicate group(s) · ' + dupFiles + ' file(s) beyond the KEEP copy',
+               '🔍 ' + dupGroupCount + ' grup duplikat · ' + dupFiles + ' file di luar salinan KEEP');
+      if (selectable > 0) msg += TL(' — auto-checked, ready for Delete Selected / Move To', ' — sudah dicentang, siap Hapus Terpilih / Pindahkan');
+      else msg += TL(' (checking needs Edge/Chrome)', ' (centang butuh Edge/Chrome)');
+    }
+    if (noText > 0) msg += TL(' · ' + noText + ' PDF(s) skipped, no text layer', ' · ' + noText + ' PDF dilewati, tanpa layer teks');
+    if (errors > 0) msg += TL(' · ' + errors + ' file(s) failed to read', ' · ' + errors + ' file gagal dibaca');
+    showToast(msg);
+  });
+
+  dupFilter.addEventListener('change', () => { clearSelection(); render(); });
+
+  // ===== Force Match: rename file folder mengikuti "Usulan Nama File" register =====
+  // pairs = [{docNo, suggest}] dari baris register sesuai filter aktif di tabel register.
+  // File dianggap cocok bila DOC NO hasil parse sama persis, ATAU nama file mengandung
+  // DOC NO tersebut (aturan sama dengan "Pilih File di Tabel Folder"). Ekstensi asli dipertahankan.
+  function sanitizeFileName(s) {
+    return String(s).replace(/[\\/:*?"<>|]/g, '-').replace(/\s+/g, ' ').trim().replace(/[. ]+$/, '');
+  }
+
+  window.__auditForceMatch = async (pairs) => {
+    if (busy) return;
+    if (!allRows.length) { showToast(TL('⚠️ Generate a folder first in the Folder Table.', '⚠️ Generate folder dulu di Tabel Folder.')); return; }
+    if (!dirHandle) { showToast(TL('⚠️ Force Match needs Edge/Chrome (File System Access).', '⚠️ Force Match butuh Edge/Chrome (File System Access).')); return; }
+
+    // peta DOC NO → usulan nama; DOC NO yang muncul dengan usulan BERBEDA dilewati (ambigu)
+    const map = new Map();
+    const ambiguous = new Set();
+    (pairs || []).forEach(p => {
+      const k = String(p.docNo || '').trim().toLowerCase();
+      const sg = sanitizeFileName(p.suggest || '');
+      if (!k || !sg) return;
+      if (map.has(k) && map.get(k) !== sg) ambiguous.add(k);
+      else if (!map.has(k)) map.set(k, sg);
+    });
+    ambiguous.forEach(k => map.delete(k));
+    if (map.size === 0) {
+      showToast(TL('⚠️ No usable DOC NO + Suggested File Name in the register filter.', '⚠️ Tidak ada DOC NO & Usulan Nama File yang bisa dipakai pada filter register.'));
+      return;
+    }
+    // key terpanjang dicek dulu supaya DOC NO yang saling berawalan tidak salah cocok
+    const keys = [...map.keys()].sort((a, b) => b.length - a.length);
+
+    // nama yang sudah terpakai per folder (untuk hindari bentrok nama saat rename)
+    const takenByFolder = new Map();
+    const takenSet = (path) => {
+      let s = takenByFolder.get(path);
+      if (!s) {
+        s = new Set();
+        allRows.forEach(r => { if (r.path === path) s.add(r.name.toLowerCase()); });
+        takenByFolder.set(path, s);
+      }
+      return s;
+    };
+
+    // susun rencana rename
+    const plan = [];
+    let already = 0;
+    allRows.forEach(r => {
+      if (!(r.handle && r.parent)) return;     // hanya file yang bisa diproses (mode Edge/Chrome)
+      const low = r.name.toLowerCase();
+      const dnLow = (r.docNo || '').toLowerCase();
+      const key = (dnLow && map.has(dnLow)) ? dnLow : keys.find(k => low.includes(k));
+      if (!key) return;
+      const dot = r.name.lastIndexOf('.');
+      const ext = dot > 0 ? r.name.slice(dot) : '';
+      let target = map.get(key) + ext;
+      if (target.toLowerCase() === low) { already++; return; } // sudah sesuai usulan
+      const taken = takenSet(r.path);
+      target = uniqueName(target, taken);
+      taken.add(target.toLowerCase());
+      plan.push({ row: r, target });
+    });
+
+    if (plan.length === 0) {
+      let info = TL('ℹ️ No files to rename', 'ℹ️ Tidak ada file yang perlu di-rename');
+      if (already > 0) info += TL(' — ' + already + ' already match', ' — ' + already + ' sudah sesuai');
+      if (ambiguous.size > 0) info += TL(', ' + ambiguous.size + ' duplicate DOC NO skipped', ', ' + ambiguous.size + ' DOC NO ganda dilewati');
+      showToast(info + '.');
+      return;
+    }
+
+    // konfirmasi — tindakan ini permanen
+    const preview = plan.slice(0, 10).map(p => '• ' + p.row.name + '\n    → ' + p.target).join('\n');
+    const more = plan.length > 10 ? '\n• ... ' + TL('and ' + (plan.length - 10) + ' more files', 'dan ' + (plan.length - 10) + ' file lainnya') : '';
+    const okConfirm = confirm(
+      TL('FORCE MATCH FILE NAME\n\n' + plan.length + ' file will be RENAMED to the register Suggested File Name (matching DOC NO, current register filter):',
+         'FORCE MATCH FILE NAME\n\n' + plan.length + ' file akan di-RENAME mengikuti Usulan Nama File register (DOC NO sama, sesuai filter register aktif):') +
+      '\n\n' + preview + more + '\n\n' +
+      TL('This CANNOT be undone. Continue?', 'Tindakan ini TIDAK BISA di-undo. Lanjutkan?')
+    );
+    if (!okConfirm) return;
+
+    let perm = 'prompt';
+    try {
+      perm = await dirHandle.requestPermission({ mode: 'readwrite' });
+    } catch (err) {
+      showToast('⚠️ ' + err.message);
+      return;
+    }
+    if (perm !== 'granted') {
+      showToast(TL('⚠️ Write permission denied — force match cancelled.', '⚠️ Izin tulis ditolak — force match dibatalkan.'));
+      return;
+    }
+
+    busy = true;
+    updateDeleteControls();
+    window.__tableLoading('audit', true, TL('Renaming files...', 'Me-rename file...'));
+    let renamedCount = 0;
+    const failures = [];
+    for (let i = 0; i < plan.length; i++) {
+      const p = plan[i];
+      stats.textContent = TL('⏳ Renaming file ', '⏳ Me-rename file ') + (i + 1) + ' / ' + plan.length + ' : ' + p.row.name;
+      try {
+        await renameFile(p.row, p.target);
+        renamedCount++;
+      } catch (err) {
+        failures.push(fileAddress(p.row.path, p.row.name) + ' → ' + err.message);
+      }
+    }
+
+    // refresh daftar file + crosscheck register
+    try {
+      const entries = await scanFSA();
+      processEntries(entries, { preserveView: true });
+    } catch (err) {
+      // fallback: perbarui field turunan dari nama baru tanpa scan ulang
+      allRows.forEach(r => {
+        const d = r.name.lastIndexOf('.');
+        r.ext = (d > 0 && d < r.name.length - 1) ? r.name.slice(d + 1).toLowerCase() : '(tanpa ext)';
+        r.url = fileAddress(r.path, r.name);
+        r.struct = checkStructure(r.name);
+        const dr = parseDocRev(r.name);
+        r.docNo = dr.docNo; r.rev = dr.rev;
+        r.search = (r.name + '\n' + r.path + '\n' + r.url + '\n' + r.sizeText + '\n' + r.ext).toLowerCase();
+      });
+      render();
+      if (window.__spRecrosscheck) window.__spRecrosscheck();
+    }
+    window.__tableLoading('audit', false);
+    busy = false;
+    updateDeleteControls();
+
+    let msg = TL('✅ ' + renamedCount + ' file(s) renamed to match the register', '✅ ' + renamedCount + ' file di-rename sesuai register');
+    if (already > 0) msg += TL(', ' + already + ' already matched', ', ' + already + ' sudah sesuai');
+    if (ambiguous.size > 0) msg += TL(', ' + ambiguous.size + ' duplicate DOC NO skipped', ', ' + ambiguous.size + ' DOC NO ganda dilewati');
+    if (failures.length > 0) {
+      msg += TL(' — ⚠️ ' + failures.length + ' failed (see console F12)', ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)');
+      console.warn('Force match gagal untuk file berikut:\n' + failures.join('\n'));
+    }
+    showToast(msg);
+  };
+
+  // ===== Move To: pindahkan file terpilih ke folder tujuan yang dipilih user =====
+  btnMoveTo.addEventListener('click', async () => {
+    if (busy) return;
+    const rows = getSelectedDeleteRows();
+    if (rows.length === 0) { showToast(TL('⚠️ No files selected.', '⚠️ Belum ada file yang dipilih.')); return; }
+    if (!('showDirectoryPicker' in window)) { showToast(TL('⚠️ Move To needs Edge/Chrome (File System Access).', '⚠️ Move To butuh Edge/Chrome (File System Access).')); return; }
+
+    let destDir;
+    try {
+      destDir = await window.showDirectoryPicker({ mode: 'readwrite' });
+    } catch (err) { return; } // user batal memilih folder
+
+    const okConfirm = confirm(
+      TL('MOVE ' + rows.length + ' file(s) to folder:', 'PINDAHKAN ' + rows.length + ' file ke folder:') + ' "' + destDir.name + '"\n\n' +
+      TL('If a name already exists in the destination, it will get a (2), (3)... suffix.\nContinue?',
+         'Jika nama sudah ada di folder tujuan, otomatis diberi akhiran (2), (3)...\nLanjutkan?')
+    );
+    if (!okConfirm) return;
+
+    try {
+      if ((await destDir.requestPermission({ mode: 'readwrite' })) !== 'granted') {
+        showToast(TL('⚠️ Write permission denied for destination.', '⚠️ Izin tulis folder tujuan ditolak.')); return;
+      }
+      if (dirHandle && (await dirHandle.requestPermission({ mode: 'readwrite' })) !== 'granted') {
+        showToast(TL('⚠️ Write permission denied for source.', '⚠️ Izin tulis folder sumber ditolak.')); return;
+      }
+    } catch (err) { showToast('⚠️ ' + err.message); return; }
+
+    busy = true;
+    updateDeleteControls();
+    window.__tableLoading('audit', true, TL('Moving files...', 'Memindahkan file...'));
+
+    // kumpulkan nama yang sudah ada di folder tujuan untuk deteksi bentrok
+    const taken = new Set();
+    try {
+      for await (const entry of destDir.values()) {
+        if (entry.kind === 'file') taken.add(entry.name.toLowerCase());
+      }
+    } catch (err) { /* abaikan; uniqueName tetap jalan */ }
+
+    let moved = 0, renamed = 0;
+    const movedKeys = new Set();
+    const failures = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      stats.textContent = TL('⏳ Moving file ', '⏳ Memindahkan file ') + (i + 1) + ' / ' + rows.length + ' : ' + row.name;
+      try {
+        const finalName = uniqueName(row.name, taken);
+        if (finalName !== row.name) renamed++;
+        await moveFileToDir(row, destDir, finalName);
+        taken.add(finalName.toLowerCase());
+        movedKeys.add(rowKey(row));
+        selectedDeleteKeys.delete(rowKey(row));
+        moved++;
+      } catch (err) {
+        failures.push(fileAddress(row.path, row.name) + ' → ' + err.message);
+      }
+    }
+
+    // refresh: scan ulang folder sumber (file yang dipindah sudah hilang dari sana)
+    try {
+      const entries = await scanFSA();
+      processEntries(entries, { preserveView: true });
+    } catch (err) {
+      allRows = allRows.filter(r => !movedKeys.has(rowKey(r)));
+      render();
+      if (window.__spRecrosscheck) window.__spRecrosscheck();
+    }
+    window.__tableLoading('audit', false);
+    busy = false;
+    updateDeleteControls();
+
+    let msg = TL('✅ ' + moved + ' file(s) moved to "' + destDir.name + '"', '✅ ' + moved + ' file dipindahkan ke "' + destDir.name + '"');
+    if (renamed > 0) msg += TL(', ' + renamed + ' renamed (name clash)', ', ' + renamed + ' di-rename karena nama sama');
+    if (failures.length > 0) {
+      msg += TL(' — ⚠️ ' + failures.length + ' failed (see console F12)', ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)');
+      console.warn('Move gagal untuk file berikut:\n' + failures.join('\n'));
+    }
+    showToast(msg);
+  });
+
+  // salin isi ke folder tujuan lalu hapus sumber (aman: hapus hanya setelah tulis sukses)
+  async function moveFileToDir(row, destDir, finalName) {
+    if (!row.handle || !row.parent) throw new Error('handle/parent tidak tersedia');
+    const srcFile = await row.handle.getFile();
+    const destHandle = await destDir.getFileHandle(finalName, { create: true });
+    const writable = await destHandle.createWritable();
+    await writable.write(srcFile);
+    await writable.close();
+    await row.parent.removeEntry(row.name);
+  }
+
+  async function openRowFile(row) {
+    try {
+      const file = row.handle ? await row.handle.getFile() : row.file;
+      if (!file) { showToast('⚠️ File tidak bisa dibuka dari sesi ini.'); return; }
+      const url = URL.createObjectURL(file);
+      const win = window.open(url, '_blank', 'noopener');
+      if (!win) showToast('⚠️ Popup diblokir browser — izinkan popup lalu ulangi.');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } catch (err) {
+      showToast('⚠️ Gagal membuka file: ' + err.message);
+    }
+  }
+
+  function getSelectedDeleteRows() {
+    return allRows.filter(r => selectedDeleteKeys.has(rowKey(r)) && r.handle && r.parent);
+  }
+
+  function updateDeleteControls() {
+    const selectableVisible = viewRows.filter(r => r.handle && r.parent);
+    const selectedRows = getSelectedDeleteRows();
+    btnDeleteSelected.disabled = selectedRows.length === 0 || busy;
+    window.__btnLabel(btnDeleteSelected, selectedRows.length > 0 ? (TL('Delete Selected', 'Hapus Terpilih') + ' (' + selectedRows.length + ')') : TL('Delete Selected', 'Hapus Terpilih'));
+    btnMoveTo.disabled = selectedRows.length === 0 || busy;
+    window.__btnLabel(btnMoveTo, selectedRows.length > 0 ? (TL('Move To...', 'Pindahkan ke...') + ' (' + selectedRows.length + ')') : TL('Move To...', 'Pindahkan ke...'));
+    selectAllFiles.disabled = selectableVisible.length === 0 || busy;
+    const visibleSelected = selectableVisible.filter(r => selectedDeleteKeys.has(rowKey(r))).length;
+    selectAllFiles.checked = selectableVisible.length > 0 && visibleSelected === selectableVisible.length;
+    selectAllFiles.indeterminate = visibleSelected > 0 && visibleSelected < selectableVisible.length;
+  }
+
+  async function deleteRows(rows, label) {
+    rows = rows.filter(r => r.handle && r.parent);
+    if (rows.length === 0 || busy) return;
+
+    const preview = rows.slice(0, 12).map(r => '• ' + fileAddress(r.path, r.name)).join('\n');
+    const more = rows.length > 12 ? '\n• ... dan ' + (rows.length - 12) + ' file lainnya' : '';
+    const okConfirm = confirm(
+      '⚠️ HAPUS ' + label + '\n\n' +
+      preview + more + '\n\n' +
+      'File akan dihapus permanen dari folder yang dipilih. Tindakan ini TIDAK BISA di-undo. Lanjutkan?'
+    );
+    if (!okConfirm) return;
+
+    let perm = 'prompt';
+    try {
+      perm = await dirHandle.requestPermission({ mode: 'readwrite' });
+    } catch (err) {
+      showToast('⚠️ Tidak bisa meminta izin tulis: ' + err.message);
+      return;
+    }
+    if (perm !== 'granted') {
+      showToast('⚠️ Izin tulis ditolak — hapus file dibatalkan.');
+      return;
+    }
+
+    busy = true;
+    updateDeleteControls();
+    window.__tableLoading('audit', true, TL('Deleting files...', 'Menghapus file...'));
+    let deleted = 0;
+    const deletedKeys = new Set();
+    const failures = [];
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      stats.textContent = '⏳ Menghapus file ' + (i + 1) + ' / ' + rows.length + ' : ' + row.name;
+      try {
+        const key = rowKey(row);
+        await row.parent.removeEntry(row.name);
+        selectedDeleteKeys.delete(key);
+        deletedKeys.add(key);
+        deleted++;
+      } catch (err) {
+        failures.push(fileAddress(row.path, row.name) + ' → ' + err.message);
+      }
+    }
+
+    try {
+      const entries = await scanFSA();
+      processEntries(entries, { preserveView: true });
+    } catch (err) {
+      allRows = allRows.filter(r => !deletedKeys.has(rowKey(r)));
+      render();
+      if (window.__spRecrosscheck) window.__spRecrosscheck();
+    }
+    window.__tableLoading('audit', false);
+    busy = false;
+    updateDeleteControls();
+
+    let msg = '✅ ' + deleted + ' file dihapus';
+    if (failures.length > 0) {
+      msg += ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)';
+      console.warn('Hapus file gagal untuk file berikut:\n' + failures.join('\n'));
+    }
+    showToast(msg);
+  }
+
+  // ================= RENAME FILE (klik 2× di kolom File Name) =================
+  let renaming = false;
+
+  tableBody.addEventListener('dblclick', (e) => {
+    const td = e.target.closest('td.selectable');
+    if (!td || td.dataset.c !== '0' || renaming || busy) return;
+    const row = viewRows[+td.dataset.r];
+    if (!row) return;
+    if (!row.handle) {
+      showToast('⚠️ Rename hanya bisa jika folder dipilih via Edge/Chrome (File System Access)');
+      return;
+    }
+    startRename(td, row);
+  });
+
+  function startRename(td, row) {
+    renaming = true;
+    clearSelection();
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = row.name;
+    td.classList.add('editing');
+    td.textContent = '';
+    td.appendChild(input);
+    input.focus();
+    const dot = row.name.lastIndexOf('.');
+    input.setSelectionRange(0, dot > 0 ? dot : row.name.length); // blok nama saja, extension tidak
+
+    let done = false;
+    const finish = () => { renaming = false; render(); };
+
+    const commit = async () => {
+      if (done) return;
+      done = true;
+      const newName = input.value.trim();
+      if (newName === '' || newName === row.name) { finish(); return; }
+      if (/[\\/:*?"<>|]/.test(newName)) {
+        showToast('⚠️ Nama file tidak boleh mengandung karakter \\ / : * ? " < > |');
+        finish(); return;
+      }
+      const clash = allRows.some(r => r !== row && r.path === row.path &&
+                                 r.name.toLowerCase() === newName.toLowerCase());
+      if (clash) {
+        showToast('⚠️ Sudah ada file bernama "' + newName + '" di folder yang sama');
+        finish(); return;
+      }
+      try {
+        const perm = await dirHandle.requestPermission({ mode: 'readwrite' });
+        if (perm !== 'granted') {
+          showToast('⚠️ Izin tulis ditolak — rename dibatalkan.');
+          finish(); return;
+        }
+        const oldName = row.name;
+        await renameFile(row, newName);
+        const d = newName.lastIndexOf('.');
+        row.ext = (d > 0 && d < newName.length - 1) ? newName.slice(d + 1).toLowerCase() : '(tanpa ext)';
+        row.url = fileAddress(row.path, row.name);
+        row.struct = checkStructure(newName);
+        const dr2 = parseDocRev(newName);
+        row.docNo = dr2.docNo; row.rev = dr2.rev;
+        row.search = (row.name + '\n' + row.path + '\n' + row.url + '\n' + row.sizeText + '\n' + row.ext).toLowerCase();
+        if (window.__spRecrosscheck) window.__spRecrosscheck();
+        showToast('✅ "' + oldName + '" di-rename menjadi "' + newName + '"');
+      } catch (err) {
+        showToast('⚠️ Gagal rename: ' + err.message);
+      }
+      finish();
+    };
+
+    input.addEventListener('keydown', (ev) => {
+      ev.stopPropagation();
+      if (ev.key === 'Enter') { ev.preventDefault(); commit(); }
+      if (ev.key === 'Escape') { done = true; finish(); }
+    });
+    input.addEventListener('blur', commit);
+  }
+
+  // rename fisik di disk: coba API move() dulu, kalau tidak didukung
+  // pakai cara aman: salin isi dengan nama baru → hapus file lama
+  async function renameFile(row, newName) {
+    const h = row.handle;
+    if (typeof h.move === 'function') {
+      try {
+        await h.move(newName);
+        row.name = newName;
+        return;
+      } catch (err) { /* lanjut ke metode salin+hapus */ }
+    }
+    const srcFile = await h.getFile();
+    const dest = await row.parent.getFileHandle(newName, { create: true });
+    const writable = await dest.createWritable();
+    await writable.write(srcFile);
+    await writable.close();
+    await row.parent.removeEntry(row.name);
+    row.handle = dest;
+    row.name = newName;
+  }
+
   // hooks agar section register (script di bawah) bisa berbagi toast &
   // saling membatalkan seleksi sel dengan tabel utama
   window.__mainClearSel = clearSelection;
   window.__toast = showToast;
+  // daftar nama file untuk crosscheck register (case ASLI dipertahankan —
+  // pencocokan revisi bersifat case-sensitive, DOC NO & kata "REV" tidak)
+  window.__getAuditFileNames = () => allRows.map(r => r.name);
+  // dipanggil Multi Table Search untuk memfilter ulang Tabel Folder
+  window.__auditApplyMulti = () => { clearSelection(); render(); };
+  // dipanggil saat bahasa diganti — render ulang seluruh teks dinamis tabel ini
+  window.__auditReloadUI = () => {
+    refreshDupLabels();
+    if (allRows.length) { buildTree(); render(); }
+    updateDeleteControls();
+    paintSelection();
+  };
 
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'c' &&
@@ -845,14 +2506,14 @@
 
   // ================= EXPORT CSV =================
   btnExport.addEventListener('click', () => {
-    const header = 'File Name,Folder Path,Extension\n';
+    const header = 'File Name,DOC NO,Revision Status,Struktur Nama,Folder Path,URL,File Size,Extension,Duplikat\n';
     const body = viewRows.map(r =>
-      [r.name, r.path, r.ext].map(v => '"' + v.replace(/"/g, '""') + '"').join(',')
+      [r.name, r.docNo, r.rev, r.struct, r.path, r.url, r.sizeText, r.ext, r.dupLabel].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')
     ).join('\n');
     const blob = new Blob(['﻿' + header + body], { type: 'text/csv;charset=utf-8;' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'file-audit-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.download = 'file-naming-convention-' + new Date().toISOString().slice(0, 10) + '.csv';
     a.click();
     URL.revokeObjectURL(a.href);
   });
@@ -878,24 +2539,76 @@
 <script>
 /* ================= SECTION: TARIK REGISTER EXCEL SHAREPOINT ================= */
 (function () {
+  // sheet yang otomatis dipilih PERTAMA KALI bila ada; user bebas ganti lewat dropdown Sheet
+  const TARGET_SHEET_NAME = 'MDR Procore Builder';
   const XLSX_CDN = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
 
+  // kolom yang TAMPIL secara default bila header-nya cocok; semua kolom lain
+  // tetap tersedia di dropdown Kolom dan bisa dicentang user kapan saja
+  const DEFAULT_VISIBLE_COLS = [
+    'COMPANY', 'DEPARTMENT', 'SUBAREA', 'BUILDING / SPECIFIC AREA', 'DOCUMENT TYPE',
+    'DISCIPLINE', 'DOC NO', 'DOCUMENT TITLE', 'REVISION STATUS', 'STAGE', 'STATUS',
+    'REVIEW POSITION', 'PLAN IFR REBASELINE-2', 'IFR 1ST SUBMIT', 'PLAN IFA REBASELINE-2',
+    'IFA 1ST SUBMIT', 'PLAN IFC REBASELINE-2', 'IFC 1ST SUBMIT', 'LATEST SUBMIT', 'REMARK'
+  ];
+
+  // kolom virtual: Crosscheck File (indeks 0) & Usulan Nama File (indeks 1)
+  const CROSS_HEADER = 'Crosscheck File';
+  const SUGGEST_HEADER = 'Suggested File Name';
+
+  const normCol = (s) => String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+  // label header (diterjemahkan) untuk kolom virtual; kolom asli apa adanya
+  function colHeaderLabel(h) {
+    if (h === CROSS_HEADER) return TL('Crosscheck File', 'Crosscheck File');
+    if (h === SUGGEST_HEADER) return TL('Suggested File Name', 'Usulan Nama File');
+    return h;
+  }
+
   let workbook = null;
+  let sheetNames = [];   // daftar sheet workbook aktif (untuk dropdown Sheet)
+  let currentSheet = ''; // sheet yang sedang ditampilkan
   let headers = [];      // judul kolom dari baris pertama sheet
-  let allRows = [];      // seluruh baris data (array of array string)
+  let allRows = [];      // { cells: string[], search: string }
   let viewRows = [];     // hasil filter + sort
   let sortCol = null, sortAsc = true;
   let companyCol = -1;   // indeks kolom "Company" di sheet aktif (-1 = tidak ada)
+  let companyValues = [];
+  let selectedCompanies = new Set();
+  let allowedCols = [];        // semua indeks kolom yang bisa dipilih di dropdown Kolom
+  let hiddenCols = new Set();  // indeks kolom yang disembunyikan (default: di luar daftar standar)
+  let visibleColIdx = [];      // peta: indeks tampilan -> indeks kolom asli
+  let colWidths = {};          // lebar kolom hasil resize user (key: indeks kolom / 'num')
+  let docSearchCols = [];      // indeks kolom no. dokumen & nama/judul utk pencarian khusus
+  // mapping kolom (bisa diubah user lewat dropdown Mapping Kolom, -1 = tidak dipakai):
+  // dipakai untuk Usulan Nama File, crosscheck, Multi Table Search & "Pilih File di Tabel Folder"
+  let mapDocNoCol = -1, mapRevCol = -1, mapTitleCol = -1;
+  let crossComputed = false;   // crosscheck sudah dihitung (folder & register sama-sama ada)
   let anchor = null, focusCell = null, dragging = false;
 
   const btnLocal   = document.getElementById('btnSpLocal');
   const spFileName = document.getElementById('spFileName');
-  const companySel = document.getElementById('spCompanySel');
+  const spSheetSelect = document.getElementById('spSheetSelect');
+  const mapDocNoSel = document.getElementById('mapDocNo');
+  const mapRevSel   = document.getElementById('mapRev');
+  const mapTitleSel = document.getElementById('mapTitle');
+  const companyMulti = document.getElementById('spCompanyMulti');
+  const companyBtn = document.getElementById('spCompanyBtn');
+  const companyMenu = document.getElementById('spCompanyMenu');
+  const companyAll = document.getElementById('spCompanyAll');
+  const companyOptions = document.getElementById('spCompanyOptions');
+  const colsMulti = document.getElementById('spColsMulti');
+  const colsBtn = document.getElementById('spColsBtn');
+  const colsMenu = document.getElementById('spColsMenu');
+  const colsAll = document.getElementById('spColsAll');
+  const colsOptions = document.getElementById('spColsOptions');
   const fileInput = document.getElementById('spFileInput');
-  const sheetSel  = document.getElementById('spSheetSel');
-  const spFilter  = document.getElementById('spFilter');
+  const spDocSearch = document.getElementById('spDocSearch');
+  const spCrossFilter = document.getElementById('spCrossFilter');
   const btnClear  = document.getElementById('btnSpClear');
   const btnCopy   = document.getElementById('btnSpCopy');
+  const btnSelectAudit = document.getElementById('btnSelectAudit');
+  const btnForceMatch = document.getElementById('btnForceMatch');
   const spHead    = document.getElementById('spHead');
   const spBody    = document.getElementById('spBody');
   const spStats   = document.getElementById('spStats');
@@ -920,45 +2633,119 @@
   fileInput.addEventListener('change', async () => {
     const f = fileInput.files[0];
     if (!f) return;
-    spStats.textContent = '⏳ Membaca ' + f.name + '...';
+    spStats.textContent = TL('⏳ Reading ', '⏳ Membaca ') + f.name + '...';
+    window.__tableLoading('reg', true, TL('Reading register: ', 'Membaca register: ') + f.name);
     try {
       await loadXLSX();
       const buf = await f.arrayBuffer();
+      await new Promise(r => setTimeout(r, 30)); // beri browser kesempatan menggambar overlay sebelum parsing berat
+      spFileName.textContent = f.name;
       openWorkbook(buf, f.name);
-      spFileName.textContent = '📄 ' + f.name;
     } catch (err) {
       spStats.textContent = '';
-      toastFn('⚠️ Gagal membaca file: ' + err.message);
+      toastFn(TL('⚠️ Failed to read file: ', '⚠️ Gagal membaca file: ') + err.message);
     }
+    window.__tableLoading('reg', false);
     fileInput.value = '';
   });
 
-  // ---------- Buka workbook & pilih sheet ----------
+  // ---------- Buka workbook: isi dropdown Sheet, default ke sheet target bila ada ----------
   function openWorkbook(buf, sourceName) {
     workbook = XLSX.read(new Uint8Array(buf), { type: 'array' });
-    if (!workbook.SheetNames.length) { toastFn('⚠️ File Excel tidak punya sheet.'); return; }
+    if (!workbook.SheetNames.length) {
+      resetSheetSelect();
+      resetRegisterView('File Excel tidak punya sheet.');
+      throw new Error('File Excel tidak punya sheet.');
+    }
 
-    sheetSel.innerHTML = workbook.SheetNames.map((n, i) =>
-      '<option value="' + i + '">📑 ' + escapeHtml(n) + '</option>').join('');
-    sheetSel.disabled = false;
+    sheetNames = workbook.SheetNames.slice();
+    spSheetSelect.innerHTML = sheetNames.map(n =>
+      '<option value="' + escapeAttr(n) + '">' + escapeHtml(n) + '</option>').join('');
+    spSheetSelect.disabled = false;
 
-    renderSheet(0);
-    toastFn('✅ Register dimuat dari ' + sourceName + ' (' + workbook.SheetNames.length + ' sheet)');
+    // sheet default: "MDR Procore Builder" bila ada, kalau tidak pakai sheet pertama
+    const def = findTargetSheetName(sheetNames) || sheetNames[0];
+    spSheetSelect.value = def;
+    renderSheet(def);
+    toastFn(TL('✅ Register loaded from ', '✅ Register dimuat dari ') + sourceName + ' — sheet ' + def);
+    return def;
   }
 
-  sheetSel.addEventListener('change', () => renderSheet(+sheetSel.value));
+  function resetSheetSelect() {
+    sheetNames = [];
+    currentSheet = '';
+    spSheetSelect.innerHTML = '<option value="">' + escapeHtml(TL('Pick an Excel file first', 'Pilih file Excel dulu')) + '</option>';
+    spSheetSelect.disabled = true;
+  }
 
-  function renderSheet(idx) {
-    const ws = workbook.Sheets[workbook.SheetNames[idx]];
+  // ---------- Ganti sheet dari dropdown ----------
+  spSheetSelect.addEventListener('change', () => {
+    if (!workbook || spSheetSelect.disabled) return;
+    const name = spSheetSelect.value;
+    if (!name || name === currentSheet) return;
+    window.__tableLoading('reg', true, TL('Reading sheet: ', 'Membaca sheet: ') + name);
+    setTimeout(() => { // beri browser kesempatan menggambar overlay sebelum parsing berat
+      try {
+        renderSheet(name);
+        toastFn(TL('✅ Sheet changed to ', '✅ Sheet diganti ke ') + name);
+      } catch (err) {
+        toastFn(TL('⚠️ Failed to read sheet: ', '⚠️ Gagal membaca sheet: ') + err.message);
+      }
+      window.__tableLoading('reg', false);
+    }, 30);
+  });
+
+  function findTargetSheetName(sheetNames) {
+    const target = normalizeSheetName(TARGET_SHEET_NAME);
+    return sheetNames.find(n => normalizeSheetName(n) === target) || null;
+  }
+
+  function normalizeSheetName(name) {
+    return String(name).trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
+  function resetRegisterView(message) {
+    headers = [];
+    allRows = [];
+    viewRows = [];
+    sortCol = null;
+    companyCol = -1;
+    companyValues = [];
+    selectedCompanies = new Set();
+    allowedCols = [];
+    hiddenCols = new Set();
+    visibleColIdx = [];
+    colWidths = {};
+    docSearchCols = [];
+    mapDocNoCol = mapRevCol = mapTitleCol = -1;
+    crossComputed = false;
+    spDocSearch.value = '';
+    spDocSearch.disabled = true;
+    spCrossFilter.value = '';
+    spCrossFilter.disabled = true;
+    btnClear.disabled = true;
+    btnSelectAudit.disabled = true;
+    btnForceMatch.disabled = true;
+    clearSel();
+    resetMappingControls();
+    resetCompanyControl(TL('Company not available', 'Company belum tersedia'));
+    resetColsControl(TL('Columns not available', 'Kolom belum tersedia'));
+    spHead.innerHTML = '';
+    spBody.innerHTML = '<tr><td class="empty" colspan="99">' + escapeHtml(message) + '</td></tr>';
+    spStats.innerHTML = '';
+  }
+
+  function renderSheet(sheetName) {
+    const ws = workbook.Sheets[sheetName];
+    currentSheet = sheetName;
     // raw:false = pakai teks terformat sesuai tampilan Excel (tanggal, angka, dll.)
     const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '', raw: false });
     const rows = aoa.filter(r => r.some(v => String(v).trim() !== ''));
 
     if (rows.length === 0) {
-      spHead.innerHTML = '';
-      spBody.innerHTML = '<tr><td class="empty" colspan="99">Sheet ini kosong.</td></tr>';
-      spStats.textContent = '';
-      return;
+      // dropdown Sheet TIDAK di-reset — user masih bisa pindah ke sheet lain
+      resetRegisterView('Sheet "' + sheetName + '" kosong.');
+      throw new Error('Sheet "' + sheetName + '" kosong.');
     }
 
     // baris pertama = judul kolom; samakan jumlah kolom di semua baris
@@ -969,60 +2756,432 @@
       headers.push(h || 'Kolom ' + (i + 1));
     }
     allRows = rows.slice(1).map(r => {
-      const out = [];
-      for (let i = 0; i < ncol; i++) out.push(String(r[i] == null ? '' : r[i]));
-      return out;
+      const cells = [];
+      for (let i = 0; i < ncol; i++) cells.push(String(r[i] == null ? '' : r[i]));
+      return { cells, search: cells.join('\n').toLowerCase() };
     });
 
-    // deteksi kolom "Company" lalu isi dropdown dengan nilai uniknya
+    // sisipkan 2 kolom virtual di depan → Crosscheck File (0), Usulan Nama File (1);
+    // kolom asli otomatis bergeser +2 (indeks di bawah dihitung setelah ini)
+    headers.unshift(SUGGEST_HEADER);
+    allRows.forEach(r => r.cells.unshift(''));
+    headers.unshift(CROSS_HEADER);
+    allRows.forEach(r => r.cells.unshift(''));
+
+    // auto-deteksi mapping kolom pembentuk nama file; user bisa mengubahnya
+    // lewat dropdown Mapping Kolom (Usulan Nama File & crosscheck ikut mapping ini)
+    mapDocNoCol = detectCol(['DOCUMENTNUMBER', 'DOCUMENTNO', 'DOCNUMBER', 'DOCNO']);
+    mapRevCol   = detectCol(['REVISION', 'REV', 'REVNO', 'REVISIONNO', 'REVISIONSTATUS']);
+    mapTitleCol = detectCol(['DOCUMENTTITLE', 'DRAWINGTITLE', 'DOCTITLE', 'TITLE', 'JUDUL']);
+    renderMappingControls();
+    recomputeSuggest();
+
+    selectedCompanies = new Set();
+    companyMenu.hidden = true;
     companyCol = headers.findIndex(h => h.toLowerCase().includes('company'));
     if (companyCol >= 0) {
-      const values = [...new Set(
-        allRows.map(r => r[companyCol].trim()).filter(v => v !== '')
+      companyValues = [...new Set(
+        allRows.map(r => r.cells[companyCol].trim()).filter(v => v !== '')
       )].sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
-      companySel.innerHTML = '<option value="">🏢 Semua Company</option>' +
-        values.map(v => '<option value="' + escapeAttr(v) + '">' + escapeHtml(v) + '</option>').join('');
-      companySel.disabled = false;
+      renderCompanyOptions();
     } else {
-      companySel.innerHTML = '<option value="">Kolom "Company" tidak ditemukan di sheet ini</option>';
-      companySel.disabled = true;
+      companyValues = [];
+      resetCompanyControl('Kolom "Company" tidak ditemukan');
     }
 
+    // SEMUA kolom bisa dipilih di dropdown Kolom; yang cocok dengan daftar
+    // standar (abaikan kapital, spasi/tanda baca, bentuk jamak) tampil default,
+    // sisanya default disembunyikan — kecuali tak ada satu pun yang cocok
+    const targets = DEFAULT_VISIBLE_COLS.map(normCol);
+    const isDefaultCol = (h) => {
+      const n = normCol(h);
+      return targets.some(t => n === t || n === t + 'S' || n + 'S' === t);
+    };
+    allowedCols = headers.map((_, i) => i);
+    hiddenCols = new Set();
+    if (headers.some((h, i) => i >= 2 && isDefaultCol(h))) {
+      headers.forEach((h, i) => { if (i >= 2 && !isDefaultCol(h)) hiddenCols.add(i); });
+    }
+    colsMenu.hidden = true;
+    renderColsOptions();
+
+    colWidths = {};
+    updateDocSearchCols();
+
     sortCol = null;
-    spFilter.value = '';
-    spFilter.disabled = false;
+    spDocSearch.value = '';
+    spDocSearch.disabled = false;
     btnClear.disabled = false;
+    btnSelectAudit.disabled = (mapDocNoCol < 0);
+    btnForceMatch.disabled = (mapDocNoCol < 0);
+    clearSel();
+    computeCrosscheck(); // isi kolom Crosscheck File (kalau folder sudah di-generate), lalu render
+  }
+
+  // cari kolom asli (indeks >= 2, setelah 2 kolom virtual) yang cocok kandidat header
+  function detectCol(candidates) {
+    for (let i = 2; i < headers.length; i++) {
+      if (candidates.includes(normCol(headers[i]))) return i;
+    }
+    return -1;
+  }
+
+  // isi ulang kolom "Usulan Nama File" (indeks 1) sesuai mapping aktif:
+  //   <Document Number>_REV <Revision>_<Document Title>
+  function recomputeSuggest() {
+    allRows.forEach(r => {
+      const dn    = mapDocNoCol >= 0 ? r.cells[mapDocNoCol].trim() : '';
+      const rev   = mapRevCol   >= 0 ? r.cells[mapRevCol].trim()   : '';
+      const title = mapTitleCol >= 0 ? r.cells[mapTitleCol].trim() : '';
+      r.cells[1] = dn ? (dn + '_REV ' + rev + '_' + title) : '';
+    });
+  }
+
+  // kolom sasaran pencarian dokumen: heuristik nama header + kolom hasil mapping
+  function updateDocSearchCols() {
+    docSearchCols = headers.reduce((acc, h, i) => {
+      if (i < 2) return acc;
+      const low = h.toLowerCase();
+      if (/\b(no|number|nomor|num)\b/.test(low) ||
+          /title|judul|name|nama|description|deskripsi/.test(low)) acc.push(i);
+      return acc;
+    }, []);
+    [mapDocNoCol, mapTitleCol].forEach(i => {
+      if (i >= 0 && !docSearchCols.includes(i)) docSearchCols.push(i);
+    });
+  }
+
+  // ---------- Dropdown Mapping Kolom ----------
+  function renderMappingControls() {
+    let opts = '<option value="-1">' + escapeHtml(TL('— Not used —', '— Tidak dipakai —')) + '</option>';
+    for (let i = 2; i < headers.length; i++) {
+      opts += '<option value="' + i + '">' + escapeHtml(headers[i]) + '</option>';
+    }
+    [mapDocNoSel, mapRevSel, mapTitleSel].forEach(sel => { sel.innerHTML = opts; sel.disabled = false; });
+    mapDocNoSel.value = String(mapDocNoCol);
+    mapRevSel.value   = String(mapRevCol);
+    mapTitleSel.value = String(mapTitleCol);
+  }
+
+  function resetMappingControls() {
+    [mapDocNoSel, mapRevSel, mapTitleSel].forEach(sel => {
+      sel.innerHTML = '<option value="-1">' + escapeHtml(TL('Pick an Excel file first', 'Pilih file Excel dulu')) + '</option>';
+      sel.value = '-1';
+      sel.disabled = true;
+    });
+  }
+
+  [mapDocNoSel, mapRevSel, mapTitleSel].forEach(sel => {
+    sel.addEventListener('change', () => {
+      if (sel.disabled || headers.length === 0) return;
+      mapDocNoCol = +mapDocNoSel.value;
+      mapRevCol   = +mapRevSel.value;
+      mapTitleCol = +mapTitleSel.value;
+      recomputeSuggest();
+      updateDocSearchCols();
+      btnSelectAudit.disabled = (mapDocNoCol < 0);
+      btnForceMatch.disabled = (mapDocNoCol < 0);
+      computeCrosscheck(); // hitung ulang crosscheck & search, lalu render ulang tabel
+    });
+  });
+
+  // ===== Pilih file di tabel File Audit berdasarkan DOC NO register (sesuai filter aktif) =====
+  btnSelectAudit.addEventListener('click', () => {
+    if (mapDocNoCol < 0) { toastFn(TL('⚠️ Set the Document Number column in Column Mapping first.', '⚠️ Atur kolom Document Number di Mapping Kolom dulu.')); return; }
+    const docNos = [...new Set(
+      viewRows.map(r => (r.cells[mapDocNoCol] || '').trim()).filter(Boolean)
+    )];
+    if (!docNos.length) { toastFn(TL('⚠️ No DOC NO in the current filter.', '⚠️ Tidak ada DOC NO pada filter aktif.')); return; }
+    const n = window.__auditSelectByDocNos ? window.__auditSelectByDocNos(docNos) : 0;
+    toastFn(TL('✅ ' + n + ' file(s) selected in the Folder Table (from ' + docNos.length + ' DOC NO).',
+               '✅ ' + n + ' file terpilih di Tabel Folder (dari ' + docNos.length + ' DOC NO).'));
+  });
+
+  // ===== Force Match: rename file folder mengikuti Usulan Nama File (DOC NO sama) =====
+  // pasangan diambil dari baris register yang LOLOS filter aktif (Company, status, pencarian)
+  btnForceMatch.addEventListener('click', () => {
+    if (mapDocNoCol < 0) { toastFn(TL('⚠️ Set the Document Number column in Column Mapping first.', '⚠️ Atur kolom Document Number di Mapping Kolom dulu.')); return; }
+    const pairs = [];
+    viewRows.forEach(r => {
+      const dn = (r.cells[mapDocNoCol] || '').trim();
+      const sg = (r.cells[1] || '').trim();
+      if (dn && sg) pairs.push({ docNo: dn, suggest: sg });
+    });
+    if (!pairs.length) { toastFn(TL('⚠️ No rows with DOC NO & Suggested File Name in the current filter.', '⚠️ Tidak ada baris dengan DOC NO & Usulan Nama File pada filter aktif.')); return; }
+    if (window.__auditForceMatch) window.__auditForceMatch(pairs);
+  });
+
+  // ---------- Crosscheck: cocokkan Document Number (sesuai mapping) dengan daftar file folder ----------
+  function computeCrosscheck() {
+    if (headers.length === 0) return;
+    const files = (window.__getAuditFileNames && window.__getAuditFileNames()) || [];
+
+    if (files.length === 0 || mapDocNoCol < 0) {
+      crossComputed = false;
+      allRows.forEach(r => { r.cells[0] = ''; });
+    } else {
+      crossComputed = true;
+      allRows.forEach(r => {
+        const dn = r.cells[mapDocNoCol].trim();
+        if (dn === '') { r.cells[0] = ''; return; }
+        const rev = mapRevCol >= 0 ? r.cells[mapRevCol].trim() : ''; // case ASLI — perbandingan revisi case-sensitive
+        // penilaian KETAT: DOC NO & REVISION STATUS dua-duanya harus cocok
+        //   'match'    → nama file persis "<DOC NO>_REV <REVISION STATUS>_..." (REV pakai spasi)
+        //   'mismatch' → DOC NO-nya ada di awal nama file tapi revisinya beda / penulisannya salah
+        //   'no'       → DOC NO tidak ditemukan sebagai field pertama nama file
+        let nMatch = 0, nDiff = 0;
+        for (const f of files) {
+          const st = crossFileState(f, dn, rev);
+          if (st === 'match') nMatch++;
+          else if (st === 'mismatch') nDiff++;
+        }
+        if (nMatch > 0) r.cells[0] = 'Ada di File (' + nMatch + ')';
+        else if (nDiff > 0) r.cells[0] = 'Nama File Tidak Cocok (' + nDiff + ')';
+        else r.cells[0] = 'Belum ada di File';
+      });
+    }
+    // filter status crosscheck hanya berguna bila crosscheck sudah terhitung
+    spCrossFilter.disabled = !crossComputed;
+    if (!crossComputed) spCrossFilter.value = '';
+    allRows.forEach(r => { r.search = r.cells.join('\n').toLowerCase(); });
     clearSel();
     renderTable();
   }
 
-  companySel.addEventListener('change', () => { clearSel(); renderTable(); });
+  // Cek KETAT nama file vs DOC NO + REVISION STATUS register.
+  // Struktur benar: "<DOC NO>_REV <REVISION STATUS>" tepat di AWAL nama file —
+  // sama dengan kriteria "Sesuai" di kolom Struktur Nama Tabel Folder:
+  //   - DOC NO & kata "REV"  : TIDAK case-sensitive ("REV"/"Rev"/"rev" sama saja)
+  //   - pemisah REV↔revisi   : WAJIB spasi — "REV_0"/"REV.0"/"REV-0" = penulisan salah
+  //   - token REVISION STATUS: CASE-SENSITIVE — register "a" vs file "REV A" → 'mismatch'
+  // Contoh 'match'    : "DF-LD-0100PM-G-96000-00_REV B_JUDUL.pdf"  (register rev "B")
+  // Contoh 'mismatch' : "DF-LD-0100PM-G-96000-00_Rev_B_JUDUL.pdf"  (pemisah bukan spasi)
+  //                     "DF-LD-0100PM-G-96000-00_IFA_REV B_..."    (ada "_IFA_" di antara)
+  //                     "DF-LD-0100PM-G-96000-00_REV C_..."        (revisinya beda)
+  // Contoh 'no'       : DOC NO tidak ada di awal nama file
+  function crossFileState(fname, docNo, rev) {
+    const dot = fname.lastIndexOf('.');
+    const base = dot > 0 ? fname.slice(0, dot) : fname;   // case asli untuk banding revisi
+    const baseLow = base.toLowerCase();
+    const dnLow = docNo.toLowerCase();
+    if (baseLow !== dnLow && !baseLow.startsWith(dnLow)) return 'no';
+    const rest = base.slice(docNo.length);                 // potongan case ASLI setelah DOC NO
+    // DOC NO harus utuh sebagai field pertama: setelahnya langsung habis atau non-alfanumerik
+    // (mencegah "…-4" dianggap ada di file "…-42_REV 0_…")
+    if (rest !== '' && /^[A-Za-z0-9]/.test(rest)) return 'no';
+    if (rev === '') {
+      // register tanpa revisi → cukup DOC NO sebagai field pertama
+      return (rest === '' || rest.charAt(0) === '_') ? 'match' : 'mismatch';
+    }
+    // penamaan SESUAI: "<DOC NO>_REV <rev>" lalu langsung '_' (atau akhir nama);
+    // pemisah kata "REV" dan token revisi wajib spasi, token dibanding case-sensitive
+    const m = rest.match(/^_[Rr][Ee][Vv]\s+([A-Za-z0-9]+)(?=_|$)/);
+    if (!m) return 'mismatch';
+    return (m[1] === rev) ? 'match' : 'mismatch';
+  }
+
+  // dipanggil tabel utama setiap daftar file berubah (Generate, flatten, rename)
+  window.__spRecrosscheck = computeCrosscheck;
+  // dipanggil Multi Table Search untuk memfilter ulang tabel register
+  window.__registerApplyMulti = () => { clearSel(); renderTable(); };
+  // dipanggil saat bahasa diganti — render ulang teks dinamis tabel register
+  window.__registerReloadUI = () => {
+    if (headers.length) { renderColsOptions(); renderCompanyOptions(); renderTable(); }
+  };
+
+  // ---------- Company multi-select ----------
+  companyBtn.addEventListener('click', () => {
+    if (companyBtn.disabled) return;
+    companyMenu.hidden = !companyMenu.hidden;
+  });
+
+  companyAll.addEventListener('change', () => {
+    selectedCompanies.clear();
+    syncCompanyControl();
+    clearSel();
+    renderTable();
+  });
+
+  companyOptions.addEventListener('change', (e) => {
+    const input = e.target.closest('input[data-company]');
+    if (!input) return;
+    if (input.checked) selectedCompanies.add(input.dataset.company);
+    else selectedCompanies.delete(input.dataset.company);
+    syncCompanyControl();
+    clearSel();
+    renderTable();
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!companyMulti.contains(e.target)) companyMenu.hidden = true;
+    if (!colsMulti.contains(e.target)) colsMenu.hidden = true;
+  });
+
+  // ---------- Pilihan kolom yang ditampilkan ----------
+  colsBtn.addEventListener('click', () => {
+    if (colsBtn.disabled) return;
+    colsMenu.hidden = !colsMenu.hidden;
+    companyMenu.hidden = true;
+  });
+
+  colsAll.addEventListener('change', () => {
+    hiddenCols.clear();
+    syncColsControl();
+    clearSel();
+    renderTable();
+  });
+
+  colsOptions.addEventListener('change', (e) => {
+    const input = e.target.closest('input[data-colidx]');
+    if (!input) return;
+    const idx = +input.dataset.colidx;
+    if (input.checked) hiddenCols.delete(idx);
+    else hiddenCols.add(idx);
+    // jangan biarkan semua kolom tersembunyi
+    if (hiddenCols.size === allowedCols.length) {
+      hiddenCols.delete(idx);
+      input.checked = true;
+      toastFn('⚠️ Minimal satu kolom harus tetap ditampilkan');
+      return;
+    }
+    syncColsControl();
+    clearSel();
+    renderTable();
+  });
+
+  function renderColsOptions() {
+    if (allowedCols.length === 0) {
+      resetColsControl(TL('Columns not available', 'Kolom belum tersedia'));
+      return;
+    }
+    colsBtn.disabled = false;
+    colsOptions.innerHTML = allowedCols.map(i =>
+      '<label class="sp-multi-option" for="spColsOpt' + i + '">' +
+        '<input type="checkbox" id="spColsOpt' + i + '" data-colidx="' + i + '" checked> ' +
+        '<span>' + escapeHtml(colHeaderLabel(headers[i])) + '</span>' +
+      '</label>'
+    ).join('');
+    syncColsControl();
+  }
+
+  function resetColsControl(label) {
+    colsBtn.disabled = true;
+    colsBtn.textContent = label;
+    colsMenu.hidden = true;
+    colsAll.checked = true;
+    colsOptions.innerHTML = '<div class="sp-multi-empty">' + escapeHtml(label) + '</div>';
+  }
+
+  function syncColsControl() {
+    if (colsBtn.disabled) return;
+    colsAll.checked = hiddenCols.size === 0;
+    colsOptions.querySelectorAll('input[data-colidx]').forEach(input => {
+      input.checked = !hiddenCols.has(+input.dataset.colidx);
+    });
+
+    if (hiddenCols.size === 0) {
+      colsBtn.textContent = TL('All Columns', 'Semua Kolom');
+    } else {
+      colsBtn.textContent = (allowedCols.length - hiddenCols.size) + TL(' of ', ' dari ') + allowedCols.length + TL(' columns', ' kolom');
+    }
+  }
+
+  function renderCompanyOptions() {
+    if (companyCol < 0) {
+      resetCompanyControl(TL('Column "Company" not found', 'Kolom "Company" tidak ditemukan'));
+      return;
+    }
+    if (companyValues.length === 0) {
+      resetCompanyControl(TL('Company empty', 'Company kosong'));
+      return;
+    }
+
+    companyBtn.disabled = false;
+    companyOptions.innerHTML = companyValues.map((v, i) =>
+      '<label class="sp-multi-option" for="spCompanyOpt' + i + '">' +
+        '<input type="checkbox" id="spCompanyOpt' + i + '" data-company="' + escapeAttr(v) + '"> ' +
+        '<span>' + escapeHtml(v) + '</span>' +
+      '</label>'
+    ).join('');
+    syncCompanyControl();
+  }
+
+  function resetCompanyControl(label) {
+    companyBtn.disabled = true;
+    companyBtn.textContent = label;
+    companyMenu.hidden = true;
+    companyAll.checked = true;
+    companyOptions.innerHTML = '<div class="sp-multi-empty">' + escapeHtml(label) + '</div>';
+  }
+
+  function syncCompanyControl() {
+    if (companyBtn.disabled) return;
+    companyAll.checked = selectedCompanies.size === 0;
+    companyOptions.querySelectorAll('input[data-company]').forEach(input => {
+      input.checked = selectedCompanies.has(input.dataset.company);
+    });
+
+    if (selectedCompanies.size === 0) {
+      companyBtn.textContent = TL('All Companies', 'Semua Company');
+    } else if (selectedCompanies.size === 1) {
+      companyBtn.textContent = [...selectedCompanies][0];
+    } else {
+      companyBtn.textContent = selectedCompanies.size + TL(' companies selected', ' Company dipilih');
+    }
+  }
 
   // ---------- Render tabel register ----------
   function renderTable() {
-    const q = spFilter.value.trim().toLowerCase();
-    const company = companySel.disabled ? '' : companySel.value;
+    const dq = spDocSearch.value.trim().toLowerCase();
+    const cf = spCrossFilter.value;
+    const mq = (window.__multiSearchTerm || '').trim().toLowerCase(); // Multi Table Search → Document Number
 
     viewRows = allRows.filter(r => {
-      if (company && r[companyCol].trim() !== company) return false;
-      if (q && !r.some(v => v.toLowerCase().includes(q))) return false;
+      if (selectedCompanies.size > 0 && !selectedCompanies.has(r.cells[companyCol].trim())) return false;
+      if (mq) {
+        const dnv = mapDocNoCol >= 0 ? r.cells[mapDocNoCol].toLowerCase() : r.search;
+        if (!dnv.includes(mq)) return false;
+      }
+      if (dq) {
+        // cari hanya di kolom no. dokumen & nama/judul; kalau tidak terdeteksi, cari di semua kolom
+        const hay = docSearchCols.length
+          ? docSearchCols.map(i => r.cells[i]).join('\n').toLowerCase()
+          : r.search;
+        if (!hay.includes(dq)) return false;
+      }
+      if (cf && crossComputed) {
+        const v = r.cells[0];
+        if (cf === 'ada'   && !v.startsWith('Ada')) return false;
+        if (cf === 'beda'  && !v.startsWith('Nama')) return false;
+        if (cf === 'belum' && !v.startsWith('Belum')) return false;
+      }
       return true;
     });
 
     if (sortCol !== null) {
       viewRows = viewRows.slice().sort((a, b) => {
-        const cmp = a[sortCol].localeCompare(b[sortCol], undefined, { numeric: true, sensitivity: 'base' });
+        const cmp = a.cells[sortCol].localeCompare(b.cells[sortCol], undefined, { numeric: true, sensitivity: 'base' });
         return sortAsc ? cmp : -cmp;
       });
     }
 
-    spHead.innerHTML = '<tr><th class="num">No</th>' + headers.map((h, i) =>
-      '<th data-col="' + i + '">' + escapeHtml(h) +
-      ' <span class="arrow">' + (sortCol === i ? (sortAsc ? '▲' : '▼') : '') + '</span></th>'
-    ).join('') + '</tr>';
+    visibleColIdx = allowedCols.filter(i => !hiddenCols.has(i));
+
+    spHead.innerHTML = '<tr><th class="num" style="width:' + (colWidths.num || 46) + 'px">No</th>' +
+      visibleColIdx.map(i =>
+        '<th data-col="' + i + '" style="width:' + (colWidths[i] || (headers[i] === SUGGEST_HEADER ? 360 : 160)) + 'px">' + escapeHtml(colHeaderLabel(headers[i])) +
+        ' <span class="arrow">' + (sortCol === i ? (sortAsc ? '▲' : '▼') : '') + '</span></th>'
+      ).join('') + '</tr>';
+
+    // pasang ulang resizer setiap render (header dibangun ulang), lebar disimpan di colWidths
+    window.__attachColResizers([...spHead.querySelectorAll('th')], (th, w) => {
+      if (th.dataset.col !== undefined) colWidths[+th.dataset.col] = w;
+      else if (th.classList.contains('num')) colWidths.num = w;
+    });
 
     spHead.querySelectorAll('th[data-col]').forEach(th => {
       th.addEventListener('click', () => {
+        if (window.__colResizeGuard) return; // abaikan click sisa drag resize
         const col = +th.dataset.col;
         if (sortCol === col) { sortAsc = !sortAsc; }
         else { sortCol = col; sortAsc = true; }
@@ -1032,25 +3191,47 @@
     });
 
     if (viewRows.length === 0) {
-      spBody.innerHTML = '<tr><td class="empty" colspan="99">Tidak ada baris yang cocok.</td></tr>';
+      spBody.innerHTML = '<tr><td class="empty" colspan="99">' + TL('No matching rows.', 'Tidak ada baris yang cocok.') + '</td></tr>';
     } else {
-      spBody.innerHTML = viewRows.map((r, ri) =>
+      spBody.innerHTML = viewRows.map((row, ri) =>
         '<tr><td class="num">' + (ri + 1) + '</td>' +
-        r.map((v, ci) =>
-          '<td class="selectable" data-r="' + ri + '" data-c="' + ci + '">' + escapeHtml(v) + '</td>'
-        ).join('') + '</tr>'
+        visibleColIdx.map((colIdx, ci) => {
+          const v = row.cells[colIdx];
+          let inner = escapeHtml(v);
+          if (colIdx === 0 && v !== '') { // kolom Crosscheck File: badge hijau/amber/merah
+            const cls = v.startsWith('Ada') ? 'ok' : (v.startsWith('Nama') ? 'warn' : 'no');
+            inner = '<span class="cross-badge ' + cls + '">' + escapeHtml(window.__crossLabel(v)) + '</span>';
+          }
+          return '<td class="selectable" data-r="' + ri + '" data-c="' + ci + '">' + inner + '</td>';
+        }).join('') + '</tr>'
       ).join('');
     }
 
-    spStats.textContent = 'Menampilkan ' + viewRows.length + ' dari ' + allRows.length +
-                          ' baris • ' + headers.length + ' kolom';
+    const seg = [];
+    seg.push(window.__sbItem('list', '<b>' + viewRows.length + '</b>' + TL(' of ', ' dari ') + allRows.length + TL(' rows', ' baris'), 'brand'));
+    const colTxt = (hiddenCols.size > 0 ? visibleColIdx.length + TL(' of ', ' dari ') + allowedCols.length : allowedCols.length) + TL(' columns', ' kolom');
+    seg.push(window.__sbItem('cols', colTxt, ''));
+    if (selectedCompanies.size > 0) seg.push(window.__sbItem('company', selectedCompanies.size + TL(' companies selected', ' company dipilih'), ''));
+    if (dq) seg.push(window.__sbItem('search', TL('doc search active', 'cari dokumen aktif'), ''));
+    if (crossComputed) {
+      const ada = viewRows.filter(r => r.cells[0].startsWith('Ada')).length;
+      const beda = viewRows.filter(r => r.cells[0].startsWith('Nama')).length;
+      const belum = viewRows.filter(r => r.cells[0].startsWith('Belum')).length;
+      seg.push(window.__sbItem('ok',   '<b>' + ada + '</b> ' + TL('match (No+Rev)', 'cocok (No+Rev)'), 'ok'));
+      seg.push(window.__sbItem('warn', '<b>' + beda + '</b> ' + TL('name mismatch', 'nama tidak cocok'), 'warn'));
+      seg.push(window.__sbItem('no',   '<b>' + belum + '</b> ' + TL('not in folder', 'belum ada'), 'no'));
+    }
+    spStats.innerHTML = seg.join('');
   }
 
   // ---------- Clear filter ----------
-  spFilter.addEventListener('input', () => { clearSel(); renderTable(); });
+  spDocSearch.addEventListener('input', () => { clearSel(); renderTable(); });
+  spCrossFilter.addEventListener('change', () => { clearSel(); renderTable(); });
   btnClear.addEventListener('click', () => {
-    spFilter.value = '';
-    if (!companySel.disabled) companySel.value = '';
+    spDocSearch.value = '';
+    spCrossFilter.value = '';
+    selectedCompanies.clear();
+    syncCompanyControl();
     clearSel();
     renderTable();
   });
@@ -1099,7 +3280,7 @@
     });
     const n = rect ? (rect.r2 - rect.r1 + 1) * (rect.c2 - rect.c1 + 1) : 0;
     btnCopy.disabled = n === 0;
-    btnCopy.textContent = n > 1 ? ('📋 Copy (' + n + ' sel)') : '📋 Copy';
+    window.__btnLabel(btnCopy, n > 1 ? (TL('Copy', 'Salin') + ' (' + n + ')') : TL('Copy', 'Salin'));
   }
 
   function clearSel() {
@@ -1107,7 +3288,7 @@
     dragging = false;
     spBody.querySelectorAll('td.sel').forEach(td => td.classList.remove('sel'));
     btnCopy.disabled = true;
-    btnCopy.textContent = '📋 Copy';
+    window.__btnLabel(btnCopy, TL('Copy', 'Salin'));
   }
   window.__spClearSel = clearSel; // dipanggil tabel utama saat mulai seleksi di sana
 
@@ -1118,12 +3299,12 @@
     const lines = [];
     for (let r = rect.r1; r <= rect.r2; r++) {
       const cells = [];
-      for (let c = rect.c1; c <= rect.c2; c++) cells.push(viewRows[r][c]);
+      for (let c = rect.c1; c <= rect.c2; c++) cells.push(viewRows[r].cells[visibleColIdx[c]]);
       lines.push(cells.join('\t'));
     }
     const text = lines.join('\n');
-    const ok   = () => toastFn('✅ ' + lines.length + ' baris register tersalin — paste (Ctrl+V) di Excel');
-    const fail = () => toastFn('⚠️ Gagal menyalin ke clipboard — coba klik halaman dulu lalu ulangi');
+    const ok   = () => toastFn(TL('✅ ' + lines.length + ' register rows copied — paste (Ctrl+V) in Excel', '✅ ' + lines.length + ' baris register tersalin — paste (Ctrl+V) di Excel'));
+    const fail = () => toastFn(TL('⚠️ Failed to copy to clipboard — click the page first then retry', '⚠️ Gagal menyalin ke clipboard — coba klik halaman dulu lalu ulangi'));
 
     const legacyCopy = () => {
       const ta = document.createElement('textarea');
@@ -1156,7 +3337,11 @@
       e.preventDefault();
       copySel();
     }
-    if (e.key === 'Escape') clearSel();
+    if (e.key === 'Escape') {
+      companyMenu.hidden = true;
+      colsMenu.hidden = true;
+      clearSel();
+    }
   });
 
   function escapeHtml(s) {
@@ -1165,6 +3350,37 @@
   function escapeAttr(s) {
     return escapeHtml(s).replace(/"/g, '&quot;');
   }
+})();
+</script>
+
+<script>
+/* ===== Tombol clear (×) untuk semua input pencarian ===== */
+(function () {
+  document.querySelectorAll('.searchwrap').forEach(wrap => {
+    const input = wrap.querySelector('input');
+    const clr = wrap.querySelector('.search-clear');
+    if (!input || !clr) return;
+    clr.addEventListener('mousedown', e => e.preventDefault()); // cegah input kehilangan fokus
+    clr.addEventListener('click', () => {
+      input.value = '';
+      input.dispatchEvent(new Event('input', { bubbles: true })); // picu filter/render
+      input.focus();
+    });
+  });
+})();
+</script>
+
+<script>
+/* ===== Multi Table Search: filter kedua tabel sekaligus =====
+   Tabel Folder → berdasarkan File Name; Register → berdasarkan Document Number */
+(function () {
+  const box = document.getElementById('multiSearch');
+  if (!box) return;
+  box.addEventListener('input', () => {
+    window.__multiSearchTerm = box.value;
+    if (window.__auditApplyMulti) window.__auditApplyMulti();
+    if (window.__registerApplyMulti) window.__registerApplyMulti();
+  });
 })();
 </script>
 </body>
