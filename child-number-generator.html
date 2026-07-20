@@ -218,7 +218,10 @@
     width: 44px; min-width: 44px; font-size: 11px; font-weight: 700;
     position: sticky; left: 0; z-index: 1; cursor: pointer;
   }
-  .sheet td.selcell { background: rgba(99,102,241,.16); }
+  .sheet td.selcell { background: rgba(99,102,241,.16); box-shadow: inset 0 0 0 1px rgba(99,102,241,.45); }
+  /* grid hasil: tidak diedit, jadi seleksi teks bawaan dimatikan agar blok sel bersih */
+  .sheet tbody.ro td { -webkit-user-select: none; user-select: none; cursor: cell; }
+  .sheet tbody.ro td.rownum { cursor: pointer; }
   .sheet td.bad { background: #fee2e2; color: #991b1b; }
   html[data-theme="dark"] .sheet td.bad { background: #4c1d24; color: #fecaca; }
   .sheet td.added { box-shadow: inset 3px 0 0 var(--green); }
@@ -313,7 +316,9 @@
         <span class="count-chip" id="m1Count2">0</span>
       </div>
       <div class="grid-wrap"><table class="sheet"><thead><tr id="m1Head"></tr></thead><tbody id="m1Body"></tbody></table></div>
+      <div class="note" data-i18n="selHint">Blok sel dengan klik-seret (klik nomor baris = 1 baris, klik judul kolom = 1 kolom), lalu Ctrl+C atau tombol Salin Terpilih — siap di-paste ke Excel.</div>
       <div class="toolbar">
+        <button class="btn-alt" id="m1CopySel" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copySel">Salin Terpilih</span></button>
         <button class="btn-alt" id="m1Copy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copyAll">Salin Semua</span></button>
         <button class="btn-csv" id="m1Csv" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportCsv">Export CSV</span></button>
       </div>
@@ -343,7 +348,9 @@
         <span class="count-chip" id="m2Count">0</span>
       </div>
       <div class="grid-wrap"><table class="sheet"><thead><tr id="m2OutHead"></tr></thead><tbody id="m2OutBody"></tbody></table></div>
+      <div class="note" data-i18n="selHint">Blok sel dengan klik-seret (klik nomor baris = 1 baris, klik judul kolom = 1 kolom), lalu Ctrl+C atau tombol Salin Terpilih — siap di-paste ke Excel.</div>
       <div class="toolbar">
+        <button class="btn-alt" id="m2CopySel" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copySel">Salin Terpilih</span></button>
         <button class="btn-alt" id="m2Copy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copyAll">Salin Semua</span></button>
         <button class="btn-csv" id="m2Csv" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportCsv">Export CSV</span></button>
       </div>
@@ -385,7 +392,8 @@
       m2InTitle: 'Tabel Input', m2OutTitle: 'Tabel Output',
       m2Note: 'Kolom kiri diisi nomor, kolom kanan diisi <b>Parent</b> atau <b>Child</b> — bisa di-paste langsung dari Excel. Saat Generate, tiap baris Child yang kosong diisi berurutan dari rentang parent di atasnya. Baris Child yang sudah ada isinya tidak ditimpa.',
       generate: 'Generate', clear: 'Bersihkan', addRows: '+ 10 Baris',
-      copyAll: 'Salin Semua', exportCsv: 'Export CSV',
+      copyAll: 'Salin Semua', copySel: 'Salin Terpilih', exportCsv: 'Export CSV',
+      selHint: 'Blok sel dengan klik-seret (klik nomor baris = 1 baris, klik judul kolom = 1 kolom), lalu Ctrl+C atau tombol Salin Terpilih — siap di-paste ke Excel.',
       colNumber: 'Document Number', colHier: 'Hierarchy', colNo: '#',
       parent: 'Parent', child: 'Child',
       rowsWord: 'baris',
@@ -434,7 +442,8 @@
       m2InTitle: 'Input Table', m2OutTitle: 'Output Table',
       m2Note: 'Left column holds the number, right column holds <b>Parent</b> or <b>Child</b> — you can paste straight from Excel. On Generate, every empty Child row is filled in sequence from the parent range above it. Child rows that already have a value are never overwritten.',
       generate: 'Generate', clear: 'Clear', addRows: '+ 10 Rows',
-      copyAll: 'Copy All', exportCsv: 'Export CSV',
+      copyAll: 'Copy All', copySel: 'Copy Selected', exportCsv: 'Export CSV',
+      selHint: 'Select cells by click-dragging (click a row number for the whole row, a column title for the whole column), then Ctrl+C or the Copy Selected button — ready to paste into Excel.',
       colNumber: 'Document Number', colHier: 'Hierarchy', colNo: '#',
       parent: 'Parent', child: 'Child',
       rowsWord: 'rows',
@@ -587,7 +596,11 @@
   function makeSheet(headEl, bodyEl, cfg) {
     const cols = cfg.cols;                 // [{key, cls}]
     const editable = !!cfg.editable;
-    let sel = null, dragging = false;
+    let sel = null, dragging = false, api = null;
+    // grid hasil tidak bisa diedit: matikan seleksi teks bawaan browser supaya
+    // yang terlihat hanya blok sel, bukan sorotan teks yang belang-belang
+    if (!editable) bodyEl.classList.add('ro');
+    const focus = () => { if (cfg.onFocus) cfg.onFocus(api); };
 
     function buildHead() {
       headEl.innerHTML = '';
@@ -598,7 +611,7 @@
         const th = document.createElement('th');
         th.className = 'colhead';
         th.textContent = TR(c.key);
-        th.addEventListener('click', (e) => selectCol(i, e.shiftKey));
+        th.addEventListener('click', (e) => { focus(); selectCol(i, e.shiftKey); });
         headEl.appendChild(th);
       });
     }
@@ -622,6 +635,7 @@
       bodyEl.innerHTML = '';
       sel = null;
       for (let i = 0; i < (n || 0); i++) addRow();
+      if (cfg.onSelChange) cfg.onSelChange(api);
     }
     function read() {
       const out = [];
@@ -646,6 +660,14 @@
           tr.cells[c].classList.toggle('selcell', on);
         }
       }
+      if (cfg.onSelChange) cfg.onSelChange(api);
+    }
+    function clearSel() { sel = null; paint(); }
+    function selCount() {
+      if (!sel) return 0;
+      const n = norm(sel);
+      const rows = Math.min(n.r2, bodyEl.rows.length - 1) - n.r1 + 1;
+      return Math.max(0, rows) * (n.c2 - n.c1 + 1);
     }
     function selectRow(r, ext) {
       if (ext && sel) { sel.r2 = r; sel.c1 = 0; sel.c2 = cols.length - 1; }
@@ -672,9 +694,11 @@
 
     bodyEl.addEventListener('mousedown', (e) => {
       const td = e.target.closest('td'); if (!td) return;
+      focus();
       if (td.classList.contains('rownum')) {
         e.preventDefault(); selectRow(td.parentElement.sectionRowIndex, e.shiftKey); return;
       }
+      if (!editable) e.preventDefault();   // cegah seleksi teks bawaan di grid hasil
       const c = td.cellIndex - 1, r = td.parentElement.sectionRowIndex;
       if (e.shiftKey && sel) { sel.r2 = r; sel.c2 = c; paint(); return; }
       dragging = true; sel = { r1: r, c1: c, r2: r, c2: c }; paint();
@@ -704,12 +728,13 @@
       bodyEl.addEventListener('input', () => { if (cfg.onChange) cfg.onChange(); });
     }
 
-    return {
+    api = {
       buildHead, addRow, ensureRows, cell, reset, read, isEmpty, paint,
       rowCount: () => bodyEl.rows.length,
-      selText, hasSel: () => !!sel,
+      selText, clearSel, selCount, hasSel: () => selCount() > 0,
       body: bodyEl
     };
+    return api;
   }
 
   /* =====================================================================
@@ -759,9 +784,28 @@
   /* =====================================================================
      MODE 1 — satu parent
      ===================================================================== */
-  const m1Out = makeSheet($('m1Head'), $('m1Body'), {
+  /* Seleksi hanya boleh hidup di SATU grid. Tanpa ini seleksi lama di grid lain
+     ikut terbaca dan Ctrl+C menyalin dari tabel yang salah. */
+  let activeSheet = null;
+  function focusSheet(s) {
+    if (activeSheet && activeSheet !== s) activeSheet.clearSel();
+    activeSheet = s;
+    syncSelBtns();
+  }
+  function syncSelBtns() {
+    [['m1CopySel', m1Out], ['m2CopySel', m2Out]].forEach(([id, sheet]) => {
+      const btn = $(id); if (!btn || !sheet) return;
+      const n = (activeSheet === sheet) ? sheet.selCount() : 0;
+      btn.disabled = n === 0;
+      btn.querySelector('span:last-child').textContent = n > 0
+        ? TR('copySel') + ' (' + n + ')' : TR('copySel');
+    });
+  }
+  const selCfg = { onFocus: focusSheet, onSelChange: () => syncSelBtns() };
+
+  const m1Out = makeSheet($('m1Head'), $('m1Body'), Object.assign({
     cols: [{ key: 'colNumber', cls: 'numcol' }, { key: 'colHier' }]
-  });
+  }, selCfg));
   let m1Parsed = null;
   let m1Rows = [];
 
@@ -869,13 +913,13 @@
      MODE 2 — tabel input ke tabel output
      ===================================================================== */
   const M2_ROWS = 14;
-  const m2In = makeSheet($('m2InHead'), $('m2InBody'), {
+  const m2In = makeSheet($('m2InHead'), $('m2InBody'), Object.assign({
     cols: [{ key: 'colNumber', cls: 'numcol' }, { key: 'colHier' }],
     editable: true
-  });
-  const m2Out = makeSheet($('m2OutHead'), $('m2OutBody'), {
+  }, selCfg));
+  const m2Out = makeSheet($('m2OutHead'), $('m2OutBody'), Object.assign({
     cols: [{ key: 'colNumber', cls: 'numcol' }, { key: 'colHier' }]
-  });
+  }, selCfg));
   let m2Rows = [];
 
   // "Parent"/"Child" ditulis bebas: P/C, Induk/Anak, huruf besar-kecil apa saja
@@ -992,15 +1036,27 @@
     downloadCsv(m2Rows.map(r => [r[0], r[1] ? TR(r[1]) : '']), 'child-numbers-table');
   });
 
-  // Ctrl+C menyalin blok sel yang diblok di grid mana pun
+  // Ctrl+C menyalin blok sel dari grid yang TERAKHIR diklik
   document.addEventListener('keydown', (e) => {
     if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === 'c') {
-      const sheets = [m1Out, m2In, m2Out].filter(s => s.hasSel());
-      if (!sheets.length) return;
-      const txt = sheets[0].selText();
+      if (!activeSheet || !activeSheet.hasSel()) return;
+      // Sedang menyorot teks DI DALAM sel yang diedit: biarkan browser yang
+      // menyalin teks itu. Diperiksa lewat rentang seleksi, bukan activeElement,
+      // supaya tidak bergantung pada dukungan isContentEditable.
+      const ws = window.getSelection();
+      if (ws && ws.rangeCount && !ws.isCollapsed) {
+        const a = ws.anchorNode;
+        const el = a && (a.nodeType === 1 ? a : a.parentElement);
+        if (el && el.closest && el.closest('td[contenteditable]')) return;
+      }
+      const txt = activeSheet.selText();
       if (txt) { e.preventDefault(); copyText(txt); }
     }
+    // Esc membatalkan blok seleksi
+    if (e.key === 'Escape' && activeSheet) { activeSheet.clearSel(); syncSelBtns(); }
   });
+  $('m1CopySel').addEventListener('click', () => copyText(m1Out.selText()));
+  $('m2CopySel').addEventListener('click', () => copyText(m2Out.selText()));
 
   /* =====================================================================
      TAB, BAHASA, TEMA
@@ -1044,6 +1100,7 @@
     }), { minRows: M2_ROWS });
     if (m1Rows.length) $('m1Count2').textContent = (m1Rows.length - 1) + ' ' + TR('child');
     if (m2Rows.length) $('m2Count').textContent = m2Rows.length + ' ' + TR('rowsWord');
+    syncSelBtns();   // label tombol Salin Terpilih ikut bahasa aktif
   }
   function updateLangLabels() {
     $('labID').classList.toggle('on', lang === 'id');
