@@ -40,6 +40,8 @@
     --td-line: #f1f5f9;
     --menu-bg: #ffffff;
     --overlay: rgba(244,246,250,.62);
+    --panel-inner: #f8fafc;   /* kartu di dalam tool-panel: sedikit beda dari --card */
+    --tip-bg: #0f172a;
   }
   html[data-theme="dark"] {
     --bg: #0b1220;
@@ -62,6 +64,8 @@
     --td-line: #212c46;
     --menu-bg: #172136;
     --overlay: rgba(11,18,32,.62);
+    --panel-inner: #0f1728;
+    --tip-bg: #263248;
     --brand: #ffffff;   /* ikon & teks brand jadi putih di dark theme agar lebih terlihat */
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -134,8 +138,100 @@
     font-size: 12px; font-weight: 700; letter-spacing: .6px;
     text-transform: uppercase; color: var(--muted);
   }
-  .panel-card button { width: 100%; justify-content: center; }
+  /* tombol biasa memenuhi lebar kartu; tombol ikon & ✕ tetap seukuran dirinya */
+  .panel-card button:not(.icon-btn):not(.pc-x) { width: 100%; justify-content: center; }
   .panel-card .sp-multi-btn { justify-content: space-between; }
+
+  /* ---------- Panel kontrol: satu kartu berbingkai per section ---------- */
+  .tool-panel {
+    display: flex; gap: 14px; align-items: flex-start; min-width: 0;
+    background: var(--card); border: 1px solid var(--line);
+    border-radius: 16px; padding: 14px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
+  }
+  .tp-left  { flex: 0 0 292px; min-width: 0; display: flex; flex-direction: column; gap: 11px; }
+  .tp-right { flex: 1 1 0;     min-width: 0; display: flex; flex-direction: column; gap: 11px; }
+  .tp-head { display: flex; align-items: center; gap: 8px; min-width: 0; }
+  .tp-head > input, .tp-head > .sp-filename { flex: 1 1 auto; min-width: 0; margin: 0; }
+  .tp-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  /* tombol berteks di baris aksi: melar secukupnya, jangan sampai memanjang aneh */
+  .tp-actions > button:not(.icon-btn) { flex: 0 1 auto; max-width: 330px; justify-content: center; }
+  /* kartu di DALAM tool-panel: rata, tanpa bayangan bertumpuk */
+  .tool-panel .panel-card, .tool-panel .sidebar {
+    background: var(--panel-inner); border: 1px solid var(--line);
+    box-shadow: none; border-radius: 10px;
+  }
+  .tool-panel .sidebar { max-height: 232px; }
+  .tool-panel .sidebar .sb-title { background: var(--panel-inner); }
+  /* judul kartu + tombol ✕ (bersihkan filter) di pojok kanan */
+  .pc-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .pc-x {
+    width: 22px; height: 22px; flex-shrink: 0; padding: 0; border-radius: 6px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: transparent !important; box-shadow: none !important; color: #ef4444;
+  }
+  .pc-x:hover:not(:disabled) { background: var(--hover) !important; transform: none; }
+  .pc-x:disabled { background: transparent !important; color: var(--muted); opacity: .38; }
+
+  /* ---------- Tombol ikon: label pindah ke tooltip ---------- */
+  .icon-btn {
+    width: 38px; height: 38px; padding: 0; flex-shrink: 0;
+    justify-content: center; position: relative; border-radius: 9px;
+  }
+  .icon-btn .cnt {
+    position: absolute; top: -7px; right: -7px; min-width: 19px; height: 19px;
+    padding: 0 5px; border-radius: 999px; background: #0f172a; color: #fff;
+    font-size: 10.5px; font-weight: 700; line-height: 19px; text-align: center;
+    border: 2px solid var(--card); pointer-events: none;
+  }
+  .icon-btn .cnt:empty { display: none; }
+  /* tombol logo (folder / Excel): lambang warna asli di atas permukaan netral */
+  .brand-btn {
+    width: 38px; height: 38px; padding: 0; flex-shrink: 0; border-radius: 9px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--input-bg) !important; border: 1px solid var(--line);
+    box-shadow: none !important;
+  }
+  .brand-btn:hover:not(:disabled) { background: var(--hover) !important; }
+  .brand-btn:disabled { opacity: .45; }
+  .brand-btn svg { width: 21px; height: 21px; display: block; }
+
+  /* ---------- Tooltip tombol ---------- */
+  [data-tip] { position: relative; }
+  [data-tip]::after {
+    content: attr(data-tip);
+    position: absolute; left: 50%; bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(3px);
+    background: var(--tip-bg); color: #fff;
+    font-size: 11.5px; font-weight: 600; line-height: 1.35; text-transform: none;
+    letter-spacing: .1px; padding: 6px 9px; border-radius: 7px;
+    width: max-content; max-width: 220px; white-space: normal; text-align: center;
+    pointer-events: none; opacity: 0; z-index: 300;
+    transition: opacity .12s ease, transform .12s ease;
+    box-shadow: 0 8px 20px -6px rgba(0,0,0,.45);
+  }
+  [data-tip]:hover::after, [data-tip]:focus-visible::after {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+  }
+  /* tombol paling kiri: tooltip diratakan ke tepi kiri agar tidak terpotong */
+  [data-tip].tip-left::after { left: 0; transform: translateX(0) translateY(3px); }
+  [data-tip].tip-left:hover::after, [data-tip].tip-left:focus-visible::after { transform: translateX(0) translateY(0); }
+  /* baris teratas panel: tooltip dibalik ke BAWAH tombol supaya tidak menimpa
+     header halaman dan tetap berada di dalam panel */
+  .tp-head [data-tip]::after, .tp-actions [data-tip]::after {
+    bottom: auto; top: calc(100% + 8px); transform: translateX(-50%) translateY(-3px);
+  }
+  .tp-head [data-tip]:hover::after, .tp-head [data-tip]:focus-visible::after,
+  .tp-actions [data-tip]:hover::after, .tp-actions [data-tip]:focus-visible::after {
+    transform: translateX(-50%) translateY(0);
+  }
+  .tp-head [data-tip].tip-left::after, .tp-actions [data-tip].tip-left::after {
+    left: 0; transform: translateX(0) translateY(-3px);
+  }
+  .tp-head [data-tip].tip-left:hover::after, .tp-head [data-tip].tip-left:focus-visible::after,
+  .tp-actions [data-tip].tip-left:hover::after, .tp-actions [data-tip].tip-left:focus-visible::after {
+    transform: translateX(0) translateY(0);
+  }
   .side-select {
     width: 100%; padding: 9px 12px; border: 1px solid var(--line);
     border-radius: 8px; font-size: 13px; font-weight: 600;
@@ -150,7 +246,9 @@
   }
   button:hover:not(:disabled) { transform: translateY(-1px); }
   button:active:not(:disabled) { transform: translateY(0); }
-  button:disabled { background: #cbd5e1 !important; cursor: not-allowed; box-shadow: none; }
+  /* !important pada box-shadow: aturan per-id punya specificity lebih tinggi,
+     tanpa ini sisa "glow" berwarna masih tampak di tombol yang nonaktif */
+  button:disabled { background: #cbd5e1 !important; cursor: not-allowed; box-shadow: none !important; }
   #btnPick     { background: var(--accent); box-shadow: 0 4px 12px rgba(99,102,241,.3); }
   #btnPick:hover:not(:disabled) { background: var(--accent-dark); }
   #btnGenerate { background: var(--green); box-shadow: 0 4px 12px rgba(16,185,129,.3); }
@@ -225,10 +323,9 @@
   .multi-search .ms-wrap { flex: 1; min-width: 260px; }
   #btnForceMatch { background: #e11d48; box-shadow: 0 4px 12px rgba(225,29,72,.3); white-space: nowrap; }
   #btnForceMatch:hover:not(:disabled) { background: #be123c; }
-  #btnClearFilter {
-    background: var(--card); color: #ef4444; border: 1px solid #fecaca;
-  }
-  #btnClearFilter:hover:not(:disabled) { background: #fef2f2; }
+  /* btnClearFilter & btnSpClear sekarang tombol ✕ di judul kartu → lihat .pc-x */
+  #btnFindDup { background: var(--accent); box-shadow: 0 4px 12px rgba(99,102,241,.3); }
+  #btnFindDup:hover:not(:disabled) { background: var(--accent-dark); }
   #btnCopy { background: #0ea5e9; box-shadow: 0 4px 12px rgba(14,165,233,.3); }
   #btnCopy:hover:not(:disabled) { background: #0284c7; }
   #stats { font-size: 12.5px; color: var(--muted); }
@@ -415,10 +512,6 @@
   .section-head { display: flex; align-items: center; gap: 14px; }
   .section-head h2 { font-size: 17px; letter-spacing: -.2px; font-weight: 700; }
   .logo.sp { background: transparent; color: var(--brand); }
-  #btnSpLocal { background: #475569; box-shadow: 0 4px 12px rgba(71,85,105,.3); }
-  #btnSpLocal:hover:not(:disabled) { background: #334155; }
-  #btnSpClear { background: var(--card); color: #ef4444; border: 1px solid #fecaca; }
-  #btnSpClear:hover:not(:disabled) { background: #fef2f2; }
   #btnSpCopy { background: #0ea5e9; box-shadow: 0 4px 12px rgba(14,165,233,.3); }
   #btnSpCopy:hover:not(:disabled) { background: #0284c7; }
   .sp-note { font-size: 12px; color: var(--muted); }
@@ -482,6 +575,11 @@
     }
     .sidebar { max-height: 30vh; }
   }
+  /* panel kontrol jadi satu kolom saat ruang mendatar menyempit */
+  @media (max-width: 860px) {
+    .tool-panel { flex-direction: column; }
+    .tp-left { flex: 1 1 auto; width: 100%; }
+  }
 </style>
 </head>
 <body>
@@ -512,50 +610,59 @@
 <div class="split">
   <!-- ============ KIRI: kontrol tabel folder ============ -->
   <div class="ctrl-col" id="auditCtrlCol">
-    <div class="section-head">
-      <div class="logo"><span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span></div>
-      <div>
-        <h2 data-i18n="folderTitle">Tabel Folder</h2>
-        <div class="subtitle" data-i18n="folderSubtitle">Fungsi & filter untuk file hasil scan folder</div>
+    <div class="tool-panel">
+    <!-- kolom kiri: sumber folder, filter, pohon navigasi -->
+    <div class="tp-left">
+      <div class="tp-head">
+        <button id="btnPick" class="brand-btn tip-left" data-i18n-tip="pickFolderTip" data-tip="Pilih folder yang akan dipindai" aria-label="Pilih Folder"><svg viewBox="48 48 460 460" xmlns="http://www.w3.org/2000/svg"><g transform="translate(-362 -82)"><path d="M529.379 296.292 819.542 296.292 819.542 267.333C819.542 254.592 809.117 244.167 796.375 244.167L622.625 244.167 558.917 201.888C554.862 199.571 550.808 197.833 546.175 197.833L437.292 197.833C424.55 197.833 414.125 208.258 414.125 221L414.125 504.792C414.125 505.95 488.837 323.513 488.837 323.513 495.788 307.296 511.425 296.292 529.379 296.292Z" fill="#D29F37"/><path d="M865.875 342.625C865.875 330.463 857.188 320.617 845.025 319.458L529.379 319.458C520.692 319.458 513.162 324.671 509.688 332.2L431.5 522.167 784.792 522.167 863.558 353.05C865.296 349.575 865.875 346.1 865.875 342.625L865.875 342.625Z" fill="#E8B44C"/></g></svg></button>
+        <button id="btnGenerate" class="icon-btn" disabled data-i18n-tip="generateTip" data-tip="Pindai folder & tampilkan daftar file" aria-label="Generate"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span></button>
+        <input type="text" id="addressBar" placeholder="Folder terpilih akan tampil di sini..." data-i18n-placeholder="addressBarPh" readonly>
       </div>
-    </div>
-    <div class="ctrl-cards">
-    <div class="panel-card">
-      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span data-i18n="mainFunctions">Fungsi Utama</span></div>
-      <button id="btnPick"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span data-i18n="pickFolder">Pilih Folder</span></button>
-      <input type="text" id="addressBar" placeholder="Folder terpilih akan tampil di sini..." data-i18n-placeholder="addressBarPh" readonly>
-      <button id="btnGenerate" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span data-i18n="generate">Generate</span></button>
-      <button id="btnExport" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportCsv">Export CSV</span></button>
-      <button id="btnFlatten" disabled data-i18n-title="flattenTip" title="Pindahkan semua file dari subfolder ke folder utama, lalu hapus folder kosong"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span><span data-i18n="flatten">Flatten</span></button>
-      <button id="btnDeleteSelected" disabled data-i18n-title="deleteSelTip" title="Hapus file yang dicentang dari disk"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span><span data-i18n="deleteSelected">Delete Selected</span></button>
-      <button id="btnMoveTo" disabled data-i18n-title="moveToTip" title="Pindahkan file yang dicentang ke folder tujuan"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg></span><span data-i18n="moveTo">Move To...</span></button>
+
+      <div class="panel-card">
+        <div class="pc-head">
+          <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><span data-i18n="filter">Filter</span></div>
+          <button id="btnClearFilter" class="pc-x" disabled data-i18n-tip="clearFilterTip" data-tip="Bersihkan semua filter" aria-label="Clear Filter"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+        <div class="searchwrap">
+          <span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span>
+          <input type="text" id="filterInput" placeholder="Filter nama file, folder, extension..." data-i18n-placeholder="filterPh" disabled>
+          <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
+        </div>
+        <label class="sp-label" for="structFilter" data-i18n="structNameLabel">Struktur Nama:</label>
+        <select id="structFilter" class="side-select" disabled>
+          <option value="" data-i18n="allStruct">Semua Struktur</option>
+          <option value="ok" data-i18n="structOk">Sesuai</option>
+          <option value="warn" data-i18n="structWarn">Hampir Sesuai</option>
+          <option value="no" data-i18n="structNo">Tidak Sesuai</option>
+        </select>
+      </div>
+
+      <div class="sidebar">
+        <div class="sb-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span data-i18n="browseFolder">Browse Folder</span></div>
+        <div class="tree" id="treeContainer">
+          <div class="tree-empty" data-i18n="treeEmpty">Struktur folder akan tampil di sini setelah Generate.</div>
+        </div>
+      </div>
       <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
     </div>
 
-    <div class="panel-card">
-      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><span data-i18n="filter">Filter</span></div>
-      <div class="searchwrap">
-        <span class="icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span>
-        <input type="text" id="filterInput" placeholder="Filter nama file, folder, extension..." data-i18n-placeholder="filterPh" disabled>
-        <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
+    <!-- kolom kanan: aksi terhadap berkas + panel fitur -->
+    <div class="tp-right">
+      <div class="tp-actions">
+        <button id="btnExport" class="icon-btn tip-left" disabled data-i18n-tip="exportTip" data-tip="Unduh tabel yang tampil sebagai CSV" aria-label="Export CSV"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span></button>
+        <button id="btnFlatten" class="icon-btn" disabled data-i18n-tip="flattenTip" data-tip="Pindahkan semua file dari subfolder ke folder utama, lalu hapus folder kosong" aria-label="Flatten"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg></span></button>
+        <button id="btnCopy" class="icon-btn" disabled data-i18n-tip="copyTip" data-tip="Salin sel yang diblok ke clipboard" aria-label="Copy"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="cnt"></span></button>
+        <button id="btnMoveTo" class="icon-btn" disabled data-i18n-tip="moveToTip" data-tip="Pindahkan file yang dicentang ke folder tujuan" aria-label="Move To"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 17 15 14"/></svg></span><span class="cnt"></span></button>
+        <button id="btnDeleteSelected" class="icon-btn" disabled data-i18n-tip="deleteSelTip" data-tip="Hapus file yang dicentang dari disk" aria-label="Delete Selected"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></span><span class="cnt"></span></button>
       </div>
-      <label class="sp-label" for="structFilter" data-i18n="structNameLabel">Struktur Nama:</label>
-      <select id="structFilter" class="side-select" disabled>
-        <option value="" data-i18n="allStruct">Semua Struktur</option>
-        <option value="ok" data-i18n="structOk">Sesuai</option>
-        <option value="warn" data-i18n="structWarn">Hampir Sesuai</option>
-        <option value="no" data-i18n="structNo">Tidak Sesuai</option>
-      </select>
-      <button id="btnClearFilter" disabled><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span><span data-i18n="clearFilter">Clear Filter</span></button>
-      <button id="btnCopy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copy">Copy</span></button>
-    </div>
 
     <div class="panel-card">
       <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/><circle cx="11.5" cy="14.5" r="2.5"/><line x1="13.3" y1="16.3" x2="15.5" y2="18.5"/></svg></span><span data-i18n="scanTitle">Scan Isi File (PDF)</span></div>
       <div class="sp-note" data-i18n="scanNote">Deteksi file PDF yang halaman pertamanya memuat kata kunci — mis. lembar cover Submittal dari Procore — lalu otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.</div>
       <label class="sp-label" for="scanKeyword" data-i18n="scanKeywordLabel">Kata kunci di halaman pertama:</label>
       <input type="text" id="scanKeyword" value="Submittal #" disabled>
-      <button id="btnScanFile" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><span data-i18n="scanBtn">Scan File PDF</span></button>
+      <button id="btnScanFile" disabled data-i18n-tip="scanBtnTip" data-tip="Pindai halaman pertama tiap PDF yang tampil, lalu centang yang memuat kata kunci"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.5" y2="16.5"/></svg></span><span data-i18n="scanBtn">Scan File PDF</span></button>
     </div>
 
     <div class="panel-card">
@@ -566,7 +673,7 @@
         <option value="byte" data-i18n="dupModeByte">Isi identik (semua tipe file) — cepat</option>
         <option value="text" data-i18n="dupModeText">Isi identik + teks PDF sama — lebih dalam</option>
       </select>
-      <button id="btnFindDup" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="dupBtn">Cari Duplikat</span></button>
+      <button id="btnFindDup" disabled data-i18n-tip="dupBtnTip" data-tip="Bandingkan isi file yang tampil, lalu centang otomatis salinan non-KEEP"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="dupBtn">Cari Duplikat</span></button>
       <label class="sp-label" for="dupFilter" data-i18n="dupFilterLabel">Duplikat:</label>
       <select id="dupFilter" class="side-select" disabled>
         <option value="" data-i18n="dupFilterAll">Semua File</option>
@@ -574,14 +681,8 @@
         <option value="remove" data-i18n="dupFilterRemove">Hanya Non-KEEP</option>
       </select>
     </div>
-
-    <div class="sidebar">
-      <div class="sb-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span><span data-i18n="browseFolder">Browse Folder</span></div>
-      <div class="tree" id="treeContainer">
-        <div class="tree-empty" data-i18n="treeEmpty">Struktur folder akan tampil di sini setelah Generate.</div>
-      </div>
-    </div>
-    </div>
+    </div><!-- /tp-right -->
+    </div><!-- /tool-panel -->
   </div>
 
   <!-- ============ TABEL KIRI: hasil scan folder ============ -->
@@ -621,44 +722,25 @@
     <input type="text" id="multiSearch" placeholder="Ketik untuk memfilter File Name (folder) & Document Number (register) di kedua tabel sekaligus..." data-i18n-placeholder="multiSearchPh">
     <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
   </div>
-  <button id="btnForceMatch" disabled data-i18n-title="forceMatchTip" title="Rename file di folder mengikuti Usulan Nama File register bila DOC NO-nya sama (sesuai filter register aktif)"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span data-i18n="forceMatch">Force Match File Name</span></button>
+  <button id="btnForceMatch" disabled data-i18n-tip="forceMatchTip" data-tip="Rename file di folder mengikuti Usulan Nama File register bila DOC NO-nya sama (sesuai filter register aktif)"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span data-i18n="forceMatch">Force Match File Name</span></button>
   </div>
 
   <!-- ============ KANAN: kontrol register excel ============ -->
   <div class="ctrl-col" id="regCtrlCol">
-    <div class="section-head">
-      <div class="logo sp"><span class="ico"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg></span></div>
-      <div>
-        <h2 data-i18n="regTitle">Tarik Register dari File Excel</h2>
-        <div class="subtitle" data-i18n="regSubtitle">Pilih file Excel register, pilih sheet & atur mapping kolom, lalu filter berdasarkan Company</div>
+    <div class="tool-panel">
+    <!-- kolom kiri: sumber file Excel + filter register -->
+    <div class="tp-left">
+      <div class="tp-head">
+        <button id="btnSpLocal" class="brand-btn tip-left" data-i18n-tip="pickExcelTip" data-tip="Pilih file Excel register" aria-label="Pilih File Excel"><svg viewBox="0 0 2289.75 2130" xmlns="http://www.w3.org/2000/svg"><path fill="#185C37" d="M1437.75,1011.75L532.5,852v1180.393c0,53.907,43.7,97.607,97.607,97.607h1562.036c53.907,0,97.607-43.7,97.607-97.607V1597.5L1437.75,1011.75z"/><path fill="#21A366" d="M1437.75,0H630.107C576.2,0,532.5,43.7,532.5,97.607V532.5l905.25,532.5L1917,1224.75L2289.75,1065V532.5L1437.75,0z"/><path fill="#107C41" d="M532.5,532.5h905.25V1065H532.5V532.5z"/><path opacity="0.2" d="M1127.143,479.25H532.5V1704h594.643c53.834-0.175,97.432-43.773,97.607-97.607V576.857C1224.575,523.023,1180.977,479.425,1127.143,479.25z"/><linearGradient id="xlsGrad" gradientUnits="userSpaceOnUse" x1="203.5132" y1="1729.0183" x2="967.9868" y2="404.9817" gradientTransform="matrix(1 0 0 -1 0 2132)"><stop offset="0" style="stop-color:#18884F"/><stop offset="0.5" style="stop-color:#117E43"/><stop offset="1" style="stop-color:#0B6631"/></linearGradient><path fill="url(#xlsGrad)" d="M97.607,479.25h976.285c53.907,0,97.607,43.7,97.607,97.607v976.285c0,53.907-43.7,97.607-97.607,97.607H97.607C43.7,1650.75,0,1607.05,0,1553.143V576.857C0,522.95,43.7,479.25,97.607,479.25z"/><path fill="#FFFFFF" d="M302.3,1382.264l205.332-318.169L319.5,747.683h151.336l102.666,202.35c9.479,19.223,15.975,33.494,19.49,42.919h1.331c6.745-15.336,13.845-30.228,21.3-44.677L725.371,747.79h138.929l-192.925,314.548L869.2,1382.263H721.378L602.79,1160.158c-5.586-9.45-10.326-19.376-14.164-29.66h-1.757c-3.474,10.075-8.083,19.722-13.739,28.755l-122.102,223.011H302.3z"/><path fill="#33C481" d="M2192.143,0H1437.75v532.5h852V97.607C2289.75,43.7,2246.05,0,2192.143,0z"/><path fill="#107C41" d="M1437.75,1065h852v532.5h-852V1065z"/></svg></button>
+        <span id="spFileName" class="sp-filename">Belum ada file dipilih</span>
+        <input type="file" id="spFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display:none">
       </div>
-    </div>
-    <div class="ctrl-cards">
-    <div class="panel-card">
-      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg></span><span data-i18n="mainFunctions">Fungsi Utama</span></div>
-      <button id="btnSpLocal"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><polyline points="13 2 13 9 20 9"/></svg></span><span data-i18n="pickExcel">Pilih File Excel</span></button>
-      <span id="spFileName" class="sp-filename">Belum ada file dipilih</span>
-      <label class="sp-label" for="spSheetSelect" data-i18n="sheetLabel">Sheet:</label>
-      <select id="spSheetSelect" class="side-select" disabled>
-        <option value="" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option>
-      </select>
-      <div class="sp-note"><span class="ico" style="vertical-align:-2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg></span> <span data-i18n="tips">Tips: pilih file dari folder OneDrive/SharePoint sync di komputermu — itu file yang sama dengan di SharePoint dan selalu ter-update otomatis.</span></div>
-      <input type="file" id="spFileInput" accept=".xlsx,.xlsm,.xls,.csv" style="display:none">
-    </div>
 
     <div class="panel-card">
-      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span data-i18n="mappingTitle">Mapping Kolom</span></div>
-      <div class="sp-note" data-i18n="mappingHint">Tentukan kolom pembentuk Usulan Nama File & crosscheck: DocNo_REV Rev_Title. Terdeteksi otomatis, bisa diganti.</div>
-      <label class="sp-label" for="mapDocNo" data-i18n="mapDocNoLabel">Kolom Document Number:</label>
-      <select id="mapDocNo" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
-      <label class="sp-label" for="mapRev" data-i18n="mapRevLabel">Kolom Revision:</label>
-      <select id="mapRev" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
-      <label class="sp-label" for="mapTitle" data-i18n="mapTitleLabel">Kolom Document Title:</label>
-      <select id="mapTitle" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
-    </div>
-
-    <div class="panel-card">
-      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><span data-i18n="filter">Filter</span></div>
+      <div class="pc-head">
+        <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg></span><span data-i18n="filter">Filter</span></div>
+        <button id="btnSpClear" class="pc-x" disabled data-i18n-tip="clearFilterTip" data-tip="Bersihkan semua filter" aria-label="Clear Filter"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
       <label class="sp-label" for="spCompanyBtn" data-i18n="companyLabel">Company:</label>
       <div class="sp-multi" id="spCompanyMulti">
         <button type="button" id="spCompanyBtn" class="sp-multi-btn" disabled data-i18n="allCompany">Semua Company</button>
@@ -687,11 +769,36 @@
         <input type="text" id="spDocSearch" placeholder="Cari No. / Nama Dokumen..." data-i18n-placeholder="docSearchPh" disabled>
         <span class="search-clear" data-i18n-title="clearSearch" title="Bersihkan pencarian">✕</span>
       </div>
-      <button id="btnSpClear" disabled><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span><span data-i18n="clearFilter">Clear Filter</span></button>
-      <button id="btnSpCopy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copy">Copy</span></button>
-      <button id="btnSelectAudit" disabled data-i18n-title="selectAuditTip" title="Pilih file di Tabel Folder yang DOC NO-nya ada di daftar register (sesuai filter aktif)"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span data-i18n="selectAudit">Pilih File di Tabel Folder</span></button>
     </div>
     </div>
+
+    <!-- kolom kanan: aksi register + sheet & mapping kolom -->
+    <div class="tp-right">
+      <div class="tp-actions">
+        <button id="btnSpCopy" class="icon-btn tip-left" disabled data-i18n-tip="spCopyTip" data-tip="Salin sel register yang diblok" aria-label="Copy"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span class="cnt"></span></button>
+        <button id="btnSelectAudit" disabled data-i18n-tip="selectAuditTip" data-tip="Pilih file di Tabel Folder yang DOC NO-nya ada di daftar register (sesuai filter aktif)"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span data-i18n="selectAudit">Pilih File di Tabel Folder</span></button>
+      </div>
+
+      <div class="panel-card">
+        <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span><span data-i18n="sheetLabel">Sheet:</span></div>
+        <select id="spSheetSelect" class="side-select" disabled data-i18n-aria="sheetLabel" aria-label="Sheet:">
+          <option value="" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option>
+        </select>
+        <div class="sp-note"><span class="ico" style="vertical-align:-2px"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1 .23 2.23 1.5 3.5.76.76 1.23 1.52 1.41 2.5"/></svg></span> <span data-i18n="tips">Tips: pilih file dari folder OneDrive/SharePoint sync di komputermu — itu file yang sama dengan di SharePoint dan selalu ter-update otomatis.</span></div>
+      </div>
+
+      <div class="panel-card">
+        <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span data-i18n="mappingTitle">Mapping Kolom</span></div>
+        <div class="sp-note" data-i18n="mappingHint">Tentukan kolom pembentuk Usulan Nama File & crosscheck: DocNo_REV Rev_Title. Terdeteksi otomatis, bisa diganti.</div>
+        <label class="sp-label" for="mapDocNo" data-i18n="mapDocNoLabel">Kolom Document Number:</label>
+        <select id="mapDocNo" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
+        <label class="sp-label" for="mapRev" data-i18n="mapRevLabel">Kolom Revision:</label>
+        <select id="mapRev" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
+        <label class="sp-label" for="mapTitle" data-i18n="mapTitleLabel">Kolom Document Title:</label>
+        <select id="mapTitle" class="side-select" disabled><option value="-1" data-i18n="sheetPlaceholder">Pilih file Excel dulu</option></select>
+      </div>
+    </div><!-- /tp-right -->
+    </div><!-- /tool-panel -->
   </div>
 
   <!-- ============ TABEL KANAN: register excel ============ -->
@@ -721,6 +828,13 @@
       folderTitle: 'Tabel Folder', folderSubtitle: 'Fungsi & filter untuk file hasil scan folder',
       backHome: 'Home', backHomeTip: 'Kembali ke halaman utama',
       mainFunctions: 'Fungsi Utama', pickFolder: 'Pilih Folder',
+      pickFolderTip: 'Pilih folder yang akan dipindai',
+      generateTip: 'Pindai folder & tampilkan daftar file',
+      exportTip: 'Unduh tabel yang tampil sebagai CSV',
+      copyTip: 'Salin sel yang diblok ke clipboard',
+      clearFilterTip: 'Bersihkan semua filter',
+      pickExcelTip: 'Pilih file Excel register',
+      spCopyTip: 'Salin sel register yang diblok ke clipboard',
       addressBarPh: 'Folder terpilih akan tampil di sini...',
       generate: 'Generate', exportCsv: 'Export CSV', flatten: 'Flatten',
       flattenTip: 'Pindahkan semua file dari subfolder ke folder utama, lalu hapus folder kosong',
@@ -736,6 +850,8 @@
       scanTitle: 'Scan Isi File (PDF)',
       scanNote: 'Deteksi file PDF yang halaman pertamanya memuat kata kunci — mis. lembar cover Submittal dari Procore — lalu otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.',
       scanKeywordLabel: 'Kata kunci di halaman pertama:', scanBtn: 'Scan File PDF',
+      scanBtnTip: 'Pindai halaman pertama tiap PDF yang tampil, lalu centang yang memuat kata kunci',
+      dupBtnTip: 'Bandingkan isi file yang tampil, lalu centang otomatis salinan non-KEEP',
       dupTitle: 'Deteksi Duplikat File',
       dupNote: 'Cari file yang ISI-nya sama walau namanya berbeda. Tiap grup duplikat menyisakan satu file KEEP (penamaan paling sesuai), sisanya otomatis dicentang agar bisa langsung Hapus Terpilih / Pindahkan.',
       dupModeLabel: 'Kedalaman pemeriksaan:',
@@ -775,6 +891,13 @@
       folderTitle: 'Folder Table', folderSubtitle: 'Functions & filters for the scanned folder files',
       backHome: 'Home', backHomeTip: 'Back to the home page',
       mainFunctions: 'Main Functions', pickFolder: 'Pick Folder',
+      pickFolderTip: 'Pick the folder to scan',
+      generateTip: 'Scan the folder & list its files',
+      exportTip: 'Download the visible table as CSV',
+      copyTip: 'Copy the selected cells to the clipboard',
+      clearFilterTip: 'Clear all filters',
+      pickExcelTip: 'Pick the register Excel file',
+      spCopyTip: 'Copy the selected register cells to the clipboard',
       addressBarPh: 'Selected folder will appear here...',
       generate: 'Generate', exportCsv: 'Export CSV', flatten: 'Flatten',
       flattenTip: 'Move all files from subfolders to the main folder, then delete empty folders',
@@ -790,6 +913,8 @@
       scanTitle: 'Scan File Content (PDF)',
       scanNote: 'Detect PDF files whose first page contains the keyword — e.g. the Procore Submittal cover sheet — then auto-check them so you can Delete Selected / Move To right away.',
       scanKeywordLabel: 'First-page keyword:', scanBtn: 'Scan PDF Files',
+      scanBtnTip: 'Scan the first page of each visible PDF, then check those containing the keyword',
+      dupBtnTip: 'Compare the content of visible files, then auto-check the non-KEEP copies',
       dupTitle: 'Duplicate File Detection',
       dupNote: 'Find files whose CONTENT is identical even when the names differ. Each duplicate group keeps one KEEP file (best-matching name); the rest are auto-checked so you can Delete Selected / Move To right away.',
       dupModeLabel: 'Detection depth:',
@@ -850,6 +975,17 @@
   };
   // set teks tombol tanpa menghapus ikon SVG (yang ada di span pertama)
   window.__btnLabel = (btn, text) => {
+    // tombol ikon tidak punya teks: label pindah ke tooltip, angkanya ke badge
+    if (btn.classList.contains('icon-btn')) {
+      btn.dataset.tip = text;
+      btn.setAttribute('aria-label', text);
+      const cnt = btn.querySelector('.cnt');
+      if (cnt) {
+        const m = text.match(/\((\d+)\)\s*$/);
+        cnt.textContent = m ? m[1] : '';
+      }
+      return;
+    }
     const s = btn.querySelector('span:last-child');
     if (s) s.textContent = text; else btn.textContent = text;
   };
@@ -889,6 +1025,15 @@
     });
     document.querySelectorAll('[data-i18n-title]').forEach(el => {
       const v = TR(el.getAttribute('data-i18n-title')); if (v != null) el.title = v;
+    });
+    // kontrol yang labelnya jadi judul kartu (bukan <label for=...>) tetap perlu nama aksesibel
+    document.querySelectorAll('[data-i18n-aria]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-aria')); if (v != null) el.setAttribute('aria-label', v);
+    });
+    // tooltip tombol ikon: teksnya juga jadi aria-label karena tombolnya tanpa teks
+    document.querySelectorAll('[data-i18n-tip]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-tip'));
+      if (v != null) { el.dataset.tip = v; el.setAttribute('aria-label', v); }
     });
     document.documentElement.lang = window.__lang;
     document.title = TR('appTitle');
@@ -1099,6 +1244,9 @@ window.__attachColResizers = function (ths, onResize) {
     window.__tableLoading('audit', false);
     busy = false;
     btnGenerate.disabled = false;
+    // processEntries() menyegarkan kontrol saat busy MASIH true, sehingga checkbox
+    // "pilih semua" ikut terkunci — segarkan sekali lagi setelah busy dilepas.
+    updateDeleteControls();
   });
 
   function processEntries(entries, options = {}) {
@@ -1206,6 +1354,7 @@ window.__attachColResizers = function (ths, onResize) {
       showToast('⚠️ Gagal memindai: ' + err.message);
       window.__tableLoading('audit', false);
       busy = false; btnFlatten.disabled = false;
+      updateDeleteControls();
       return;
     }
     const toMove = fsaFiles.filter(f => !f.inRoot);
@@ -1229,6 +1378,7 @@ window.__attachColResizers = function (ths, onResize) {
     if (!okConfirm) {
       window.__tableLoading('audit', false);
       busy = false; btnFlatten.disabled = false;
+      updateDeleteControls();
       stats.textContent = 'Flatten dibatalkan.';
       return;
     }
@@ -1273,6 +1423,7 @@ window.__attachColResizers = function (ths, onResize) {
     window.__tableLoading('audit', false);
     busy = false;
     btnFlatten.disabled = false;
+    updateDeleteControls();
 
     let msg = '✅ Flatten selesai: ' + moved + ' file dipindahkan, ' + removedDirs + ' folder kosong dihapus';
     if (renamed > 0) msg += ', ' + renamed + ' file di-rename karena nama sama';
