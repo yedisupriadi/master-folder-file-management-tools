@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Child Document Number Generator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2f7;
+    --card: #ffffff;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --accent: #6366f1;
+    --accent-dark: #4f46e5;
+    --green: #10b981;
+    --green-dark: #059669;
+    --violet: #8b5cf6;
+    --violet-dark: #7c3aed;
+    --radius: 12px;
+    --brand: #034F53;
+    --bg-grad-a: #e8edf5;
+    --bg-grad-b: #f4f6fa;
+    --input-bg: #f8fafc;
+    --input-disabled: #f1f5f9;
+    --hover: #f1f5f9;
+    --chip-bg: #f1f5f9;
+    --thead-bg: #1e293b;
+    --thead-ink: #e2e8f0;
+    --td-line: #f1f5f9;
+    --panel-inner: #f8fafc;
+    --tip-bg: #0f172a;
+    --parent-bg: #dcfce7;
+    --parent-ink: #166534;
+    --child-bg: #eef2ff;
+    --child-ink: #3730a3;
+  }
+  html[data-theme="dark"] {
+    --bg: #0b1220;
+    --card: #131c2e;
+    --ink: #e5e9f0;
+    --muted: #93a1b5;
+    --line: #2a3650;
+    --bg-grad-a: #0b1220;
+    --bg-grad-b: #0e1626;
+    --input-bg: #0f1728;
+    --input-disabled: #172136;
+    --hover: #1b2740;
+    --chip-bg: #1f2b45;
+    --thead-bg: #0a1120;
+    --thead-ink: #cdd7e6;
+    --td-line: #212c46;
+    --panel-inner: #0f1728;
+    --tip-bg: #263248;
+    --parent-bg: #14532d;
+    --parent-ink: #bbf7d0;
+    --child-bg: #1e1b4b;
+    --child-ink: #c7d2fe;
+    --brand: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Lato", "Segoe UI", system-ui, Arial, sans-serif;
+    font-weight: 400;
+    background: linear-gradient(180deg, var(--bg-grad-a) 0%, var(--bg-grad-b) 240px) fixed;
+    color: var(--ink);
+    padding: 22px 26px 60px;
+    min-height: 100vh;
+    transition: background .2s, color .2s;
+  }
+  .ico { display: inline-flex; align-items: center; justify-content: center; color: var(--brand); flex-shrink: 0; }
+  .ico svg { display: block; }
+
+  /* ---------- Topbar ---------- */
+  .topbar {
+    position: fixed; top: 14px; right: 18px; z-index: 200;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; box-shadow: 0 6px 20px -8px rgba(15,23,42,.25);
+  }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--muted); -webkit-user-select: none; user-select: none; }
+  .toggle .t-lab { min-width: 26px; text-align: center; }
+  .toggle .t-lab.on { color: var(--brand); }
+  .switch { position: relative; width: 46px; height: 24px; flex-shrink: 0; cursor: pointer; }
+  .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .switch .slider { position: absolute; inset: 0; border-radius: 999px; background: #cbd5e1; transition: background .18s; }
+  .switch .slider::before {
+    content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: transform .18s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .switch input:checked + .slider { background: #034F53; }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+  .topbar .divider { width: 1px; height: 22px; background: var(--line); }
+
+  /* ---------- Header ---------- */
+  .header { display: flex; align-items: center; gap: 14px; margin: 4px 0 18px; }
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted); text-decoration: none;
+    font-size: 12.5px; font-weight: 700; transition: transform .12s, background .15s;
+  }
+  .home-link:hover { transform: translateY(-1px); background: var(--hover); }
+  .header h1 { font-size: 21px; letter-spacing: -.3px; font-weight: 700; }
+  .header .subtitle { color: var(--muted); font-size: 12.5px; margin-top: 2px; font-weight: 300; }
+
+  /* ---------- Tab mode ---------- */
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+  .tab {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 10px 18px; border-radius: 10px; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--muted);
+    font-size: 13.5px; font-weight: 700; transition: all .15s;
+  }
+  .tab:hover { background: var(--hover); }
+  .tab.on { background: var(--brand); border-color: var(--brand); color: #fff; }
+  html[data-theme="dark"] .tab.on { background: #034F53; border-color: #034F53; color: #fff; }
+  .tab .tnum {
+    width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: var(--chip-bg); color: var(--muted); font-size: 11px;
+  }
+  .tab.on .tnum { background: rgba(255,255,255,.22); color: #fff; }
+  .mode { display: none; }
+  .mode.on { display: block; }
+
+  /* ---------- Kartu ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .pc-title {
+    font-size: 12px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 7px;
+  }
+  .note { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .note code {
+    background: var(--chip-bg); padding: 1px 6px; border-radius: 5px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12px; color: var(--ink);
+  }
+  .lab { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+  /* ---------- Form ---------- */
+  input[type="text"], input[type="number"] {
+    width: 100%; padding: 10px 13px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 13.5px; background: var(--card); color: var(--ink); outline: none;
+    transition: border .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+  }
+  input:disabled { background: var(--input-disabled); color: #94a3b8; cursor: not-allowed; }
+  .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .2px; }
+  button {
+    border: none; padding: 10px 17px; border-radius: 9px;
+    font-size: 13.5px; font-weight: 600; cursor: pointer; color: #fff;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); }
+  button:disabled { background: #cbd5e1 !important; cursor: not-allowed; box-shadow: none !important; }
+  .btn-go { background: var(--green); box-shadow: 0 4px 12px rgba(16,185,129,.3); }
+  .btn-go:hover:not(:disabled) { background: var(--green-dark); }
+  .btn-alt { background: var(--accent); box-shadow: 0 4px 12px rgba(99,102,241,.3); }
+  .btn-alt:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-csv { background: var(--violet); box-shadow: 0 4px 12px rgba(139,92,246,.3); }
+  .btn-csv:hover:not(:disabled) { background: var(--violet-dark); }
+  .btn-ghost { background: var(--card) !important; color: #ef4444; border: 1px solid var(--line); box-shadow: none !important; }
+  .btn-ghost:hover:not(:disabled) { background: var(--hover) !important; }
+
+  /* ---------- Pemecah segmen nomor (mode 1) ---------- */
+  .seg-row { display: flex; align-items: center; gap: 3px; flex-wrap: wrap; min-height: 34px; }
+  .seg {
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 14px; padding: 5px 6px; border-radius: 6px; color: var(--muted);
+    border: 1px solid transparent;
+  }
+  .seg.num { cursor: pointer; background: var(--chip-bg); color: var(--ink); font-weight: 700; }
+  .seg.num:hover { border-color: var(--accent); }
+  .seg.num.pick { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .seg-hint { font-size: 12px; color: var(--muted); }
+
+  /* ---------- Kotak pesan ---------- */
+  .msg { border-radius: 9px; padding: 10px 13px; font-size: 12.5px; line-height: 1.5; display: none; }
+  .msg.show { display: block; }
+  .msg.err  { background: #fee2e2; color: #991b1b; }
+  .msg.warn { background: #fef3c7; color: #92400e; }
+  .msg.ok   { background: #d1fae5; color: #065f46; }
+  html[data-theme="dark"] .msg.err  { background: #4c1d24; color: #fecaca; }
+  html[data-theme="dark"] .msg.warn { background: #4a3410; color: #fde68a; }
+  html[data-theme="dark"] .msg.ok   { background: #064e3b; color: #a7f3d0; }
+  .msg ul { margin: 6px 0 0 18px; }
+  .msg li { margin-top: 2px; }
+
+  /* ---------- Spreadsheet ---------- */
+  .grid-wrap { overflow: auto; max-height: 460px; border: 1px solid var(--line); border-radius: 9px; }
+  table.sheet { border-collapse: collapse; width: 100%; }
+  .sheet th {
+    background: var(--thead-bg); color: var(--thead-ink); font-size: 11px; font-weight: 700;
+    padding: 7px 9px; text-align: left; position: sticky; top: 0; z-index: 2;
+    letter-spacing: .4px; text-transform: uppercase; white-space: nowrap;
+  }
+  .sheet th.rn-head { width: 44px; min-width: 44px; text-align: center; left: 0; z-index: 3; }
+  .sheet th.colhead { cursor: pointer; -webkit-user-select: none; user-select: none; }
+  .sheet td {
+    border: 1px solid var(--td-line); height: 30px; padding: 5px 9px;
+    font-size: 12.5px; background: var(--card); white-space: nowrap;
+  }
+  .sheet td.numcol { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  .sheet td[contenteditable]:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .sheet td.rownum {
+    background: var(--chip-bg); color: var(--muted); text-align: center;
+    width: 44px; min-width: 44px; font-size: 11px; font-weight: 700;
+    position: sticky; left: 0; z-index: 1; cursor: pointer;
+  }
+  .sheet td.selcell { background: rgba(99,102,241,.16); }
+  .sheet td.bad { background: #fee2e2; color: #991b1b; }
+  html[data-theme="dark"] .sheet td.bad { background: #4c1d24; color: #fecaca; }
+  .sheet td.added { box-shadow: inset 3px 0 0 var(--green); }
+  .hier { display: inline-block; padding: 2px 10px; border-radius: 6px; font-size: 11.5px; font-weight: 700; }
+  .hier.parent { background: var(--parent-bg); color: var(--parent-ink); }
+  .hier.child  { background: var(--child-bg);  color: var(--child-ink); }
+
+  .toolbar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .toolbar .spacer { flex: 1; }
+  .cols-2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; align-items: start; }
+  .go-strip { display: flex; align-items: center; justify-content: center; gap: 12px; margin: 4px 0 2px; flex-wrap: wrap; }
+  .count-chip {
+    font-size: 12px; color: var(--muted); background: var(--chip-bg);
+    padding: 5px 11px; border-radius: 999px; font-weight: 700;
+  }
+
+  /* ---------- Toast ---------- */
+  #toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: var(--tip-bg); color: #fff; padding: 12px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s; z-index: 300; max-width: 80vw; text-align: center;
+    box-shadow: 0 10px 30px rgba(15,23,42,.35);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 900px) {
+    .cols-2 { grid-template-columns: minmax(0,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <label class="toggle" title="Bahasa / Language">
+    <span class="t-lab" id="labID">ID</span>
+    <span class="switch"><input type="checkbox" id="langToggle" aria-label="Bahasa / Language"><span class="slider"></span></span>
+    <span class="t-lab" id="labEN">EN</span>
+  </label>
+  <span class="divider"></span>
+  <label class="toggle" title="Light / Dark">
+    <span class="ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg></span>
+    <span class="switch"><input type="checkbox" id="themeToggle" aria-label="Light / Dark"><span class="slider"></span></span>
+    <span class="ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+  </label>
+</div>
+
+<div class="header">
+  <a class="home-link" href="index.html" data-i18n-title="backHomeTip" title="Kembali ke halaman utama"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span data-i18n="backHome">Home</span></a>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3 9a9 9 0 1 1 3 6.7"/><path d="M12 7v5l3 2"/></svg></div>
+  <div>
+    <h1 data-i18n="appTitle">Child Document Number Generator</h1>
+    <div class="subtitle" data-i18n="appSubtitle">Buat nomor dokumen anak (child) otomatis dari nomor induk (parent) yang memakai rentang bertanda ~</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <div class="tab on" id="tab1" role="button" tabindex="0"><span class="tnum">1</span><span data-i18n="tab1">Dari Satu Parent</span></div>
+  <div class="tab" id="tab2" role="button" tabindex="0"><span class="tnum">2</span><span data-i18n="tab2">Dari Tabel Input</span></div>
+</div>
+
+<!-- ==================== MODE 1 ==================== -->
+<div class="mode on" id="mode1">
+  <div class="cols-2">
+    <div class="card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg></span><span data-i18n="m1Title">Nomor Parent</span></div>
+      <div class="note" data-i18n-html="m1Note">Tulis nomor induk lengkap. Bila memakai tanda <code>~</code> (mis. <code>DF-SD-0101PM-A-941175-23~941182-23</code>), jumlah child dihitung otomatis dari rentangnya.</div>
+
+      <label class="lab" for="m1Parent" data-i18n="m1ParentLabel">Parent Document Number:</label>
+      <input type="text" id="m1Parent" class="mono" placeholder="DF-SD-0101PM-A-941175-23~941182-23" data-i18n-placeholder="m1ParentPh" autocomplete="off">
+
+      <div>
+        <div class="lab" style="margin-bottom:5px" data-i18n="m1SegLabel">Segmen yang dinaikkan:</div>
+        <div class="seg-row" id="m1Segs"></div>
+        <div class="seg-hint" id="m1SegHint" data-i18n="m1SegHint">Klik salah satu angka bila yang dinaikkan bukan yang terpilih.</div>
+      </div>
+
+      <label class="lab" for="m1Count" data-i18n="m1CountLabel">Jumlah Child:</label>
+      <input type="number" id="m1Count" min="1" max="5000" value="8">
+
+      <div class="msg" id="m1Msg"></div>
+
+      <div class="toolbar">
+        <button class="btn-go" id="m1Go"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span data-i18n="generate">Generate</span></button>
+        <button class="btn-ghost" id="m1Clear"><span data-i18n="clear">Bersihkan</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div class="pc-title" style="flex:1"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></span><span data-i18n="m1OutTitle">Hasil</span></div>
+        <span class="count-chip" id="m1Count2">0</span>
+      </div>
+      <div class="grid-wrap"><table class="sheet"><thead><tr id="m1Head"></tr></thead><tbody id="m1Body"></tbody></table></div>
+      <div class="toolbar">
+        <button class="btn-alt" id="m1Copy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copyAll">Salin Semua</span></button>
+        <button class="btn-csv" id="m1Csv" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportCsv">Export CSV</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== MODE 2 ==================== -->
+<div class="mode" id="mode2">
+  <div class="card" style="margin-bottom:14px">
+    <div class="note" data-i18n-html="m2Note">Kolom kiri diisi nomor, kolom kanan diisi <b>Parent</b> atau <b>Child</b> — bisa di-paste langsung dari Excel. Saat Generate, tiap baris Child yang kosong diisi berurutan dari rentang parent di atasnya. Baris Child yang sudah ada isinya tidak ditimpa.</div>
+  </div>
+
+  <div class="cols-2">
+    <div class="card">
+      <div class="toolbar">
+        <div class="pc-title" style="flex:1"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span data-i18n="m2InTitle">Tabel Input</span></div>
+        <button class="btn-ghost" id="m2AddRow" style="padding:6px 11px;font-size:12px;color:var(--muted)"><span data-i18n="addRows">+ 10 Baris</span></button>
+        <button class="btn-ghost" id="m2Clear" style="padding:6px 11px;font-size:12px"><span data-i18n="clear">Bersihkan</span></button>
+      </div>
+      <div class="grid-wrap"><table class="sheet"><thead><tr id="m2InHead"></tr></thead><tbody id="m2InBody"></tbody></table></div>
+    </div>
+
+    <div class="card">
+      <div class="toolbar">
+        <div class="pc-title" style="flex:1"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span><span data-i18n="m2OutTitle">Tabel Output</span></div>
+        <span class="count-chip" id="m2Count">0</span>
+      </div>
+      <div class="grid-wrap"><table class="sheet"><thead><tr id="m2OutHead"></tr></thead><tbody id="m2OutBody"></tbody></table></div>
+      <div class="toolbar">
+        <button class="btn-alt" id="m2Copy" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copyAll">Salin Semua</span></button>
+        <button class="btn-csv" id="m2Csv" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportCsv">Export CSV</span></button>
+      </div>
+    </div>
+  </div>
+
+  <div class="go-strip">
+    <button class="btn-go" id="m2Go"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span data-i18n="generate">Generate</span></button>
+  </div>
+
+  <div class="msg" id="m2Msg" style="margin-top:12px"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =====================================================================
+     KAMUS BAHASA — setiap teks UI baru wajib ada di ID dan EN.
+     ===================================================================== */
+  const I18N = {
+    id: {
+      appTitle: 'Child Document Number Generator',
+      appSubtitle: 'Buat nomor dokumen anak (child) otomatis dari nomor induk (parent) yang memakai rentang bertanda ~',
+      backHome: 'Home', backHomeTip: 'Kembali ke halaman utama',
+      tab1: 'Dari Satu Parent', tab2: 'Dari Tabel Input',
+      m1Title: 'Nomor Parent',
+      m1Note: 'Tulis nomor induk lengkap. Bila memakai tanda <code>~</code> (mis. <code>DF-SD-0101PM-A-941175-23~941182-23</code>), jumlah child dihitung otomatis dari rentangnya.',
+      m1ParentLabel: 'Parent Document Number:',
+      m1ParentPh: 'DF-SD-0101PM-A-941175-23~941182-23',
+      m1SegLabel: 'Segmen yang dinaikkan:',
+      m1SegHint: 'Klik salah satu angka bila yang dinaikkan bukan yang terpilih.',
+      m1SegLocked: 'Segmen ditentukan otomatis dari rentang sebelum & sesudah tanda ~.',
+      m1SegEmpty: 'Tulis nomor parent dulu.',
+      m1CountLabel: 'Jumlah Child:',
+      m1OutTitle: 'Hasil',
+      m2InTitle: 'Tabel Input', m2OutTitle: 'Tabel Output',
+      m2Note: 'Kolom kiri diisi nomor, kolom kanan diisi <b>Parent</b> atau <b>Child</b> — bisa di-paste langsung dari Excel. Saat Generate, tiap baris Child yang kosong diisi berurutan dari rentang parent di atasnya. Baris Child yang sudah ada isinya tidak ditimpa.',
+      generate: 'Generate', clear: 'Bersihkan', addRows: '+ 10 Baris',
+      copyAll: 'Salin Semua', exportCsv: 'Export CSV',
+      colNumber: 'Document Number', colHier: 'Hierarchy', colNo: '#',
+      parent: 'Parent', child: 'Child',
+      rowsWord: 'baris',
+      // pesan
+      errNoParent: 'Nomor parent masih kosong.',
+      errNoDigit: 'Nomor parent tidak memuat angka yang bisa dinaikkan.',
+      errRangeIncomplete: 'Rentang tidak lengkap — bagian sebelum atau sesudah ~ kosong.',
+      errRangeLonger: 'Bagian setelah ~ lebih panjang daripada nomor di depannya.',
+      errShape: 'Pola sebelum & sesudah ~ tidak sama, jadi rentangnya tidak bisa dibaca.',
+      errSame: 'Awal dan akhir rentang sama — tidak ada yang bisa dibuat.',
+      errMulti: 'Lebih dari satu segmen angka yang berubah — rentang harus mengubah satu segmen saja.',
+      errBackwards: 'Akhir rentang lebih kecil daripada awalnya.',
+      errCount: 'Jumlah child harus 1 atau lebih.',
+      errTooMany: 'Jumlah child melebihi batas 5000.',
+      okGenerated: 'child dibuat.',
+      m2Empty: 'Tabel input masih kosong.',
+      m2NoParent: 'Tidak ada baris Parent di tabel input.',
+      m2Done: 'Selesai:',
+      m2Groups: 'grup parent diproses',
+      m2Filled: 'baris child diisi',
+      m2Added: 'baris ditambahkan otomatis di tabel output',
+      m2Extra: 'baris child berlebih dibiarkan kosong',
+      m2Kept: 'baris child yang sudah ada isinya dipertahankan',
+      m2Orphan: 'baris Child sebelum Parent mana pun — dilewati',
+      m2RowErr: 'Baris',
+      m2Segment: 'segmen dinaikkan otomatis:',
+      copied: 'Tersalin ke clipboard — tinggal paste (Ctrl+V) di Excel.',
+      copyFail: 'Gagal menyalin — klik halaman dulu lalu ulangi.',
+      nothingToCopy: 'Belum ada hasil untuk disalin.'
+    },
+    en: {
+      appTitle: 'Child Document Number Generator',
+      appSubtitle: 'Generate child document numbers automatically from a parent number that uses a ~ range',
+      backHome: 'Home', backHomeTip: 'Back to the home page',
+      tab1: 'From One Parent', tab2: 'From Input Table',
+      m1Title: 'Parent Number',
+      m1Note: 'Type the full parent number. When it uses <code>~</code> (e.g. <code>DF-SD-0101PM-A-941175-23~941182-23</code>), the child count is derived from the range automatically.',
+      m1ParentLabel: 'Parent Document Number:',
+      m1ParentPh: 'DF-SD-0101PM-A-941175-23~941182-23',
+      m1SegLabel: 'Segment to increment:',
+      m1SegHint: 'Click another number if the wrong segment is selected.',
+      m1SegLocked: 'The segment is determined automatically from the values before & after the ~.',
+      m1SegEmpty: 'Type a parent number first.',
+      m1CountLabel: 'Number of children:',
+      m1OutTitle: 'Result',
+      m2InTitle: 'Input Table', m2OutTitle: 'Output Table',
+      m2Note: 'Left column holds the number, right column holds <b>Parent</b> or <b>Child</b> — you can paste straight from Excel. On Generate, every empty Child row is filled in sequence from the parent range above it. Child rows that already have a value are never overwritten.',
+      generate: 'Generate', clear: 'Clear', addRows: '+ 10 Rows',
+      copyAll: 'Copy All', exportCsv: 'Export CSV',
+      colNumber: 'Document Number', colHier: 'Hierarchy', colNo: '#',
+      parent: 'Parent', child: 'Child',
+      rowsWord: 'rows',
+      errNoParent: 'The parent number is empty.',
+      errNoDigit: 'The parent number has no digits that can be incremented.',
+      errRangeIncomplete: 'Incomplete range — the part before or after ~ is empty.',
+      errRangeLonger: 'The part after ~ is longer than the number before it.',
+      errShape: 'The patterns before & after ~ do not match, so the range cannot be read.',
+      errSame: 'Range start and end are the same — nothing to generate.',
+      errMulti: 'More than one numeric segment changes — a range must change exactly one segment.',
+      errBackwards: 'The end of the range is smaller than its start.',
+      errCount: 'The number of children must be 1 or more.',
+      errTooMany: 'The number of children exceeds the 5000 limit.',
+      okGenerated: 'children generated.',
+      m2Empty: 'The input table is empty.',
+      m2NoParent: 'There is no Parent row in the input table.',
+      m2Done: 'Done:',
+      m2Groups: 'parent groups processed',
+      m2Filled: 'child rows filled',
+      m2Added: 'rows added automatically in the output table',
+      m2Extra: 'surplus child rows left empty',
+      m2Kept: 'child rows that already had a value were kept',
+      m2Orphan: 'Child rows before any Parent — skipped',
+      m2RowErr: 'Row',
+      m2Segment: 'segment incremented automatically:',
+      copied: 'Copied to the clipboard — just paste (Ctrl+V) in Excel.',
+      copyFail: 'Copy failed — click the page once and try again.',
+      nothingToCopy: 'No result to copy yet.'
+    }
+  };
+
+  let lang = localStorage.getItem('audit-lang') || 'id';
+  const TR = (k) => (I18N[lang] && k in I18N[lang]) ? I18N[lang][k] : I18N.id[k];
+  const TL = (en, id) => (lang === 'en' ? en : id);
+  const $ = (id) => document.getElementById(id);
+
+  /* =====================================================================
+     INTI: membaca rentang nomor parent
+     Aturan: tanda ~ memisahkan awal & akhir rentang. Bagian setelah ~
+     adalah EKOR dari nomor lengkap, jadi awalannya diambil dari bagian
+     kiri — "DF-...-941175-23~941182-23" berarti 941175 sampai 941182
+     dengan akhiran -23 tetap.
+     ===================================================================== */
+  const shapeOf = (s) => s.replace(/[0-9]/g, '#');
+
+  function digitRuns(s) {
+    const out = [];
+    const re = /[0-9]+/g;
+    let m;
+    while ((m = re.exec(s)) !== null) out.push({ text: m[0], index: m.index, len: m[0].length });
+    return out;
+  }
+
+  // pilihan default segmen untuk nomor TANPA ~: run angka terpanjang
+  // (pada format seperti DF-SD-0101PM-A-941175-23 itu jatuh ke 941175,
+  // bukan ke tahun/kode di ujung). Bisa diganti manual di Mode 1.
+  function defaultRunIndex(runs) {
+    let best = 0;
+    for (let i = 1; i < runs.length; i++) if (runs[i].len >= runs[best].len) best = i;
+    return best;
+  }
+
+  // Hasil: {ok:true, prefix, tail, run, start, end|null} atau {ok:false, err}
+  function parseParent(text) {
+    const raw = String(text == null ? '' : text).trim();
+    if (!raw) return { ok: false, err: 'errNoParent' };
+
+    const i = raw.indexOf('~');
+    if (i < 0) {
+      const runs = digitRuns(raw);
+      if (!runs.length) return { ok: false, err: 'errNoDigit' };
+      const k = defaultRunIndex(runs);
+      return { ok: true, ranged: false, prefix: '', tail: raw, runs, runIdx: k,
+               run: runs[k], start: parseInt(runs[k].text, 10), end: null };
+    }
+
+    const left = raw.slice(0, i).trim();
+    const right = raw.slice(i + 1).trim();
+    if (!left || !right) return { ok: false, err: 'errRangeIncomplete' };
+
+    // --- Cara 1: sejajarkan dari kanan sepanjang bagian setelah ~ ---
+    // Berlaku bila lebar angkanya sama, mis. 941175-23 ~ 941182-23.
+    if (right.length <= left.length) {
+      const prefix = left.slice(0, left.length - right.length);
+      const tail = left.slice(left.length - right.length);
+      if (shapeOf(tail) === shapeOf(right)) {
+        const runsL = digitRuns(tail), runsR = digitRuns(right);
+        const diff = [];
+        for (let k = 0; k < runsL.length; k++) if (runsL[k].text !== runsR[k].text) diff.push(k);
+        if (diff.length === 0) return { ok: false, err: 'errSame' };
+        if (diff.length > 1) return { ok: false, err: 'errMulti' };
+        const k = diff[0];
+        const start = parseInt(runsL[k].text, 10);
+        const end = parseInt(runsR[k].text, 10);
+        if (end < start) return { ok: false, err: 'errBackwards' };
+        return { ok: true, ranged: true, prefix, tail, runs: runsL, runIdx: k,
+                 run: runsL[k], start, end };
+      }
+    }
+
+    // --- Cara 2: lebar angka BERUBAH di tengah rentang, mis. 998 ~ 1002 ---
+    // Akhiran yang sama persis dipotong dulu, tapi tidak boleh memotong di
+    // tengah angka (pada "ABC-100~1200" akhiran "00" harus diabaikan supaya
+    // rentangnya terbaca 100..1200, bukan 1..12).
+    let suf = '';
+    {
+      let a = left.length - 1, b = right.length - 1;
+      while (a >= 0 && b >= 0 && left[a] === right[b]) { suf = left[a] + suf; a--; b--; }
+      while (suf && suf[0] >= '0' && suf[0] <= '9') suf = suf.slice(1);
+    }
+    const lRem = left.slice(0, left.length - suf.length);
+    const rRem = right.slice(0, right.length - suf.length);
+    if (/^[0-9]+$/.test(rRem)) {
+      const m = lRem.match(/([0-9]+)$/);
+      if (m) {
+        const prefix = lRem.slice(0, lRem.length - m[1].length);
+        const tail = m[1] + suf;
+        const start = parseInt(m[1], 10), end = parseInt(rRem, 10);
+        if (end < start) return { ok: false, err: 'errBackwards' };
+        if (end === start) return { ok: false, err: 'errSame' };
+        const runs = digitRuns(tail);
+        return { ok: true, ranged: true, prefix, tail, runs, runIdx: 0,
+                 run: runs[0], start, end };
+      }
+    }
+    if (right.length > left.length) return { ok: false, err: 'errRangeLonger' };
+    return { ok: false, err: 'errShape' };
+  }
+
+  // bangun nomor ke-n (n = nilai segmen, bukan urutan)
+  function buildNumber(p, value) {
+    const pad = p.run.text.length;
+    let num = String(value);
+    while (num.length < pad) num = '0' + num;
+    return p.prefix + p.tail.slice(0, p.run.index) + num + p.tail.slice(p.run.index + p.run.len);
+  }
+
+  function childrenOf(p, count) {
+    const n = p.ranged ? (p.end - p.start + 1) : count;
+    const out = [];
+    for (let i = 0; i < n; i++) out.push(buildNumber(p, p.start + i));
+    return out;
+  }
+
+  /* =====================================================================
+     KOMPONEN SPREADSHEET (dipakai 3 kali: hasil mode 1, input & output mode 2)
+     ===================================================================== */
+  const MAX_CHILD = 5000;
+
+  function makeSheet(headEl, bodyEl, cfg) {
+    const cols = cfg.cols;                 // [{key, cls}]
+    const editable = !!cfg.editable;
+    let sel = null, dragging = false;
+
+    function buildHead() {
+      headEl.innerHTML = '';
+      const rn = document.createElement('th');
+      rn.className = 'rn-head'; rn.textContent = TR('colNo');
+      headEl.appendChild(rn);
+      cols.forEach((c, i) => {
+        const th = document.createElement('th');
+        th.className = 'colhead';
+        th.textContent = TR(c.key);
+        th.addEventListener('click', (e) => selectCol(i, e.shiftKey));
+        headEl.appendChild(th);
+      });
+    }
+    function addRow() {
+      const tr = document.createElement('tr');
+      const rn = document.createElement('td');
+      rn.className = 'rownum'; rn.textContent = bodyEl.rows.length + 1;
+      tr.appendChild(rn);
+      cols.forEach(c => {
+        const td = document.createElement('td');
+        if (c.cls) td.className = c.cls;
+        if (editable) td.setAttribute('contenteditable', 'plaintext-only');
+        tr.appendChild(td);
+      });
+      bodyEl.appendChild(tr);
+      return tr;
+    }
+    function ensureRows(n) { while (bodyEl.rows.length < n) addRow(); }
+    function cell(r, c) { ensureRows(r + 1); return bodyEl.rows[r].cells[c + 1]; }
+    function reset(n) {
+      bodyEl.innerHTML = '';
+      sel = null;
+      for (let i = 0; i < (n || 0); i++) addRow();
+    }
+    function read() {
+      const out = [];
+      for (const tr of bodyEl.rows) {
+        const arr = [];
+        for (let c = 1; c < tr.cells.length; c++) arr.push((tr.cells[c].textContent || '').trim());
+        out.push(arr);
+      }
+      return out;
+    }
+    function isEmpty() { return read().every(r => r.every(v => !v)); }
+
+    // ---- seleksi sel ----
+    const norm = (s) => ({ r1: Math.min(s.r1, s.r2), r2: Math.max(s.r1, s.r2),
+                           c1: Math.min(s.c1, s.c2), c2: Math.max(s.c1, s.c2) });
+    function paint() {
+      const n = sel ? norm(sel) : null;
+      for (const tr of bodyEl.rows) {
+        const r = tr.sectionRowIndex;
+        for (let c = 1; c < tr.cells.length; c++) {
+          const on = !!n && r >= n.r1 && r <= n.r2 && (c - 1) >= n.c1 && (c - 1) <= n.c2;
+          tr.cells[c].classList.toggle('selcell', on);
+        }
+      }
+    }
+    function selectRow(r, ext) {
+      if (ext && sel) { sel.r2 = r; sel.c1 = 0; sel.c2 = cols.length - 1; }
+      else sel = { r1: r, c1: 0, r2: r, c2: cols.length - 1 };
+      paint();
+    }
+    function selectCol(c, ext) {
+      const last = Math.max(0, bodyEl.rows.length - 1);
+      if (ext && sel) { sel.c2 = c; sel.r1 = 0; sel.r2 = last; }
+      else sel = { r1: 0, c1: c, r2: last, c2: c };
+      paint();
+    }
+    function selText() {
+      if (!sel) return '';
+      const n = norm(sel);
+      const lines = [];
+      for (let r = n.r1; r <= Math.min(n.r2, bodyEl.rows.length - 1); r++) {
+        const tr = bodyEl.rows[r]; const cs = [];
+        for (let c = n.c1; c <= Math.min(n.c2, tr.cells.length - 2); c++) cs.push(tr.cells[c + 1].textContent || '');
+        lines.push(cs.join('\t'));
+      }
+      return lines.join('\n');
+    }
+
+    bodyEl.addEventListener('mousedown', (e) => {
+      const td = e.target.closest('td'); if (!td) return;
+      if (td.classList.contains('rownum')) {
+        e.preventDefault(); selectRow(td.parentElement.sectionRowIndex, e.shiftKey); return;
+      }
+      const c = td.cellIndex - 1, r = td.parentElement.sectionRowIndex;
+      if (e.shiftKey && sel) { sel.r2 = r; sel.c2 = c; paint(); return; }
+      dragging = true; sel = { r1: r, c1: c, r2: r, c2: c }; paint();
+    });
+    bodyEl.addEventListener('mouseover', (e) => {
+      if (!dragging) return;
+      const td = e.target.closest('td'); if (!td || td.classList.contains('rownum')) return;
+      sel.r2 = td.parentElement.sectionRowIndex; sel.c2 = td.cellIndex - 1; paint();
+    });
+    document.addEventListener('mouseup', () => { dragging = false; });
+
+    if (editable) {
+      // paste dari Excel: TSV multi-sel disebar mulai sel yang aktif
+      bodyEl.addEventListener('paste', (e) => {
+        const td = e.target.closest('td[contenteditable]'); if (!td) return;
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!text || (!text.includes('\t') && !text.includes('\n'))) return;
+        e.preventDefault();
+        const lines = String(text).replace(/\r/g, '').split('\n');
+        if (lines.length && lines[lines.length - 1] === '') lines.pop();
+        const r0 = td.parentElement.sectionRowIndex, c0 = td.cellIndex - 1;
+        lines.forEach((line, dr) => line.split('\t').forEach((val, dc) => {
+          if (c0 + dc < cols.length) cell(r0 + dr, c0 + dc).textContent = val.trim();
+        }));
+        if (cfg.onChange) cfg.onChange();
+      });
+      bodyEl.addEventListener('input', () => { if (cfg.onChange) cfg.onChange(); });
+    }
+
+    return {
+      buildHead, addRow, ensureRows, cell, reset, read, isEmpty, paint,
+      rowCount: () => bodyEl.rows.length,
+      selText, hasSel: () => !!sel,
+      body: bodyEl
+    };
+  }
+
+  /* =====================================================================
+     UTIL
+     ===================================================================== */
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3800);
+  }
+  function copyText(text) {
+    if (!text) { toast('⚠️ ' + TR('nothingToCopy')); return; }
+    const done = () => toast('✅ ' + TR('copied'));
+    const fail = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove();
+      toast(ok ? '✅ ' + TR('copied') : '⚠️ ' + TR('copyFail'));
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fail);
+    else fail();
+  }
+  function downloadCsv(rows, name) {
+    const head = TR('colNumber') + ',' + TR('colHier') + '\n';
+    const body = rows.map(r => r.map(v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"').join(',')).join('\n');
+    const blob = new Blob(['﻿' + head + body], { type: 'text/csv;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.csv';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function showMsg(el, kind, html) {
+    el.className = 'msg show ' + kind;
+    el.innerHTML = html;
+  }
+  function hideMsg(el) { el.className = 'msg'; el.innerHTML = ''; }
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const hierBadge = (kind) =>
+    '<span class="hier ' + kind + '">' + TR(kind) + '</span>';
+
+  /* =====================================================================
+     MODE 1 — satu parent
+     ===================================================================== */
+  const m1Out = makeSheet($('m1Head'), $('m1Body'), {
+    cols: [{ key: 'colNumber', cls: 'numcol' }, { key: 'colHier' }]
+  });
+  let m1Parsed = null;
+  let m1Rows = [];
+
+  function renderSegs() {
+    const box = $('m1Segs'), hint = $('m1SegHint');
+    box.innerHTML = '';
+    const p = m1Parsed;
+    if (!p || !p.ok) { hint.textContent = TR('m1SegEmpty'); return; }
+
+    // tampilkan pemecahan: awalan + ekor, tiap run angka jadi chip
+    if (p.prefix) {
+      const s = document.createElement('span');
+      s.className = 'seg'; s.textContent = p.prefix; box.appendChild(s);
+    }
+    let pos = 0;
+    p.runs.forEach((run, i) => {
+      if (run.index > pos) {
+        const s = document.createElement('span');
+        s.className = 'seg'; s.textContent = p.tail.slice(pos, run.index); box.appendChild(s);
+      }
+      const b = document.createElement('span');
+      b.className = 'seg num' + (i === p.runIdx ? ' pick' : '');
+      b.textContent = run.text;
+      if (!p.ranged) {
+        b.addEventListener('click', () => {
+          p.runIdx = i; p.run = p.runs[i]; p.start = parseInt(p.runs[i].text, 10);
+          renderSegs();
+        });
+      } else {
+        b.style.cursor = 'default';
+      }
+      box.appendChild(b);
+      pos = run.index + run.len;
+    });
+    if (pos < p.tail.length) {
+      const s = document.createElement('span');
+      s.className = 'seg'; s.textContent = p.tail.slice(pos); box.appendChild(s);
+    }
+    hint.textContent = p.ranged ? TR('m1SegLocked') : TR('m1SegHint');
+  }
+
+  function refreshM1() {
+    const raw = $('m1Parent').value;
+    const cnt = $('m1Count');
+    if (!raw.trim()) {
+      m1Parsed = null; renderSegs(); hideMsg($('m1Msg'));
+      cnt.disabled = false;
+      return;
+    }
+    const p = parseParent(raw);
+    m1Parsed = p;
+    renderSegs();
+    if (!p.ok) { showMsg($('m1Msg'), 'err', esc(TR(p.err))); cnt.disabled = false; return; }
+    hideMsg($('m1Msg'));
+    if (p.ranged) { cnt.value = String(p.end - p.start + 1); cnt.disabled = true; }
+    else { cnt.disabled = false; }
+  }
+
+  function fillSheet(sheet, rows, opts) {
+    sheet.reset(rows.length);
+    rows.forEach((row, r) => {
+      const c0 = sheet.cell(r, 0), c1 = sheet.cell(r, 1);
+      c0.textContent = row[0];
+      c0.classList.toggle('bad', !!row.bad);
+      c0.classList.toggle('added', !!row.added);
+      c1.innerHTML = row[1] ? hierBadge(row[1]) : '';
+    });
+    if (opts && opts.minRows) sheet.ensureRows(opts.minRows);
+  }
+
+  $('m1Go').addEventListener('click', () => {
+    refreshM1();
+    const p = m1Parsed;
+    if (!p) { showMsg($('m1Msg'), 'err', esc(TR('errNoParent'))); return; }
+    if (!p.ok) return;
+    let n = p.ranged ? (p.end - p.start + 1) : parseInt($('m1Count').value, 10);
+    if (!(n >= 1)) { showMsg($('m1Msg'), 'err', esc(TR('errCount'))); return; }
+    if (n > MAX_CHILD) { showMsg($('m1Msg'), 'err', esc(TR('errTooMany'))); return; }
+
+    const kids = childrenOf(p, n);
+    m1Rows = [[$('m1Parent').value.trim(), 'parent']].concat(kids.map(k => [k, 'child']));
+    fillSheet(m1Out, m1Rows);
+    $('m1Count2').textContent = kids.length + ' ' + TR('child');
+    $('m1Copy').disabled = false; $('m1Csv').disabled = false;
+    showMsg($('m1Msg'), 'ok', '<b>' + kids.length + '</b> ' + esc(TR('okGenerated')));
+  });
+
+  $('m1Clear').addEventListener('click', () => {
+    $('m1Parent').value = ''; $('m1Count').value = '8'; $('m1Count').disabled = false;
+    m1Parsed = null; m1Rows = [];
+    renderSegs(); hideMsg($('m1Msg'));
+    m1Out.reset(0); $('m1Count2').textContent = '0';
+    $('m1Copy').disabled = true; $('m1Csv').disabled = true;
+  });
+
+  $('m1Parent').addEventListener('input', refreshM1);
+  $('m1Copy').addEventListener('click', () => {
+    copyText(m1Rows.map(r => r[0] + '\t' + TR(r[1])).join('\n'));
+  });
+  $('m1Csv').addEventListener('click', () => {
+    downloadCsv(m1Rows.map(r => [r[0], TR(r[1])]), 'child-numbers');
+  });
+
+  /* =====================================================================
+     MODE 2 — tabel input ke tabel output
+     ===================================================================== */
+  const M2_ROWS = 14;
+  const m2In = makeSheet($('m2InHead'), $('m2InBody'), {
+    cols: [{ key: 'colNumber', cls: 'numcol' }, { key: 'colHier' }],
+    editable: true
+  });
+  const m2Out = makeSheet($('m2OutHead'), $('m2OutBody'), {
+    cols: [{ key: 'colNumber', cls: 'numcol' }, { key: 'colHier' }]
+  });
+  let m2Rows = [];
+
+  // "Parent"/"Child" ditulis bebas: P/C, Induk/Anak, huruf besar-kecil apa saja
+  function hierKind(v) {
+    const s = String(v || '').trim().toLowerCase();
+    if (!s) return '';
+    if (s === 'p' || s.startsWith('parent') || s.startsWith('induk')) return 'parent';
+    if (s === 'c' || s.startsWith('child') || s.startsWith('anak')) return 'child';
+    return '';
+  }
+
+  $('m2Go').addEventListener('click', () => {
+    const raw = m2In.read();
+    // buang baris ekor yang benar-benar kosong
+    let last = -1;
+    raw.forEach((r, i) => { if (r[0] || r[1]) last = i; });
+    if (last < 0) { showMsg($('m2Msg'), 'err', esc(TR('m2Empty'))); return; }
+    const rows = raw.slice(0, last + 1).map(r => ({ num: r[0], kind: hierKind(r[1]) }));
+
+    if (!rows.some(r => r.kind === 'parent')) {
+      showMsg($('m2Msg'), 'err', esc(TR('m2NoParent'))); return;
+    }
+
+    const out = [];
+    const errs = [];
+    let groups = 0, filled = 0, added = 0, extra = 0, kept = 0, orphan = 0;
+    const segNotes = [];
+
+    let i = 0;
+    while (i < rows.length) {
+      const row = rows[i];
+
+      if (row.kind !== 'parent') {
+        // baris child sebelum parent mana pun (atau baris tanpa hierarki)
+        if (row.kind === 'child' && !row.num) orphan++;
+        out.push([row.num, row.kind]);
+        i++;
+        continue;
+      }
+
+      // kumpulkan baris child yang menempel di bawah parent ini
+      let j = i + 1;
+      while (j < rows.length && rows[j].kind === 'child') j++;
+      const kidRows = rows.slice(i + 1, j);
+      groups++;
+
+      const p = parseParent(row.num);
+      if (!p.ok) {
+        errs.push(TR('m2RowErr') + ' ' + (i + 1) + ': ' + TR(p.err));
+        out.push([row.num, 'parent', true]);
+        kidRows.forEach(k => out.push([k.num, 'child']));
+        i = j;
+        continue;
+      }
+
+      // jumlah anak: dari rentang bila ada ~, kalau tidak dari banyaknya baris Child
+      let n = p.ranged ? (p.end - p.start + 1) : kidRows.length;
+      if (!p.ranged) segNotes.push(TR('m2RowErr') + ' ' + (i + 1) + ' — ' + TR('m2Segment') + ' ' + p.run.text);
+      if (n > MAX_CHILD) {
+        errs.push(TR('m2RowErr') + ' ' + (i + 1) + ': ' + TR('errTooMany'));
+        n = MAX_CHILD;
+      }
+
+      const kids = childrenOf(p, n);
+      out.push([row.num, 'parent']);
+
+      const total = Math.max(kids.length, kidRows.length);
+      for (let k = 0; k < total; k++) {
+        const existing = kidRows[k] ? kidRows[k].num : '';
+        const isNewRow = k >= kidRows.length;
+        if (k < kids.length) {
+          if (existing) { out.push([existing, 'child']); kept++; }
+          else { out.push([kids[k], 'child', false, isNewRow]); filled++; if (isNewRow) added++; }
+        } else {
+          out.push([existing, 'child']);          // baris child berlebih: dibiarkan
+          if (!existing) extra++;
+        }
+      }
+      i = j;
+    }
+
+    m2Rows = out;
+    fillSheet(m2Out, out.map(r => {
+      const a = [r[0], r[1]]; a.bad = r[2]; a.added = r[3]; return a;
+    }), { minRows: M2_ROWS });
+    $('m2Count').textContent = out.length + ' ' + TR('rowsWord');
+    $('m2Copy').disabled = false; $('m2Csv').disabled = false;
+
+    const bits = [];
+    bits.push('<b>' + groups + '</b> ' + esc(TR('m2Groups')));
+    bits.push('<b>' + filled + '</b> ' + esc(TR('m2Filled')));
+    if (added)  bits.push('<b>' + added + '</b> ' + esc(TR('m2Added')));
+    if (extra)  bits.push('<b>' + extra + '</b> ' + esc(TR('m2Extra')));
+    if (kept)   bits.push('<b>' + kept + '</b> ' + esc(TR('m2Kept')));
+    if (orphan) bits.push('<b>' + orphan + '</b> ' + esc(TR('m2Orphan')));
+
+    let html = '<b>' + esc(TR('m2Done')) + '</b> ' + bits.join(' &middot; ');
+    if (segNotes.length) html += '<ul><li>' + segNotes.map(esc).join('</li><li>') + '</li></ul>';
+    if (errs.length) html += '<ul><li>' + errs.map(esc).join('</li><li>') + '</li></ul>';
+    showMsg($('m2Msg'), errs.length ? 'warn' : 'ok', html);
+  });
+
+  $('m2Clear').addEventListener('click', () => {
+    m2In.reset(M2_ROWS); m2Out.reset(M2_ROWS);
+    m2Rows = []; $('m2Count').textContent = '0';
+    $('m2Copy').disabled = true; $('m2Csv').disabled = true;
+    hideMsg($('m2Msg'));
+  });
+  $('m2AddRow').addEventListener('click', () => { for (let i = 0; i < 10; i++) m2In.addRow(); });
+  $('m2Copy').addEventListener('click', () => {
+    copyText(m2Rows.map(r => r[0] + '\t' + (r[1] ? TR(r[1]) : '')).join('\n'));
+  });
+  $('m2Csv').addEventListener('click', () => {
+    downloadCsv(m2Rows.map(r => [r[0], r[1] ? TR(r[1]) : '']), 'child-numbers-table');
+  });
+
+  // Ctrl+C menyalin blok sel yang diblok di grid mana pun
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === 'c') {
+      const sheets = [m1Out, m2In, m2Out].filter(s => s.hasSel());
+      if (!sheets.length) return;
+      const txt = sheets[0].selText();
+      if (txt) { e.preventDefault(); copyText(txt); }
+    }
+  });
+
+  /* =====================================================================
+     TAB, BAHASA, TEMA
+     ===================================================================== */
+  function setTab(n) {
+    $('tab1').classList.toggle('on', n === 1);
+    $('tab2').classList.toggle('on', n === 2);
+    $('mode1').classList.toggle('on', n === 1);
+    $('mode2').classList.toggle('on', n === 2);
+  }
+  $('tab1').addEventListener('click', () => setTab(1));
+  $('tab2').addEventListener('click', () => setTab(2));
+  [['tab1', 1], ['tab2', 2]].forEach(([id, n]) => {
+    $(id).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setTab(n); }
+    });
+  });
+
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n')); if (v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-html')); if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-placeholder')); if (v != null) el.placeholder = v;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-title')); if (v != null) el.title = v;
+    });
+    document.documentElement.lang = lang;
+    document.title = TR('appTitle');
+  }
+  function relabelSheets() {
+    [m1Out, m2In, m2Out].forEach(s => s.buildHead());
+    // badge Parent/Child ikut bahasa aktif
+    if (m1Rows.length) fillSheet(m1Out, m1Rows.map(r => [r[0], r[1]]));
+    if (m2Rows.length) fillSheet(m2Out, m2Rows.map(r => {
+      const a = [r[0], r[1]]; a.bad = r[2]; a.added = r[3]; return a;
+    }), { minRows: M2_ROWS });
+    if (m1Rows.length) $('m1Count2').textContent = (m1Rows.length - 1) + ' ' + TR('child');
+    if (m2Rows.length) $('m2Count').textContent = m2Rows.length + ' ' + TR('rowsWord');
+  }
+  function updateLangLabels() {
+    $('labID').classList.toggle('on', lang === 'id');
+    $('labEN').classList.toggle('on', lang === 'en');
+    $('langToggle').checked = (lang === 'en');
+  }
+  function setLang(l) {
+    lang = (l === 'en') ? 'en' : 'id';
+    localStorage.setItem('audit-lang', lang);   // key sama dengan tool lain agar preferensi konsisten
+    applyI18n(); updateLangLabels(); relabelSheets(); refreshM1();
+  }
+  function setTheme(t) {
+    const v = (t === 'dark') ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', v);
+    localStorage.setItem('audit-theme', v);
+    $('themeToggle').checked = (v === 'dark');
+  }
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('audit-theme') || 'light');
+
+  // ---- init ----
+  applyI18n();
+  updateLangLabels();
+  m1Out.buildHead(); m1Out.reset(0);
+  m2In.buildHead();  m2In.reset(M2_ROWS);
+  m2Out.buildHead(); m2Out.reset(M2_ROWS);
+  renderSegs();
+  setTheme(localStorage.getItem('audit-theme') || 'light');
+  $('langToggle').addEventListener('change', e => setLang(e.target.checked ? 'en' : 'id'));
+  $('themeToggle').addEventListener('change', e => setTheme(e.target.checked ? 'dark' : 'light'));
+
+  // dipakai smoke test
+  window.__cng = { parseParent, buildNumber, childrenOf, hierKind, digitRuns, m1Out, m2In, m2Out,
+                   getM2Rows: () => m2Rows, getM1Rows: () => m1Rows, setTab };
+})();
+</script>
+</body>
+</html>
