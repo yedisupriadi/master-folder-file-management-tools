@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Document Control Tools</title>
+<meta name="description" content="A browser-based suite for document control, file naming, folder management, child document numbering, and Aconex searches.">
+<title>Master Folder &amp; File Management Tools</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%2241.325%20309.180%20194.000%20194.000%22%3E%3Cpath%20fill%3D%22%23D27F37%22%20d%3D%22M145.701%2C311.18L145.701%2C501.18C168.217%2C499.429%20189.406%2C489.7%20205.5%2C473.557C223.342%2C455.662%20233.325%2C431.488%20233.325%2C406.18C233.325%2C402.101%20233.066%2C398.051%20232.556%2C394.052L220.371%2C397.164C220.696%2C400.144%20220.862%2C403.154%20220.862%2C406.18C220.862%2C428.141%20212.168%2C449.193%20196.686%2C464.722C186.475%2C474.963%20173.868%2C482.243%20160.186%2C486.013L160.186%2C365.211L184.997%2C446.484L214.733%2C374.871C215.801%2C377.495%20216.736%2C380.173%20217.531%2C382.897L229.623%2C379.808C225.219%2C364.452%20216.989%2C350.325%20205.5%2C338.803C189.406%2C322.66%20168.217%2C312.931%20145.701%2C311.18ZM130.799%2C311.192C108.339%2C312.974%2087.209%2C322.696%2071.15%2C338.803C60.978%2C349.005%2053.36%2C361.25%2048.69%2C374.581L62.936%2C372.454C67.009%2C363.295%2072.746%2C354.868%2079.954%2C347.638C90.13%2C337.432%20102.686%2C330.166%20116.314%2C326.385L116.314%2C358.29L60.258%2C379.275L60.258%2C379.273L45.766%2C384.687C44.156%2C391.674%2043.325%2C398.88%2043.325%2C406.18C43.325%2C431.487%2053.309%2C455.662%2071.15%2C473.557C87.208%2C489.664%20108.338%2C499.385%20130.799%2C501.168L130.799%2C402.295L104.219%2C410.165L108.32%2C424.1L117.421%2C421.405L116.748%2C486.094C102.952%2C482.347%2090.238%2C475.036%2079.954%2C464.721C64.472%2C449.193%2055.777%2C428.14%2055.777%2C406.18C55.777%2C402.839%2055.979%2C399.519%2056.374%2C396.236L75.34%2C389.137L75.34%2C431.621L89.825%2C431.621L89.825%2C383.714L130.799%2C368.376L130.799%2C323.733L130.799%2C311.192ZM163.804%2C327.433C176.088%2C331.432%20187.381%2C338.306%20196.686%2C347.639C200.061%2C351.024%20203.114%2C354.672%20205.824%2C358.535L187.079%2C403.678L163.804%2C327.433Z%22%2F%3E%3C%2Fsvg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -149,7 +151,7 @@
 <div class="header">
   <div class="logo"><span class="ico"><svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span></div>
   <div>
-    <h1 data-i18n="homeTitle">Document Control Tools</h1>
+    <h1 data-i18n="homeTitle">Master Folder &amp; File Management Tools</h1>
     <div class="subtitle" data-i18n="homeSubtitle">Kumpulan tools all-in-one untuk pengelolaan file & folder dokumen — pilih tool di bawah untuk mulai</div>
   </div>
 </div>
@@ -212,14 +214,26 @@
         id: 'Buat nomor dokumen anak otomatis dari nomor induk bertanda ~ — dari satu parent, atau isi tabel Parent/Child sekaligus lalu salin ke Excel.',
         en: 'Generate child document numbers from a parent number with a ~ range — from a single parent, or fill a whole Parent/Child table at once and copy to Excel.'
       }
+    },
+    {
+      href: 'aconex-search-generator.html',
+      icon: '<circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.2" y2="16.2"/><line x1="8" y1="9.5" x2="14" y2="9.5"/><line x1="8" y1="12.5" x2="12" y2="12.5"/>',
+      name: {
+        id: 'Aconex Multi Document Number Search',
+        en: 'Aconex Multi Document Number Search'
+      },
+      desc: {
+        id: 'Ubah satu kolom daftar document number jadi query docno:(... OR ...) siap paste ke kolom Search Document Register Aconex — daftar panjang dipecah otomatis.',
+        en: 'Turn a single column of document numbers into a docno:(... OR ...) query ready to paste into the Aconex Document Register Search box — long lists are split automatically.'
+      }
     }
-    // Tool #4 dan seterusnya: tambahkan entri baru di sini.
+    // Tool #5 dan seterusnya: tambahkan entri baru di sini.
   ];
 
   // ---------- I18N (teks statis home page) ----------
   const I18N = {
     id: {
-      homeTitle: 'Document Control Tools',
+      homeTitle: 'Master Folder & File Management Tools',
       homeSubtitle: 'Kumpulan tools all-in-one untuk pengelolaan file & folder dokumen — pilih tool di bawah untuk mulai',
       toolsLabel: 'Daftar Tools',
       openTool: 'Buka Tool',
@@ -227,7 +241,7 @@
       homeFooter: 'Tambahkan tool baru lewat array TOOLS di dalam file ini — nomor urut mengikuti urutan daftar secara otomatis.'
     },
     en: {
-      homeTitle: 'Document Control Tools',
+      homeTitle: 'Master Folder & File Management Tools',
       homeSubtitle: 'All-in-one toolset for document file & folder management — pick a tool below to start',
       toolsLabel: 'Tool List',
       openTool: 'Open Tool',

@@ -42,9 +42,7 @@ https://www.notion.so/<workspace>/<DATABASE_ID>?v=<viewId>
 
 **Cara B — Wrangler CLI**
 ```bash
-npm i -g wrangler
-wrangler login
-wrangler deploy
+npx wrangler@latest login
 ```
 
 ## 5. Set Secrets
@@ -55,8 +53,9 @@ wrangler deploy
 
 **Wrangler:**
 ```bash
-wrangler secret put NOTION_TOKEN
-wrangler secret put APP_KEY
+npx wrangler@latest secret put NOTION_TOKEN
+npx wrangler@latest secret put APP_KEY
+npx wrangler@latest deploy
 ```
 
 ## 6. Uji cepat
@@ -66,7 +65,7 @@ curl -X POST https://notion-proxy.<akun>.workers.dev \
   -H "content-type: application/json" \
   -d "{\"databaseId\":\"<DATABASE_ID>\"}"
 ```
-Balasan sukses: `{"ok":true,"count":<n>,"results":[...]}`.
+Balasan sukses: `{"ok":true,"count":<n>,"truncated":false,"results":[...]}`.
 
 ---
 
@@ -86,3 +85,16 @@ Balasan sukses: `{"ok":true,"count":<n>,"results":[...]}`.
 { "databaseId": "…", "action": "meta"  }   // skema properti / judul database
 // opsional untuk query: "filter" & "sorts" (format Notion apa adanya)
 ```
+
+`databaseId` harus berupa ID Notion 32 karakter heksadesimal, dengan atau tanpa
+tanda hubung. Action selain `query` dan `meta` ditolak. Query mengambil maksimal
+2.000 baris (20 halaman x 100); bila batas tercapai, respons berisi
+`"truncated": true`.
+
+## Kompatibilitas Notion API
+
+Worker sengaja menggunakan `Notion-Version: 2022-06-28` karena antarmuka saat ini
+menerima **Database ID** dan endpoint database lama. Gunakan database dengan satu
+data source. Database multi-source yang diperkenalkan Notion pada 2025 dapat
+menghasilkan `validation_error`; dukungan penuh memerlukan migrasi konfigurasi ke
+Data Source ID dan endpoint `/v1/data_sources`.

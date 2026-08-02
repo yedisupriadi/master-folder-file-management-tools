@@ -1,0 +1,21 @@
+# Operating-system and editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Node and local tooling
+node_modules/
+*.log
+
+# Cloudflare local state and secrets
+.wrangler/
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+!.env.example
+
+# Local temporary output
+tmp/
+temp/

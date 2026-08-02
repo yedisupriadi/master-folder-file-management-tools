@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Convert lists of document numbers into chunked Aconex Document Register search queries.">
+<title>Aconex Multi Document Number Search</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%2241.325%20309.180%20194.000%20194.000%22%3E%3Cpath%20fill%3D%22%23D27F37%22%20d%3D%22M145.701%2C311.18L145.701%2C501.18C168.217%2C499.429%20189.406%2C489.7%20205.5%2C473.557C223.342%2C455.662%20233.325%2C431.488%20233.325%2C406.18C233.325%2C402.101%20233.066%2C398.051%20232.556%2C394.052L220.371%2C397.164C220.696%2C400.144%20220.862%2C403.154%20220.862%2C406.18C220.862%2C428.141%20212.168%2C449.193%20196.686%2C464.722C186.475%2C474.963%20173.868%2C482.243%20160.186%2C486.013L160.186%2C365.211L184.997%2C446.484L214.733%2C374.871C215.801%2C377.495%20216.736%2C380.173%20217.531%2C382.897L229.623%2C379.808C225.219%2C364.452%20216.989%2C350.325%20205.5%2C338.803C189.406%2C322.66%20168.217%2C312.931%20145.701%2C311.18ZM130.799%2C311.192C108.339%2C312.974%2087.209%2C322.696%2071.15%2C338.803C60.978%2C349.005%2053.36%2C361.25%2048.69%2C374.581L62.936%2C372.454C67.009%2C363.295%2072.746%2C354.868%2079.954%2C347.638C90.13%2C337.432%20102.686%2C330.166%20116.314%2C326.385L116.314%2C358.29L60.258%2C379.275L60.258%2C379.273L45.766%2C384.687C44.156%2C391.674%2043.325%2C398.88%2043.325%2C406.18C43.325%2C431.487%2053.309%2C455.662%2071.15%2C473.557C87.208%2C489.664%20108.338%2C499.385%20130.799%2C501.168L130.799%2C402.295L104.219%2C410.165L108.32%2C424.1L117.421%2C421.405L116.748%2C486.094C102.952%2C482.347%2090.238%2C475.036%2079.954%2C464.721C64.472%2C449.193%2055.777%2C428.14%2055.777%2C406.18C55.777%2C402.839%2055.979%2C399.519%2056.374%2C396.236L75.34%2C389.137L75.34%2C431.621L89.825%2C431.621L89.825%2C383.714L130.799%2C368.376L130.799%2C323.733L130.799%2C311.192ZM163.804%2C327.433C176.088%2C331.432%20187.381%2C338.306%20196.686%2C347.639C200.061%2C351.024%20203.114%2C354.672%20205.824%2C358.535L187.079%2C403.678L163.804%2C327.433Z%22%2F%3E%3C%2Fsvg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef2f7;
+    --card: #ffffff;
+    --ink: #1e293b;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --accent: #6366f1;
+    --accent-dark: #4f46e5;
+    --green: #10b981;
+    --green-dark: #059669;
+    --violet: #8b5cf6;
+    --violet-dark: #7c3aed;
+    --radius: 12px;
+    --brand: #034F53;
+    --bg-grad-a: #e8edf5;
+    --bg-grad-b: #f4f6fa;
+    --input-bg: #f8fafc;
+    --input-disabled: #f1f5f9;
+    --hover: #f1f5f9;
+    --chip-bg: #f1f5f9;
+    --thead-bg: #1e293b;
+    --thead-ink: #e2e8f0;
+    --td-line: #f1f5f9;
+    --panel-inner: #f8fafc;
+    --tip-bg: #0f172a;
+    --warn-ink: #b45309;
+  }
+  html[data-theme="dark"] {
+    --bg: #0b1220;
+    --card: #131c2e;
+    --ink: #e5e9f0;
+    --muted: #93a1b5;
+    --line: #2a3650;
+    --bg-grad-a: #0b1220;
+    --bg-grad-b: #0e1626;
+    --input-bg: #0f1728;
+    --input-disabled: #172136;
+    --hover: #1b2740;
+    --chip-bg: #1f2b45;
+    --thead-bg: #0a1120;
+    --thead-ink: #cdd7e6;
+    --td-line: #212c46;
+    --panel-inner: #0f1728;
+    --tip-bg: #263248;
+    --warn-ink: #fbbf24;
+    --brand: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: "Lato", "Segoe UI", system-ui, Arial, sans-serif;
+    font-weight: 400;
+    background: linear-gradient(180deg, var(--bg-grad-a) 0%, var(--bg-grad-b) 240px) fixed;
+    color: var(--ink);
+    padding: 22px 26px 60px;
+    min-height: 100vh;
+    transition: background .2s, color .2s;
+  }
+  .ico { display: inline-flex; align-items: center; justify-content: center; color: var(--brand); flex-shrink: 0; }
+  .ico svg { display: block; }
+
+  /* ---------- Topbar ---------- */
+  .topbar {
+    position: fixed; top: 14px; right: 18px; z-index: 200;
+    display: flex; align-items: center; gap: 14px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 999px;
+    padding: 6px 12px; box-shadow: 0 6px 20px -8px rgba(15,23,42,.25);
+  }
+  .toggle { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--muted); -webkit-user-select: none; user-select: none; }
+  .toggle .t-lab { min-width: 26px; text-align: center; }
+  .toggle .t-lab.on { color: var(--brand); }
+  .switch { position: relative; width: 46px; height: 24px; flex-shrink: 0; cursor: pointer; }
+  .switch input { position: absolute; opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; }
+  .switch .slider { position: absolute; inset: 0; border-radius: 999px; background: #cbd5e1; transition: background .18s; }
+  .switch .slider::before {
+    content: ""; position: absolute; left: 3px; top: 3px; width: 18px; height: 18px;
+    border-radius: 50%; background: #fff; transition: transform .18s; box-shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+  .switch input:checked + .slider { background: #034F53; }
+  .switch input:checked + .slider::before { transform: translateX(22px); }
+  .topbar .divider { width: 1px; height: 22px; background: var(--line); }
+
+  /* ---------- Header ---------- */
+  .header { display: flex; align-items: center; gap: 14px; margin: 4px 0 18px; }
+  .home-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 13px; border-radius: 999px; border: 1px solid var(--line);
+    background: var(--card); color: var(--muted); text-decoration: none;
+    font-size: 12.5px; font-weight: 700; transition: transform .12s, background .15s;
+  }
+  .home-link:hover { transform: translateY(-1px); background: var(--hover); }
+  .header h1 { font-size: 21px; letter-spacing: -.3px; font-weight: 700; }
+  .header .subtitle { color: var(--muted); font-size: 12.5px; margin-top: 2px; font-weight: 300; }
+
+  /* ---------- Kartu ---------- */
+  .card {
+    background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px;
+    box-shadow: 0 1px 2px rgba(15,23,42,.06), 0 8px 24px -12px rgba(15,23,42,.12);
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .pc-title {
+    font-size: 12px; font-weight: 700; letter-spacing: .6px;
+    text-transform: uppercase; color: var(--muted);
+    display: flex; align-items: center; gap: 7px;
+  }
+  .note { font-size: 12.5px; color: var(--muted); line-height: 1.55; }
+  .note code {
+    background: var(--chip-bg); padding: 1px 6px; border-radius: 5px;
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12px; color: var(--ink);
+  }
+  .lab { font-size: 12px; font-weight: 700; color: var(--muted); }
+
+  /* ---------- Form ---------- */
+  input[type="text"], input[type="number"] {
+    width: 100%; padding: 10px 13px; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 13.5px; background: var(--card); color: var(--ink); outline: none;
+    transition: border .15s, box-shadow .15s;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(99,102,241,.15);
+  }
+  .mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; letter-spacing: .2px; }
+  .chk { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink); cursor: pointer; -webkit-user-select: none; user-select: none; }
+  .chk input { width: 15px; height: 15px; flex-shrink: 0; accent-color: #034F53; cursor: pointer; }
+  .set-grid { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 12px 14px; align-items: start; }
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field .hint { font-size: 11.5px; color: var(--muted); line-height: 1.45; }
+
+  button {
+    border: none; padding: 10px 17px; border-radius: 9px;
+    font-size: 13.5px; font-weight: 600; cursor: pointer; color: #fff;
+    display: inline-flex; align-items: center; gap: 7px;
+    transition: transform .08s ease, box-shadow .15s ease, background .15s ease;
+  }
+  button:hover:not(:disabled) { transform: translateY(-1px); }
+  button:disabled { background: #cbd5e1 !important; cursor: not-allowed; box-shadow: none !important; }
+  .btn-go { background: var(--green); box-shadow: 0 4px 12px rgba(16,185,129,.3); }
+  .btn-go:hover:not(:disabled) { background: var(--green-dark); }
+  .btn-alt { background: var(--accent); box-shadow: 0 4px 12px rgba(99,102,241,.3); }
+  .btn-alt:hover:not(:disabled) { background: var(--accent-dark); }
+  .btn-csv { background: var(--violet); box-shadow: 0 4px 12px rgba(139,92,246,.3); }
+  .btn-csv:hover:not(:disabled) { background: var(--violet-dark); }
+  .btn-ghost { background: var(--card) !important; color: #ef4444; border: 1px solid var(--line); box-shadow: none !important; }
+  .btn-ghost:hover:not(:disabled) { background: var(--hover) !important; }
+
+  /* ---------- Kotak pesan ---------- */
+  .msg { border-radius: 9px; padding: 10px 13px; font-size: 12.5px; line-height: 1.5; display: none; }
+  .msg.show { display: block; }
+  .msg.err  { background: #fee2e2; color: #991b1b; }
+  .msg.warn { background: #fef3c7; color: #92400e; }
+  .msg.ok   { background: #d1fae5; color: #065f46; }
+  html[data-theme="dark"] .msg.err  { background: #4c1d24; color: #fecaca; }
+  html[data-theme="dark"] .msg.warn { background: #4a3410; color: #fde68a; }
+  html[data-theme="dark"] .msg.ok   { background: #064e3b; color: #a7f3d0; }
+  .msg ul { margin: 6px 0 0 18px; }
+  .msg li { margin-top: 2px; }
+
+  /* ---------- Spreadsheet ---------- */
+  .grid-wrap { overflow: auto; max-height: 420px; border: 1px solid var(--line); border-radius: 9px; }
+  table.sheet { border-collapse: collapse; width: 100%; }
+  .sheet th {
+    background: var(--thead-bg); color: var(--thead-ink); font-size: 11px; font-weight: 700;
+    padding: 7px 9px; text-align: left; position: sticky; top: 0; z-index: 2;
+    letter-spacing: .4px; text-transform: uppercase; white-space: nowrap;
+  }
+  .sheet th.rn-head { width: 44px; min-width: 44px; text-align: center; left: 0; z-index: 3; }
+  .sheet th.colhead { cursor: pointer; -webkit-user-select: none; user-select: none; }
+  .sheet td {
+    border: 1px solid var(--td-line); height: 30px; padding: 5px 9px;
+    font-size: 12.5px; background: var(--card); white-space: nowrap;
+  }
+  .sheet td.numcol { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; }
+  .sheet td[contenteditable]:focus { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .sheet td.rownum {
+    background: var(--chip-bg); color: var(--muted); text-align: center;
+    width: 44px; min-width: 44px; font-size: 11px; font-weight: 700;
+    position: sticky; left: 0; z-index: 1; cursor: pointer;
+  }
+  .sheet td.selcell { background: rgba(99,102,241,.16); box-shadow: inset 0 0 0 1px rgba(99,102,241,.45); }
+  .sheet td.bad { background: #fee2e2; color: #991b1b; }
+  html[data-theme="dark"] .sheet td.bad { background: #4c1d24; color: #fecaca; }
+  .sheet td.dup { background: #fef3c7; color: #92400e; }
+  html[data-theme="dark"] .sheet td.dup { background: #4a3410; color: #fde68a; }
+
+  /* ---------- Blok query hasil ---------- */
+  .out-box { display: flex; flex-direction: column; gap: 12px; max-height: 520px; overflow: auto; }
+  .qblk { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .qhead {
+    display: flex; align-items: center; gap: 9px; padding: 7px 9px 7px 12px;
+    background: var(--panel-inner); border-bottom: 1px solid var(--line);
+    font-size: 11.5px; font-weight: 700; color: var(--muted);
+  }
+  .qhead .spacer { flex: 1; }
+  .qhead .len { font-weight: 400; }
+  .qhead .len.long { color: var(--warn-ink); font-weight: 700; }
+  .qbtn { padding: 5px 11px; font-size: 11.5px; border-radius: 7px; background: var(--accent); box-shadow: none; }
+  .qbtn:hover:not(:disabled) { background: var(--accent-dark); }
+  pre.qbox {
+    margin: 0; padding: 11px 13px; background: var(--card); color: var(--ink);
+    font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+    font-size: 12.5px; line-height: 1.65; white-space: pre-wrap; word-break: break-all;
+    max-height: 220px; overflow: auto; cursor: copy;
+  }
+  pre.qbox:hover { background: var(--hover); }
+  .empty-state {
+    border: 1px dashed var(--line); border-radius: 10px; padding: 26px 18px;
+    text-align: center; color: var(--muted); font-size: 12.5px; line-height: 1.6;
+  }
+
+  .toolbar { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; }
+  .toolbar .spacer { flex: 1; }
+  .cols-2 { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 14px; align-items: start; }
+  .col-stack { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .count-chip {
+    font-size: 12px; color: var(--muted); background: var(--chip-bg);
+    padding: 5px 11px; border-radius: 999px; font-weight: 700;
+  }
+
+  /* ---------- Toast ---------- */
+  #toast {
+    position: fixed; bottom: 26px; left: 50%; transform: translateX(-50%) translateY(12px);
+    background: var(--tip-bg); color: #fff; padding: 12px 20px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; opacity: 0; pointer-events: none;
+    transition: opacity .25s, transform .25s; z-index: 300; max-width: 80vw; text-align: center;
+    box-shadow: 0 10px 30px rgba(15,23,42,.35);
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 900px) {
+    .cols-2 { grid-template-columns: minmax(0,1fr); }
+    .set-grid { grid-template-columns: minmax(0,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <label class="toggle" title="Bahasa / Language">
+    <span class="t-lab" id="labID">ID</span>
+    <span class="switch"><input type="checkbox" id="langToggle" aria-label="Bahasa / Language"><span class="slider"></span></span>
+    <span class="t-lab" id="labEN">EN</span>
+  </label>
+  <span class="divider"></span>
+  <label class="toggle" title="Light / Dark">
+    <span class="ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.2" y1="4.2" x2="5.6" y2="5.6"/><line x1="18.4" y1="18.4" x2="19.8" y2="19.8"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.2" y1="19.8" x2="5.6" y2="18.4"/><line x1="18.4" y1="5.6" x2="19.8" y2="4.2"/></svg></span>
+    <span class="switch"><input type="checkbox" id="themeToggle" aria-label="Light / Dark"><span class="slider"></span></span>
+    <span class="ico" aria-hidden="true"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+  </label>
+</div>
+
+<div class="header">
+  <a class="home-link" href="index.html" data-i18n-title="backHomeTip" title="Kembali ke halaman utama"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span><span data-i18n="backHome">Home</span></a>
+  <div class="ico"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="20" y1="20" x2="16.2" y2="16.2"/><line x1="8" y1="9.5" x2="14" y2="9.5"/><line x1="8" y1="12.5" x2="12" y2="12.5"/></svg></div>
+  <div>
+    <h1 data-i18n="appTitle">Aconex Multi Document Number Search</h1>
+    <div class="subtitle" data-i18n="appSubtitle">Ubah daftar document number jadi satu query pencarian Aconex — tempel ke kolom Search di Document Register</div>
+  </div>
+</div>
+
+<div class="cols-2">
+  <!-- ============ KOLOM KIRI: input + pengaturan ============ -->
+  <div class="col-stack">
+    <div class="card">
+      <div class="toolbar">
+        <div class="pc-title" style="flex:1"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span><span data-i18n="inTitle">Daftar Document Number</span></div>
+        <span class="count-chip" id="inCount">0</span>
+      </div>
+      <div class="note" data-i18n-html="inNote">Satu nomor per baris — bisa di-paste langsung satu kolom dari Excel (Ctrl+V). Baris kosong dilewati otomatis.</div>
+      <div class="grid-wrap"><table class="sheet"><thead><tr id="inHead"></tr></thead><tbody id="inBody"></tbody></table></div>
+      <div class="toolbar">
+        <button class="btn-ghost" id="addRow" style="padding:6px 11px;font-size:12px;color:var(--muted)"><span data-i18n="addRows">+ 10 Baris</span></button>
+        <button class="btn-ghost" id="clearIn" style="padding:6px 11px;font-size:12px"><span data-i18n="clear">Bersihkan</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="pc-title"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6h.09A1.65 1.65 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9v.09a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span><span data-i18n="setTitle">Pengaturan Query</span></div>
+
+      <div class="set-grid">
+        <div class="field">
+          <label class="lab" for="fieldCode" data-i18n="fieldLabel">Search Code:</label>
+          <input type="text" id="fieldCode" class="mono" value="docno" list="fieldCodes" autocomplete="off">
+          <datalist id="fieldCodes">
+            <option value="docno"></option>
+            <option value="doctype"></option>
+          </datalist>
+          <div class="hint" data-i18n="fieldHint">Kode pencarian Aconex untuk Document Number adalah docno. Bisa diganti manual bila perlu.</div>
+        </div>
+        <div class="field">
+          <label class="lab" for="chunkSize" data-i18n="chunkLabel">Maks. nomor per query:</label>
+          <input type="number" id="chunkSize" min="0" max="1000" value="50">
+          <div class="hint" data-i18n="chunkHint">Daftar panjang dipecah jadi beberapa query supaya tidak melewati batas kolom Search. Isi 0 untuk selalu satu query.</div>
+        </div>
+      </div>
+
+      <div class="toolbar" style="gap:16px">
+        <label class="chk"><input type="checkbox" id="optQuote" checked><span data-i18n="quoteLabel">Bungkus dengan tanda kutip</span></label>
+        <label class="chk"><input type="checkbox" id="optDedupe" checked><span data-i18n="dedupeLabel">Hapus nomor duplikat</span></label>
+      </div>
+
+      <div class="msg" id="msg"></div>
+
+      <div class="toolbar">
+        <button class="btn-go" id="go"><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span><span data-i18n="generate">Generate</span></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ KOLOM KANAN: hasil query ============ -->
+  <div class="card">
+    <div class="toolbar">
+      <div class="pc-title" style="flex:1"><span class="ico"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg></span><span data-i18n="outTitle">Query Pencarian</span></div>
+      <span class="count-chip" id="outCount">0</span>
+    </div>
+    <div class="note" data-i18n-html="outNote">Klik query untuk menyalin, lalu paste ke kolom <b>Search</b> di bagian atas Document Register Aconex dan tekan <b>Search</b>.</div>
+    <div class="out-box" id="outBox"></div>
+    <div class="toolbar">
+      <button class="btn-alt" id="copyAll" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></span><span data-i18n="copyAll">Salin Semua Query</span></button>
+      <button class="btn-csv" id="exportTxt" disabled><span class="ico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg></span><span data-i18n="exportTxt">Export .txt</span></button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+(() => {
+  'use strict';
+
+  /* =====================================================================
+     KAMUS BAHASA — setiap teks UI baru wajib ada di ID dan EN.
+     ===================================================================== */
+  const I18N = {
+    id: {
+      appTitle: 'Aconex Multi Document Number Search',
+      appSubtitle: 'Ubah daftar document number jadi satu query pencarian Aconex — tempel ke kolom Search di Document Register',
+      backHome: 'Home', backHomeTip: 'Kembali ke halaman utama',
+      inTitle: 'Daftar Document Number',
+      inNote: 'Satu nomor per baris — bisa di-paste langsung satu kolom dari Excel (Ctrl+V). Baris kosong dilewati otomatis.',
+      setTitle: 'Pengaturan Query',
+      fieldLabel: 'Search Code:',
+      fieldHint: 'Kode pencarian Aconex untuk Document Number adalah docno. Bisa diganti manual bila perlu.',
+      chunkLabel: 'Maks. nomor per query:',
+      chunkHint: 'Daftar panjang dipecah jadi beberapa query supaya tidak melewati batas kolom Search. Isi 0 untuk selalu satu query.',
+      quoteLabel: 'Bungkus dengan tanda kutip',
+      dedupeLabel: 'Hapus nomor duplikat',
+      outTitle: 'Query Pencarian',
+      outNote: 'Klik query untuk menyalin, lalu paste ke kolom <b>Search</b> di bagian atas Document Register Aconex dan tekan <b>Search</b>.',
+      outEmpty: 'Isi daftar document number di sebelah kiri, lalu klik Generate — query siap-paste akan muncul di sini.',
+      generate: 'Generate', clear: 'Bersihkan', addRows: '+ 10 Baris',
+      copyAll: 'Salin Semua Query', copyOne: 'Salin', exportTxt: 'Export .txt',
+      colNumber: 'Document Number', colNo: '#',
+      queryWord: 'Query', ofWord: 'dari',
+      numbersWord: 'nomor', charsWord: 'karakter', queriesWord: 'query',
+      // pesan
+      errEmpty: 'Daftar document number masih kosong.',
+      errNoValid: 'Tidak ada document number yang bisa dipakai.',
+      errField: 'Search code masih kosong — isi dengan docno.',
+      done: 'Selesai:',
+      statNumbers: 'nomor dipakai',
+      statQueries: 'query dibuat',
+      statDup: 'duplikat dihapus',
+      statBad: 'baris dilewati karena memuat tanda kutip (ditandai merah)',
+      warnLong: 'Ada query yang sangat panjang — bila Aconex menolak, kecilkan angka "Maks. nomor per query".',
+      copied: 'Query tersalin — tinggal paste (Ctrl+V) di kolom Search Aconex.',
+      copiedCells: 'Tersalin ke clipboard.',
+      copyFail: 'Gagal menyalin — klik halaman dulu lalu ulangi.',
+      nothingToCopy: 'Belum ada query untuk disalin.'
+    },
+    en: {
+      appTitle: 'Aconex Multi Document Number Search',
+      appSubtitle: 'Turn a list of document numbers into one Aconex search query — paste it into the Search box on the Document Register',
+      backHome: 'Home', backHomeTip: 'Back to the home page',
+      inTitle: 'Document Number List',
+      inNote: 'One number per row — you can paste a single column straight from Excel (Ctrl+V). Empty rows are skipped automatically.',
+      setTitle: 'Query Settings',
+      fieldLabel: 'Search code:',
+      fieldHint: 'The Aconex search code for Document Number is docno. Change it manually if needed.',
+      chunkLabel: 'Max numbers per query:',
+      chunkHint: 'Long lists are split into several queries so the Search box limit is not exceeded. Enter 0 to always build a single query.',
+      quoteLabel: 'Wrap values in quotes',
+      dedupeLabel: 'Remove duplicate numbers',
+      outTitle: 'Search Query',
+      outNote: 'Click a query to copy it, then paste it into the <b>Search</b> box at the top of the Aconex Document Register and hit <b>Search</b>.',
+      outEmpty: 'Fill in the document number list on the left, then click Generate — ready-to-paste queries appear here.',
+      generate: 'Generate', clear: 'Clear', addRows: '+ 10 Rows',
+      copyAll: 'Copy All Queries', copyOne: 'Copy', exportTxt: 'Export .txt',
+      colNumber: 'Document Number', colNo: '#',
+      queryWord: 'Query', ofWord: 'of',
+      numbersWord: 'numbers', charsWord: 'characters', queriesWord: 'queries',
+      errEmpty: 'The document number list is empty.',
+      errNoValid: 'There is no usable document number.',
+      errField: 'The search code is empty — set it to docno.',
+      done: 'Done:',
+      statNumbers: 'numbers used',
+      statQueries: 'queries built',
+      statDup: 'duplicates removed',
+      statBad: 'rows skipped because they contain a quote character (marked red)',
+      warnLong: 'One query is very long — if Aconex rejects it, lower the "Max numbers per query" value.',
+      copied: 'Query copied — just paste (Ctrl+V) into the Aconex Search box.',
+      copiedCells: 'Copied to the clipboard.',
+      copyFail: 'Copy failed — click the page once and try again.',
+      nothingToCopy: 'No query to copy yet.'
+    }
+  };
+
+  let lang = localStorage.getItem('audit-lang') || 'id';
+  const TR = (k) => (I18N[lang] && k in I18N[lang]) ? I18N[lang][k] : I18N.id[k];
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+  const MAX_NUMBERS = 5000;   // batas wajar sekali generate
+  const LONG_QUERY  = 2000;   // panjang query yang pantas diberi peringatan
+  const IN_ROWS     = 16;
+
+  /* =====================================================================
+     INTI: membersihkan daftar & merakit query Aconex
+
+     Bentuk query: docno:("A" OR "B" OR "C")
+     Aconex mendukung pengelompokan nilai dengan tanda kurung dan
+     penggabungan memakai OR, mis. doctype:(drawing OR model).
+     ===================================================================== */
+
+  // Satu sel bisa saja berisi beberapa nomor (hasil paste dari sumber lain).
+  // Dipisah hanya pada koma/titik-koma/baris baru/tab — BUKAN spasi, karena
+  // ada format nomor dokumen yang memang memuat spasi.
+  function splitCell(v) {
+    return String(v == null ? '' : v)
+      .split(/[,;\r\n\t]+/)
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
+
+  // Buang tanda kutip yang mengapit (kalau daftarnya sudah pernah dikutip),
+  // lalu buang sisa tanda baca penutup yang ikut terbawa.
+  function cleanNumber(v) {
+    let s = String(v == null ? '' : v).trim();
+    s = s.replace(/^["'“”‘’]+/, '').replace(/["'“”‘’]+$/, '');
+    return s.trim();
+  }
+
+  // Hasil: { list, dupes, bad, badRows }
+  // badRows = nomor baris tabel (1-based) yang isinya ditolak
+  function collectNumbers(rows, dedupe) {
+    const list = [], seen = new Set(), badRows = [];
+    let dupes = 0, bad = 0;
+    rows.forEach((cells, r) => {
+      splitCell(cells[0]).forEach(part => {
+        const v = cleanNumber(part);
+        if (!v) return;
+        // tanda kutip di TENGAH nilai akan merusak query — tolak, jangan diam-diam dibuang
+        if (/["]/.test(v)) { bad++; if (badRows.indexOf(r) < 0) badRows.push(r); return; }
+        if (dedupe) {
+          const key = v.toUpperCase();
+          if (seen.has(key)) { dupes++; return; }
+          seen.add(key);
+        }
+        list.push(v);
+      });
+    });
+    return { list, dupes, bad, badRows };
+  }
+
+  function buildQueries(list, opts) {
+    const field = opts.field;
+    const quote = opts.quote !== false;
+    const size = (opts.chunk > 0) ? opts.chunk : list.length;
+    const out = [];
+    for (let i = 0; i < list.length; i += size) {
+      const part = list.slice(i, i + size);
+      const vals = part.map(v => quote ? '"' + v + '"' : v).join(' OR ');
+      out.push({ text: field + ':(' + vals + ')', count: part.length });
+    }
+    return out;
+  }
+
+  /* =====================================================================
+     KOMPONEN SPREADSHEET (versi satu kolom — sama polanya dengan Tool #3)
+     ===================================================================== */
+  function makeSheet(headEl, bodyEl, cfg) {
+    const cols = cfg.cols;
+    const editable = !!cfg.editable;
+    let sel = null, dragging = false, api = null;
+
+    function buildHead() {
+      headEl.innerHTML = '';
+      const rn = document.createElement('th');
+      rn.className = 'rn-head'; rn.textContent = TR('colNo');
+      headEl.appendChild(rn);
+      cols.forEach((c, i) => {
+        const th = document.createElement('th');
+        th.className = 'colhead';
+        th.textContent = TR(c.key);
+        th.addEventListener('click', (e) => selectCol(i, e.shiftKey));
+        headEl.appendChild(th);
+      });
+    }
+    function addRow() {
+      const tr = document.createElement('tr');
+      const rn = document.createElement('td');
+      rn.className = 'rownum'; rn.textContent = bodyEl.rows.length + 1;
+      tr.appendChild(rn);
+      cols.forEach(c => {
+        const td = document.createElement('td');
+        if (c.cls) td.className = c.cls;
+        if (editable) td.setAttribute('contenteditable', 'plaintext-only');
+        tr.appendChild(td);
+      });
+      bodyEl.appendChild(tr);
+      return tr;
+    }
+    function ensureRows(n) { while (bodyEl.rows.length < n) addRow(); }
+    function cell(r, c) { ensureRows(r + 1); return bodyEl.rows[r].cells[c + 1]; }
+    function reset(n) {
+      bodyEl.innerHTML = '';
+      sel = null;
+      for (let i = 0; i < (n || 0); i++) addRow();
+    }
+    function read() {
+      const out = [];
+      for (const tr of bodyEl.rows) {
+        const arr = [];
+        for (let c = 1; c < tr.cells.length; c++) arr.push((tr.cells[c].textContent || '').trim());
+        out.push(arr);
+      }
+      return out;
+    }
+
+    // ---- seleksi sel ----
+    const norm = (s) => ({ r1: Math.min(s.r1, s.r2), r2: Math.max(s.r1, s.r2),
+                           c1: Math.min(s.c1, s.c2), c2: Math.max(s.c1, s.c2) });
+    function paint() {
+      const n = sel ? norm(sel) : null;
+      for (const tr of bodyEl.rows) {
+        const r = tr.sectionRowIndex;
+        for (let c = 1; c < tr.cells.length; c++) {
+          const on = !!n && r >= n.r1 && r <= n.r2 && (c - 1) >= n.c1 && (c - 1) <= n.c2;
+          tr.cells[c].classList.toggle('selcell', on);
+        }
+      }
+    }
+    function clearSel() { sel = null; paint(); }
+    function selCount() {
+      if (!sel) return 0;
+      const n = norm(sel);
+      const rows = Math.min(n.r2, bodyEl.rows.length - 1) - n.r1 + 1;
+      return Math.max(0, rows) * (n.c2 - n.c1 + 1);
+    }
+    function selectRow(r, ext) {
+      if (ext && sel) { sel.r2 = r; sel.c1 = 0; sel.c2 = cols.length - 1; }
+      else sel = { r1: r, c1: 0, r2: r, c2: cols.length - 1 };
+      paint();
+    }
+    function selectCol(c, ext) {
+      const last = Math.max(0, bodyEl.rows.length - 1);
+      if (ext && sel) { sel.c2 = c; sel.r1 = 0; sel.r2 = last; }
+      else sel = { r1: 0, c1: c, r2: last, c2: c };
+      paint();
+    }
+    function selText() {
+      if (!sel) return '';
+      const n = norm(sel);
+      const lines = [];
+      for (let r = n.r1; r <= Math.min(n.r2, bodyEl.rows.length - 1); r++) {
+        const tr = bodyEl.rows[r]; const cs = [];
+        for (let c = n.c1; c <= Math.min(n.c2, tr.cells.length - 2); c++) cs.push(tr.cells[c + 1].textContent || '');
+        lines.push(cs.join('\t'));
+      }
+      return lines.join('\n');
+    }
+
+    bodyEl.addEventListener('mousedown', (e) => {
+      const td = e.target.closest('td'); if (!td) return;
+      if (td.classList.contains('rownum')) {
+        e.preventDefault(); selectRow(td.parentElement.sectionRowIndex, e.shiftKey); return;
+      }
+      const c = td.cellIndex - 1, r = td.parentElement.sectionRowIndex;
+      if (e.shiftKey && sel) { sel.r2 = r; sel.c2 = c; paint(); return; }
+      dragging = true; sel = { r1: r, c1: c, r2: r, c2: c }; paint();
+    });
+    bodyEl.addEventListener('mouseover', (e) => {
+      if (!dragging) return;
+      const td = e.target.closest('td'); if (!td || td.classList.contains('rownum')) return;
+      sel.r2 = td.parentElement.sectionRowIndex; sel.c2 = td.cellIndex - 1; paint();
+    });
+    document.addEventListener('mouseup', () => { dragging = false; });
+
+    if (editable) {
+      // paste dari Excel: TSV multi-sel disebar mulai sel yang aktif
+      bodyEl.addEventListener('paste', (e) => {
+        const td = e.target.closest('td[contenteditable]'); if (!td) return;
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!text || (!text.includes('\t') && !text.includes('\n'))) return;
+        e.preventDefault();
+        const lines = String(text).replace(/\r/g, '').split('\n');
+        if (lines.length && lines[lines.length - 1] === '') lines.pop();
+        const r0 = td.parentElement.sectionRowIndex, c0 = td.cellIndex - 1;
+        lines.forEach((line, dr) => line.split('\t').forEach((val, dc) => {
+          if (c0 + dc < cols.length) cell(r0 + dr, c0 + dc).textContent = val.trim();
+        }));
+        if (cfg.onChange) cfg.onChange();
+      });
+      bodyEl.addEventListener('input', () => { if (cfg.onChange) cfg.onChange(); });
+    }
+
+    api = {
+      buildHead, addRow, ensureRows, cell, reset, read, paint,
+      rowCount: () => bodyEl.rows.length,
+      selText, clearSel, selCount, hasSel: () => selCount() > 0,
+      body: bodyEl
+    };
+    return api;
+  }
+
+  /* =====================================================================
+     UTIL
+     ===================================================================== */
+  let toastTimer = null;
+  function toast(msg) {
+    const t = $('toast');
+    t.textContent = msg; t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3800);
+  }
+  function copyText(text, okMsg) {
+    if (!text) { toast('⚠️ ' + TR('nothingToCopy')); return; }
+    const label = okMsg || TR('copied');
+    const done = () => toast('✅ ' + label);
+    const fail = () => {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.focus(); ta.select();
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      ta.remove();
+      toast(ok ? '✅ ' + label : '⚠️ ' + TR('copyFail'));
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(done).catch(fail);
+    else fail();
+  }
+  function downloadTxt(text, name) {
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8;' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name + '-' + new Date().toISOString().slice(0, 10) + '.txt';
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }
+  function showMsg(kind, html) {
+    const el = $('msg');
+    el.className = 'msg show ' + kind;
+    el.innerHTML = html;
+  }
+  function hideMsg() { const el = $('msg'); el.className = 'msg'; el.innerHTML = ''; }
+
+  /* =====================================================================
+     HALAMAN
+     ===================================================================== */
+  const sheet = makeSheet($('inHead'), $('inBody'), {
+    cols: [{ key: 'colNumber', cls: 'numcol' }],
+    editable: true,
+    onChange: () => { clearMarks(); updateInCount(); }
+  });
+
+  let queries = [];   // [{text, count}]
+
+  function clearMarks() {
+    for (const tr of sheet.body.rows) tr.cells[1].classList.remove('bad', 'dup');
+  }
+  function updateInCount() {
+    const n = collectNumbers(sheet.read(), false).list.length;
+    $('inCount').textContent = n + ' ' + TR('numbersWord');
+  }
+
+  function renderOut() {
+    const box = $('outBox');
+    box.innerHTML = '';
+    if (!queries.length) {
+      const d = document.createElement('div');
+      d.className = 'empty-state';
+      d.textContent = TR('outEmpty');
+      box.appendChild(d);
+      $('copyAll').disabled = true; $('exportTxt').disabled = true;
+      $('outCount').textContent = '0';
+      return;
+    }
+    queries.forEach((q, i) => {
+      const blk = document.createElement('div');
+      blk.className = 'qblk';
+
+      const head = document.createElement('div');
+      head.className = 'qhead';
+      const title = document.createElement('span');
+      title.textContent = queries.length > 1
+        ? TR('queryWord') + ' ' + (i + 1) + ' ' + TR('ofWord') + ' ' + queries.length
+        : TR('queryWord');
+      const meta = document.createElement('span');
+      meta.className = 'len' + (q.text.length > LONG_QUERY ? ' long' : '');
+      meta.textContent = q.count + ' ' + TR('numbersWord') + ' · ' + q.text.length + ' ' + TR('charsWord');
+      const sp = document.createElement('span');
+      sp.className = 'spacer';
+      const btn = document.createElement('button');
+      btn.className = 'qbtn';
+      btn.textContent = TR('copyOne');
+      btn.addEventListener('click', () => copyText(q.text));
+      head.appendChild(title); head.appendChild(meta); head.appendChild(sp); head.appendChild(btn);
+
+      const pre = document.createElement('pre');
+      pre.className = 'qbox';
+      pre.textContent = q.text;
+      pre.title = TR('copyOne');
+      pre.addEventListener('click', () => copyText(q.text));
+
+      blk.appendChild(head); blk.appendChild(pre);
+      box.appendChild(blk);
+    });
+    $('copyAll').disabled = false; $('exportTxt').disabled = false;
+    $('outCount').textContent = queries.length + ' ' + TR('queriesWord');
+  }
+
+  function generate() {
+    clearMarks();
+    const field = $('fieldCode').value.trim();
+    if (!field) { showMsg('err', esc(TR('errField'))); return; }
+
+    const rows = sheet.read();
+    if (rows.every(r => !r[0])) { queries = []; renderOut(); showMsg('err', esc(TR('errEmpty'))); return; }
+
+    const dedupe = $('optDedupe').checked;
+    const res = collectNumbers(rows, dedupe);
+    res.badRows.forEach(r => { if (sheet.body.rows[r]) sheet.body.rows[r].cells[1].classList.add('bad'); });
+
+    if (!res.list.length) { queries = []; renderOut(); showMsg('err', esc(TR('errNoValid'))); return; }
+
+    let list = res.list, capped = 0;
+    if (list.length > MAX_NUMBERS) { capped = list.length - MAX_NUMBERS; list = list.slice(0, MAX_NUMBERS); }
+
+    let chunk = parseInt($('chunkSize').value, 10);
+    if (!(chunk >= 0)) chunk = 0;
+
+    queries = buildQueries(list, { field, quote: $('optQuote').checked, chunk });
+    renderOut();
+
+    const bits = [];
+    bits.push('<b>' + list.length + '</b> ' + esc(TR('statNumbers')));
+    bits.push('<b>' + queries.length + '</b> ' + esc(TR('statQueries')));
+    if (res.dupes) bits.push('<b>' + res.dupes + '</b> ' + esc(TR('statDup')));
+    if (res.bad)   bits.push('<b>' + res.bad + '</b> ' + esc(TR('statBad')));
+
+    const tooLong = queries.some(q => q.text.length > LONG_QUERY);
+    let html = '<b>' + esc(TR('done')) + '</b> ' + bits.join(' &middot; ');
+    if (tooLong || capped) {
+      const notes = [];
+      if (tooLong) notes.push(esc(TR('warnLong')));
+      if (capped)  notes.push('<b>' + capped + '</b> ' + esc(TR('numbersWord')) + ' > ' + MAX_NUMBERS);
+      html += '<ul><li>' + notes.join('</li><li>') + '</li></ul>';
+    }
+    showMsg((res.bad || tooLong || capped) ? 'warn' : 'ok', html);
+  }
+
+  $('go').addEventListener('click', generate);
+  $('addRow').addEventListener('click', () => { for (let i = 0; i < 10; i++) sheet.addRow(); });
+  $('clearIn').addEventListener('click', () => {
+    sheet.reset(IN_ROWS);
+    queries = []; renderOut(); hideMsg(); updateInCount();
+  });
+  $('copyAll').addEventListener('click', () => copyText(queries.map(q => q.text).join('\n\n')));
+  $('exportTxt').addEventListener('click', () => {
+    downloadTxt(queries.map((q, i) =>
+      (queries.length > 1 ? '# ' + TR('queryWord') + ' ' + (i + 1) + ' ' + TR('ofWord') + ' ' + queries.length +
+       ' (' + q.count + ' ' + TR('numbersWord') + ')\n' : '') + q.text
+    ).join('\n\n'), 'aconex-search');
+  });
+
+  // Enter di kolom pengaturan langsung generate
+  ['fieldCode', 'chunkSize'].forEach(id => {
+    $(id).addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); generate(); } });
+  });
+
+  // Ctrl+C menyalin blok sel yang diblok di tabel input
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === 'c') {
+      if (!sheet.hasSel()) return;
+      // Sedang menyorot teks DI DALAM sel yang diedit: biarkan browser yang
+      // menyalin teks itu. Diperiksa lewat rentang seleksi, bukan activeElement,
+      // supaya tidak bergantung pada dukungan isContentEditable.
+      const ws = window.getSelection();
+      if (ws && ws.rangeCount && !ws.isCollapsed) {
+        const a = ws.anchorNode;
+        const el = a && (a.nodeType === 1 ? a : a.parentElement);
+        if (el && el.closest && el.closest('td[contenteditable]')) return;
+      }
+      const txt = sheet.selText();
+      if (txt) { e.preventDefault(); copyText(txt, TR('copiedCells')); }
+    }
+    if (e.key === 'Escape') sheet.clearSel();
+  });
+
+  /* =====================================================================
+     BAHASA & TEMA
+     ===================================================================== */
+  function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n')); if (v != null) el.textContent = v;
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-html')); if (v != null) el.innerHTML = v;
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-placeholder')); if (v != null) el.placeholder = v;
+    });
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const v = TR(el.getAttribute('data-i18n-title')); if (v != null) el.title = v;
+    });
+    document.documentElement.lang = lang;
+    document.title = TR('appTitle');
+  }
+  function updateLangLabels() {
+    $('labID').classList.toggle('on', lang === 'id');
+    $('labEN').classList.toggle('on', lang === 'en');
+    $('langToggle').checked = (lang === 'en');
+  }
+  function setLang(l) {
+    lang = (l === 'en') ? 'en' : 'id';
+    localStorage.setItem('audit-lang', lang);   // key sama dengan tool lain agar preferensi konsisten
+    applyI18n(); updateLangLabels();
+    sheet.buildHead(); updateInCount(); renderOut();
+  }
+  function setTheme(t) {
+    const v = (t === 'dark') ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', v);
+    localStorage.setItem('audit-theme', v);
+    $('themeToggle').checked = (v === 'dark');
+  }
+  document.documentElement.setAttribute('data-theme', localStorage.getItem('audit-theme') || 'light');
+
+  // ---- init ----
+  applyI18n();
+  updateLangLabels();
+  sheet.buildHead(); sheet.reset(IN_ROWS);
+  renderOut(); updateInCount();
+  setTheme(localStorage.getItem('audit-theme') || 'light');
+  $('langToggle').addEventListener('change', e => setLang(e.target.checked ? 'en' : 'id'));
+  $('themeToggle').addEventListener('change', e => setTheme(e.target.checked ? 'dark' : 'light'));
+
+  // dipakai smoke test
+  window.__aqs = { splitCell, cleanNumber, collectNumbers, buildQueries, sheet,
+                   getQueries: () => queries, generate };
+})();
+</script>
+</body>
+</html>

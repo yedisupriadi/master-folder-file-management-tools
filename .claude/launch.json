@@ -2,9 +2,9 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "document-control-tools",
+      "name": "master-folder-file-management-tools",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "8734", "--directory", "DocumentControlAuditTools"],
+      "runtimeArgs": ["-m", "http.server", "8734", "--directory", "."],
       "port": 8734
     }
   ]

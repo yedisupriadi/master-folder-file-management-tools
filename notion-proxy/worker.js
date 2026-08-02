@@ -24,6 +24,8 @@ function cors(extra) {
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
     'Access-Control-Allow-Headers': 'content-type, x-app-key',
     'Access-Control-Max-Age': '86400',
+    'Cache-Control': 'no-store',
+    'X-Content-Type-Options': 'nosniff',
   }, extra || {});
 }
 
@@ -40,7 +42,9 @@ export default {
     if (request.method !== 'POST') return json({ error: 'Use POST' }, 405);
 
     // gerbang lembut: cek shared key sebelum menyentuh Notion
-    if (env.APP_KEY && request.headers.get('x-app-key') !== env.APP_KEY) {
+    if (!env.APP_KEY) return json({ error: 'Server missing APP_KEY' }, 500);
+
+    if (request.headers.get('x-app-key') !== env.APP_KEY) {
       return json({ error: 'Unauthorized' }, 401);
     }
     if (!env.NOTION_TOKEN) return json({ error: 'Server missing NOTION_TOKEN' }, 500);
@@ -52,6 +56,11 @@ export default {
     const action = (payload && payload.action) || 'query';
     const databaseId = payload && payload.databaseId;
     if (!databaseId) return json({ error: 'databaseId required' }, 400);
+    if (!['query', 'meta'].includes(action)) return json({ error: 'Unsupported action' }, 400);
+    if (!/^[0-9a-f]{32}$/i.test(String(databaseId).replace(/-/g, ''))) {
+      return json({ error: 'Invalid databaseId' }, 400);
+    }
+    const notionDatabaseId = String(databaseId).replace(/-/g, '');
 
     // allowlist database (opsional) — bandingkan tanpa tanda hubung
     if (env.ALLOWED_DB) {
@@ -71,7 +80,7 @@ export default {
     try {
       // --- meta: judul & skema properti database (untuk mapping kolom) ---
       if (action === 'meta') {
-        const r = await fetch('https://api.notion.com/v1/databases/' + databaseId, { headers });
+        const r = await fetch('https://api.notion.com/v1/databases/' + notionDatabaseId, { headers });
         const data = await r.json();
         return json(data, r.status);
       }
@@ -84,7 +93,7 @@ export default {
         if (cursor) body.start_cursor = cursor;
         if (payload.filter) body.filter = payload.filter;   // teruskan filter Notion apa adanya
         if (payload.sorts) body.sorts = payload.sorts;
-        const r = await fetch('https://api.notion.com/v1/databases/' + databaseId + '/query', {
+        const r = await fetch('https://api.notion.com/v1/databases/' + notionDatabaseId + '/query', {
           method: 'POST', headers, body: JSON.stringify(body),
         });
         const data = await r.json();

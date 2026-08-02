@@ -1,17 +1,19 @@
 # Konfigurasi minimal untuk deploy via Wrangler CLI (opsional — bisa juga
 # deploy lewat dashboard Cloudflare tanpa file ini).
 #
-#   npm i -g wrangler        # sekali saja
-#   wrangler login
-#   wrangler deploy
-#   wrangler secret put NOTION_TOKEN
-#   wrangler secret put APP_KEY
+#   npx wrangler@latest login
+#   npx wrangler@latest secret put NOTION_TOKEN
+#   npx wrangler@latest secret put APP_KEY
+#   npx wrangler@latest deploy
 #
 # ALLOWED_DB opsional — daftar Database ID (pisah koma) yang boleh dibaca.
 
 name = "notion-proxy"
 main = "worker.js"
-compatibility_date = "2024-01-01"
+compatibility_date = "2026-08-02"
+
+[secrets]
+required = ["NOTION_TOKEN", "APP_KEY"]
 
 # [vars]
 # ALLOWED_DB = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx,yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy"
