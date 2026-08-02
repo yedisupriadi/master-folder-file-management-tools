@@ -2,10 +2,10 @@
   "name": "master-folder-file-management-tools",
   "version": "1.0.0",
   "private": true,
-  "description": "Browser-based utilities for document control, file naming, folder management, and Aconex searches.",
+  "description": "Browser-based utilities for document control, file naming, folder management, SharePoint links, and Aconex searches.",
   "type": "module",
   "scripts": {
-    "check": "node scripts/validate.mjs && node scripts/test-worker.mjs",
+    "check": "node scripts/validate.mjs && node scripts/test-sharepoint-tools.mjs && node scripts/test-worker.mjs",
     "validate": "node scripts/validate.mjs"
   },
   "engines": {

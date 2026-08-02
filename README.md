@@ -13,6 +13,8 @@ A collection of browser-based utilities for document controllers and project tea
 | File Naming Convention Management | Scan folders, audit naming structure, cross-check an Excel register, detect duplicate content, rename files, flatten folders, and move selected files. |
 | Child Document Number Generator | Expand parent document number ranges into child document numbers and export results as CSV. |
 | Aconex Multi Document Number Search | Turn document-number lists into chunked `docno:(... OR ...)` queries for Aconex Document Register Search. |
+| SharePoint Link Cleaner | Convert SharePoint sharing links in bulk into clean file URLs and their parent folder URLs. |
+| URL Builder | Build SharePoint file URLs from a folder and file-name list, with CSV/TSV output and optional screenshot OCR. |
 
 The interface supports Indonesian and English, plus light and dark themes.
 
@@ -20,7 +22,7 @@ The interface supports Indonesian and English, plus light and dark themes.
 
 - A current desktop version of Microsoft Edge or Google Chrome is recommended.
 - Folder read/write features use the File System Access API and therefore require a supported browser and a secure context (`https://` or localhost).
-- Google Fonts, PDF.js, and SheetJS are loaded from external CDNs. PDF and Excel-related features need internet access on first load unless those assets are already cached.
+- Google Fonts, PDF.js, SheetJS, and the optional Tesseract.js OCR library are loaded from external CDNs. PDF, Excel, and OCR features need internet access on first load unless those assets are already cached.
 - Node.js 20 or newer is optional and only used to run repository validation.
 - Python 3 is optional and can be used as a simple local web server.
 
@@ -76,7 +78,8 @@ The validator checks:
 - JavaScript syntax in every inline script and in the Notion Worker;
 - duplicate HTML IDs and references to missing IDs;
 - required metadata and local links;
-- presence of core repository documentation.
+- presence of core repository documentation;
+- behavior of SharePoint URL normalization, folder extraction, filename cleanup, OCR-text extraction, and URL encoding.
 
 The same command runs in GitHub Actions for every push and pull request. Because File System Access depends on browser permissions and real local handles, destructive or file-moving workflows still require a manual smoke test with disposable data.
 
@@ -95,7 +98,7 @@ GitHub Pages hosts only the static HTML tools. Deploy `notion-proxy/` separately
 
 ### Offline or internal distribution
 
-You may copy the root HTML files to an internal web server. For fully offline use, vendor the Google Font, PDF.js, and SheetJS assets locally and update the corresponding URLs. Review your organization's document-handling and third-party CDN policies first.
+You may copy the root HTML files to an internal web server. For fully offline use, vendor the Google Font, PDF.js, SheetJS, and Tesseract.js assets locally and update the corresponding URLs. Review your organization's document-handling and third-party CDN policies first.
 
 ## Project structure
 
@@ -108,13 +111,15 @@ folder-manager.html            Folder and file operations
 file-naming-convention.html    Naming audit and register cross-check
 child-number-generator.html    Child number generation
 aconex-search-generator.html   Aconex search query generation
+sharepoint-link-cleaner.html   SharePoint sharing-link cleanup
+sharepoint-url-builder.html    Batch SharePoint URL generation and optional OCR
 ```
 
 ## Privacy and security
 
 Selected local files are processed in the browser. The static application does not include analytics or an application backend. External CDN providers can still receive ordinary web-request metadata when their assets are loaded.
 
-Do not include real project documents, customer data, tokens, or app keys in issues or pull requests. See [SECURITY.md](SECURITY.md) for private reporting and credential guidance.
+SharePoint links, file names, and OCR images are processed locally; the URL Builder loads the OCR runtime and language data from jsDelivr only when OCR is requested. Do not include real project documents, customer data, tokens, or app keys in issues or pull requests. See [SECURITY.md](SECURITY.md) for private reporting and credential guidance.
 
 ## Contributing
 
