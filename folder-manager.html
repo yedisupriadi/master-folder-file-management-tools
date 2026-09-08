@@ -20,9 +20,15 @@
 (async () => {
   const boot = document.getElementById('boot');
   try {
-    const response = await fetch('./folder-manager-core.html', { cache: 'no-store' });
-    if (!response.ok) throw new Error('HTTP ' + response.status + ' saat memuat folder-manager-core.html');
-    let html = await response.text();
+    const [coreResponse, flattenResponse] = await Promise.all([
+      fetch('./folder-manager-core.html', { cache: 'no-store' }),
+      fetch('./folder-manager-flatten.js', { cache: 'no-store' }),
+    ]);
+    if (!coreResponse.ok) throw new Error('HTTP ' + coreResponse.status + ' saat memuat folder-manager-core.html');
+    if (!flattenResponse.ok) throw new Error('HTTP ' + flattenResponse.status + ' saat memuat folder-manager-flatten.js');
+
+    let html = await coreResponse.text();
+    const flattenPatch = await flattenResponse.text();
 
     // Keep the proven Folder Manager engine intact, while presenting Supabase
     // as a user-facing Standard Folder Library instead of exposing database,
@@ -61,6 +67,13 @@
       .replaceAll('Worker URL:', 'Edge Function URL:')
       .replaceAll('live via Cloudflare Worker', 'live via Supabase Edge Function')
       .replaceAll('live via Worker', 'live via Supabase Edge Function');
+
+    // Flatten needs the Folder Manager's existing local file-system state and
+    // helpers. Inject the small enhancement into the preserved core IIFE rather
+    // than duplicating or rewriting the mature Folder Manager implementation.
+    const coreClose = html.lastIndexOf('})();');
+    if (coreClose < 0) throw new Error('Penutup Folder Manager core tidak ditemukan.');
+    html = html.slice(0, coreClose) + '\n\n' + flattenPatch.trim() + '\n' + html.slice(coreClose);
 
     const configTag = '<scr' + 'ipt src="folder-manager-supabase-config.js"></scr' + 'ipt>';
     html = html.replace('</head>', configTag + '\n</head>');
