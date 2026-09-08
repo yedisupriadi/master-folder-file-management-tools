@@ -196,9 +196,13 @@
     root.querySelectorAll('.nt-panel').forEach((panel) => {
       const load = panel.querySelector('.nt-load');
       if (load) load.title = copy.refresh;
-      const labels = panel.querySelectorAll('.supabase-toolbar .sp-label, .notion-toolbar .sp-label');
-      if (labels[0] && !labels[0].classList.contains('nt-source-legacy')) labels[0].textContent = copy.folderNameField;
-      if (labels[1]) labels[1].textContent = copy.parentField;
+      const toolbars = Array.from(panel.querySelectorAll('.supabase-toolbar, .notion-toolbar'));
+      const fieldToolbar = toolbars.find((toolbar) => toolbar.querySelector('.nt-namecol'));
+      if (!fieldToolbar) return;
+      const nameLabel = fieldToolbar.querySelector('[data-i18n="ntNameColLabel"]');
+      const parentLabel = fieldToolbar.querySelector('[data-i18n="ntGroupLabel"]');
+      if (nameLabel) nameLabel.textContent = copy.folderNameField;
+      if (parentLabel) parentLabel.textContent = copy.parentField;
     });
   }
 
