@@ -20,11 +20,15 @@ function assert(condition, message) {
 const bootstrap = read('folder-manager.html');
 const core = read('folder-manager-core.html');
 const adapter = read('folder-manager-supabase-config.js');
+const flatten = read('folder-manager-flatten.js');
 const edge = read('supabase/functions/folder-standards/index.ts');
 
 new vm.Script(adapter, { filename: 'folder-manager-supabase-config.js' });
+new vm.Script(flatten, { filename: 'folder-manager-flatten.js' });
 
 assert(bootstrap.includes("fetch('./folder-manager-core.html'"), 'Folder Manager bootstrap must load folder-manager-core.html');
+assert(bootstrap.includes("fetch('./folder-manager-flatten.js'"), 'Folder Manager bootstrap must load the flatten enhancement');
+assert(bootstrap.includes("lastIndexOf('})();')"), 'Folder Manager bootstrap must inject enhancements inside the preserved core IIFE');
 assert(bootstrap.includes('folder-manager-supabase-config.js'), 'Folder Manager bootstrap must inject the Supabase adapter');
 assert(core.includes('Database Notion'), 'Preserved core should remain an unchanged compatibility baseline');
 assert(adapter.includes('functions/v1/folder-standards'), 'Adapter must call the folder-standards Edge Function');
@@ -44,4 +48,13 @@ assert(edge.includes('isAllowedOrigin'), 'Edge Function must validate browser or
 assert(edge.includes('getAcceptedClientKeys'), 'Edge Function must validate the calling application key');
 assert(!edge.includes('sb_secret_'), 'Edge Function source must not hardcode a Supabase secret key');
 
+assert(flatten.includes("flattenButton.id = 'btnFlatten'"), 'Flatten enhancement must add the top action button');
+assert(flatten.includes('flattenCollectNested'), 'Flatten enhancement must scan nested subfolders recursively');
+assert(flatten.includes('flattenUniqueFileName'), 'Flatten enhancement must protect against duplicate file names');
+assert(flatten.includes('flattenDirectoryIsEmpty'), 'Flatten enhancement must verify folders are empty before cleanup');
+assert(flatten.includes('await copyFile(item.handle, dest, destName)'), 'Flatten enhancement must copy the file before deleting its source');
+assert(flatten.includes('await item.parent.removeEntry(item.name)'), 'Flatten enhancement must delete a source file only after a successful copy');
+assert(!flatten.includes("removeEntry(dir.name, { recursive: true })"), 'Flatten cleanup must never recursively delete subfolders');
+
 console.log(`✓ Supabase Folder Manager adapter: ${requiredTables.length} standard tables allowlisted, client/server key boundary verified`);
+console.log('✓ Folder Manager flatten: syntax, recursive scan, collision handling, copy-before-delete, and safe empty-folder cleanup verified');
