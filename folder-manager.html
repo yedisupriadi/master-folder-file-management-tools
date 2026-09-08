@@ -15,7 +15,7 @@
 </style>
 </head>
 <body>
-<div class="boot" id="boot"><strong>Folder Management Tool</strong><span>Memuat standard folder dari Supabase…</span></div>
+<div class="boot" id="boot"><strong>Folder Management Tool</strong><span>Memuat Standard Folder Library…</span></div>
 <script>
 (async () => {
   const boot = document.getElementById('boot');
@@ -24,30 +24,39 @@
     if (!response.ok) throw new Error('HTTP ' + response.status + ' saat memuat folder-manager-core.html');
     let html = await response.text();
 
-    // Keep the proven Folder Manager implementation intact while changing the
-    // standard-folder source and visible terminology from Notion to Supabase.
+    // Keep the proven Folder Manager engine intact, while presenting Supabase
+    // as a user-facing Standard Folder Library instead of exposing database,
+    // connection, or Notion-oriented concepts.
     html = html
       .replaceAll('NOTION', 'SUPABASE')
       .replaceAll('Notion', 'Supabase')
       .replaceAll('notion', 'supabase')
-      .replaceAll('Database Supabase', 'Standard Folder — Supabase')
-      .replaceAll('Supabase Database', 'Supabase Folder Standards')
+      .replaceAll('Database Supabase', 'Standard Folder Library')
+      .replaceAll('Supabase Database', 'Standard Folder Library')
       .replaceAll(
         'Tarik database Supabase (live via Worker) → tampilkan di sini → pilih kolom nama folder atau sorot sel yang diinginkan, lalu buat foldernya langsung di folder yang sedang dibuka.',
-        'Tarik standard folder langsung dari Supabase → pilih tabel Personal/Project dan levelnya → pilih kolom nama folder atau sorot sel yang diinginkan → buat foldernya di folder yang sedang dibuka.'
+        'Pilih tipe folder Personal/Project dan levelnya. Standard aktif dimuat langsung dari Supabase, lalu pilih folder yang ingin dibuat pada lokasi yang sedang dibuka.'
       )
       .replaceAll(
         'Tarik database Supabase (live via Worker) → tampilkan di sini → centang baris & kolom yang dipakai, lalu kirim ke grid batch folder di bawah.',
-        'Tarik standard folder langsung dari Supabase → pilih tabel Personal/Project dan levelnya → gunakan data sebagai struktur folder pada lokasi yang sedang dibuka.'
+        'Pilih tipe folder Personal/Project dan levelnya. Standard aktif dimuat langsung dari Supabase, lalu pilih folder yang ingin dibuat pada lokasi yang sedang dibuka.'
       )
       .replaceAll(
         'Pull a Supabase database (live via the Worker) → view it here → pick the folder-name column or highlight the cells you want, then create the folders straight into the folder you have open.',
-        'Load folder standards directly from Supabase → choose the Personal/Project table and level → pick the folder-name column or highlight cells → create the folders in the location you have open.'
+        'Choose Personal/Project folder type and level. Active standards load directly from Supabase, then select the folders you want to create in the location you have open.'
       )
-      .replaceAll('Loading Supabase database...', 'Loading Supabase folder standards...')
-      .replaceAll('Memuat database Supabase...', 'Memuat standard folder Supabase...')
-      .replaceAll('Load / refresh this database from Supabase', 'Load / refresh this folder standard from Supabase')
-      .replaceAll('Muat / segarkan database ini dari Supabase', 'Muat / segarkan standard folder ini dari Supabase')
+      .replaceAll(
+        'Pull a Supabase database (live via the Worker) → view it here → check the rows & columns to use, then send them to the batch-folder grid below.',
+        'Choose Personal/Project folder type and level. Active standards load directly from Supabase, then select the folders you want to create in the location you have open.'
+      )
+      .replaceAll('Loading Supabase database...', 'Loading folder standards...')
+      .replaceAll('Memuat database Supabase...', 'Memuat standard folder...')
+      .replaceAll('Load / refresh this database from Supabase', 'Refresh this standard from Supabase')
+      .replaceAll('Muat / segarkan database ini dari Supabase', 'Segarkan standard ini dari Supabase')
+      .replaceAll('Belum ada data. Atur koneksi, pilih database, lalu klik Muat Database.', 'Belum ada data standard. Pilih tipe folder dan level untuk memuat.')
+      .replaceAll('No data yet. Configure the connection, choose a database, then click Load Database.', 'No standard data yet. Choose a folder type and level to load it.')
+      .replaceAll('untuk database ini', 'untuk standard ini')
+      .replaceAll('for this database', 'for this standard')
       .replaceAll('URL Worker:', 'Edge Function URL:')
       .replaceAll('Worker URL:', 'Edge Function URL:')
       .replaceAll('live via Cloudflare Worker', 'live via Supabase Edge Function')
