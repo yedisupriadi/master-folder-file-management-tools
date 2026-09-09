@@ -18,6 +18,8 @@ All notable changes to this project will be documented here. The format follows 
 - Governed `TGM Administration Document` naming profile linked to `tgm_administration_document_register`, including authenticated quick-create, automatic sequence allocation, generated filename, existing-file rename, and register-aware compliance scanning.
 - Supabase global `document_identity_registry` and atomic Administration Document creation RPC to preserve cross-register Document Number uniqueness.
 - Administration Document filename source selector for choosing either `document_number` or `letter_id` as the complete physical filename base, with preview and register-aware scanning.
+- Actionable Administration Document scan results with `PASS`, `RENAME REQUIRED`, `UNREGISTERED`, `NOT GOVERNED`, and `IGNORED` classifications, plus Rename, View Record, Register Existing File, Ignore, and Restore actions.
+- Register Existing File remediation that pre-fills Department, Document Type, Year, and title from a recognizable filename candidate while preserving Supabase-controlled Document Number allocation.
 
 ### Changed
 
@@ -27,5 +29,6 @@ All notable changes to this project will be documented here. The format follows 
 - Administration Document Number formula now resolves canonical `department_code` and `doc_code` fields directly, avoiding dependence on display-label parsing.
 - Administration Document register integration no longer treats `letter_id` as the physical filename by default; the Naming Profile explicitly selects the register field used as filename.
 - Added visual spacing between Batch Folder from Spreadsheet and File Naming Convention sections.
+- Administration Document scans now treat supporting files without a recognizable TGM document-number pattern as `NOT GOVERNED` instead of generic failures.
 
 [Unreleased]: https://github.com/yedisupriadi/master-folder-file-management-tools/compare/main...HEAD
