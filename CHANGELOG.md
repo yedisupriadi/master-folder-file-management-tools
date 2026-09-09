@@ -20,6 +20,8 @@ All notable changes to this project will be documented here. The format follows 
 - Administration Document filename source selector for choosing either `document_number` or `letter_id` as the complete physical filename base, with preview and register-aware scanning.
 - Actionable Administration Document scan results with `PASS`, `RENAME REQUIRED`, `UNREGISTERED`, `NOT GOVERNED`, and `IGNORED` classifications, plus Rename, View Record, Register Existing File, Ignore, and Restore actions.
 - Register Existing File remediation that pre-fills Department, Document Type, Year, and title from a recognizable filename candidate while preserving Supabase-controlled Document Number allocation.
+- Multi-field Administration Document filename profiles supporting either a single governed field or `document_number + document_title` with a configurable delimiter.
+- Per-field scan diagnostics, including Document Number sub-checks for Organization, Department, Document Type, Sequence, and Year, plus a register-driven Suggested Filename column.
 
 ### Changed
 
@@ -30,5 +32,6 @@ All notable changes to this project will be documented here. The format follows 
 - Administration Document register integration no longer treats `letter_id` as the physical filename by default; the Naming Profile explicitly selects the register field used as filename.
 - Added visual spacing between Batch Folder from Spreadsheet and File Naming Convention sections.
 - Administration Document scans now treat supporting files without a recognizable TGM document-number pattern as `NOT GOVERNED` instead of generic failures.
+- Administration Document reconciliation now uses conservative composite matching so a file can be classified as `PARTIAL MATCH` when the authoritative register record is identifiable but one or more filename fields differ; in that case the remediation is rename/view rather than creating a duplicate register record.
 
 [Unreleased]: https://github.com/yedisupriadi/master-folder-file-management-tools/compare/main...HEAD
