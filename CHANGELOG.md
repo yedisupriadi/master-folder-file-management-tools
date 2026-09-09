@@ -13,6 +13,8 @@ All notable changes to this project will be documented here. The format follows 
 - Dependency-free validation for HTML metadata, local links, DOM IDs, and JavaScript syntax.
 - Automated Cloudflare Worker behavior tests and GitHub Actions validation.
 - Contribution, security, conduct, issue, and pull request guidance.
+- Collapsible Standard Folder Library and Batch Folder sections in Folder Management Tool, with browser-persisted expand/collapse state.
+- File Naming Convention Implementation v1 inside Folder Management Tool: reusable naming profiles, configurable delimiter and fields, manual field validation rules, Supabase source references, folder-profile binding, and current-folder compliance scanning.
 
 ### Changed
 
