@@ -17,6 +17,7 @@ All notable changes to this project will be documented here. The format follows 
 - File Naming Convention Implementation v1 inside Folder Management Tool: reusable naming profiles, configurable delimiter and fields, manual field validation rules, Supabase source references, folder-profile binding, and current-folder compliance scanning.
 - Governed `TGM Administration Document` naming profile linked to `tgm_administration_document_register`, including authenticated quick-create, automatic sequence allocation, generated filename, existing-file rename, and register-aware compliance scanning.
 - Supabase global `document_identity_registry` and atomic Administration Document creation RPC to preserve cross-register Document Number uniqueness.
+- Administration Document filename source selector for choosing either `document_number` or `letter_id` as the complete physical filename base, with preview and register-aware scanning.
 
 ### Changed
 
@@ -24,5 +25,7 @@ All notable changes to this project will be documented here. The format follows 
 - Hardened the Notion Worker with required app-key authentication, input validation, no-store responses, and declared required secrets.
 - Corrected the local development launcher to serve the repository root.
 - Administration Document Number formula now resolves canonical `department_code` and `doc_code` fields directly, avoiding dependence on display-label parsing.
+- Administration Document register integration no longer treats `letter_id` as the physical filename by default; the Naming Profile explicitly selects the register field used as filename.
+- Added visual spacing between Batch Folder from Spreadsheet and File Naming Convention sections.
 
 [Unreleased]: https://github.com/yedisupriadi/master-folder-file-management-tools/compare/main...HEAD
