@@ -20,21 +20,24 @@
 (async () => {
   const boot = document.getElementById('boot');
   try {
-    const [coreResponse, flattenResponse, namingResponse, registerResponse] = await Promise.all([
+    const [coreResponse, flattenResponse, namingResponse, registerResponse, registerActionsResponse] = await Promise.all([
       fetch('./folder-manager-core.html', { cache: 'no-store' }),
       fetch('./folder-manager-flatten.js', { cache: 'no-store' }),
       fetch('./folder-manager-naming.js', { cache: 'no-store' }),
       fetch('./folder-manager-register.js', { cache: 'no-store' }),
+      fetch('./folder-manager-register-actions.js', { cache: 'no-store' }),
     ]);
     if (!coreResponse.ok) throw new Error('HTTP ' + coreResponse.status + ' saat memuat folder-manager-core.html');
     if (!flattenResponse.ok) throw new Error('HTTP ' + flattenResponse.status + ' saat memuat folder-manager-flatten.js');
     if (!namingResponse.ok) throw new Error('HTTP ' + namingResponse.status + ' saat memuat folder-manager-naming.js');
     if (!registerResponse.ok) throw new Error('HTTP ' + registerResponse.status + ' saat memuat folder-manager-register.js');
+    if (!registerActionsResponse.ok) throw new Error('HTTP ' + registerActionsResponse.status + ' saat memuat folder-manager-register-actions.js');
 
     let html = await coreResponse.text();
     const flattenPatch = await flattenResponse.text();
     const namingPatch = await namingResponse.text();
     const registerPatch = await registerResponse.text();
+    const registerActionsPatch = await registerActionsResponse.text();
 
     // Keep the proven Folder Manager engine intact, while presenting Supabase
     // as a user-facing Standard Folder Library instead of exposing database,
@@ -83,6 +86,7 @@
       + '\n\n' + flattenPatch.trim()
       + '\n\n' + namingPatch.trim()
       + '\n\n' + registerPatch.trim()
+      + '\n\n' + registerActionsPatch.trim()
       + '\n' + html.slice(coreClose);
 
     const configTag = '<scr' + 'ipt src="folder-manager-supabase-config.js"></scr' + 'ipt>';
