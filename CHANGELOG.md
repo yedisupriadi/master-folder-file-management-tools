@@ -4,6 +4,16 @@ All notable changes to this project will be documented here. The format follows 
 
 ## [Unreleased]
 
+### System audit and shared UI
+
+- Shared light/dark design tokens, local typography, outline icon helpers, compact controls, table/status styling, keyboard focus and accessible labels across all eight pages.
+- Consolidated naming/register extension styles into the shared stylesheet and removed overwritten legacy register scan renderers.
+- Fixed register pagination, concurrent auth refresh, stale scan results, repeated create clicks, fieldcheck-to-remediation mappings and ordinary-profile header restoration.
+- Preserved Letter ID identity during legacy profile migration and added canonical physical-filename validation alongside field diagnostics.
+- Guarded rename no-ops, live collisions and permission failures; abort failed writable streams, preserve copy extensions and validate batch-preview destinations.
+- Added storage fallback, OCR loader retry recovery, local favicons, filesystem/register regressions and a dependency-free browser test runner.
+- Documented the audit and verification boundaries in `docs/FULL_SYSTEM_AUDIT.md`. Database-governed numbering, uniqueness, RPCs, RLS, folder standards and backend functions are unchanged by this audit.
+
 ### Added
 
 - Aconex multi-document-number search query generator.

@@ -145,6 +145,10 @@ SharePoint links, file names, and OCR images are processed locally; the URL Buil
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md), run `npm run check`, and submit a focused pull request. Bug and feature request templates are available when opening an issue.
 
+The [system audit report](docs/FULL_SYSTEM_AUDIT.md) documents the page/module dependency map, runtime fixes, shared UI system, validation evidence and remaining review boundaries. All pages share `styles/tool-ui.css` and `scripts/tool-ui.js`; page-specific layout stays in the original HTML. Core typography uses a local/system font stack.
+
+Optional browser regression checks run with `npm run test:browser` on Node 22+ and Edge/Chromium (`AUDIT_BROWSER` can override the executable). They use temporary browser-owned files, mocked Administration Register writes and read-only live Folder Standard requests. Screenshots and results go to the OS temporary directory, not the repository. No production register entries are created.
+
 ## Third-party names
 
 Oracle and Aconex are trademarks or registered trademarks of their respective owners. This independent project is not affiliated with or endorsed by Oracle. The Aconex name is used only to describe compatibility with [Oracle Aconex](https://www.oracle.com/construction-engineering/aconex/).
