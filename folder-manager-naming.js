@@ -17,14 +17,15 @@ const fncEsc = (s) => String(s == null ? '' : s)
 
 function fncReadJson(key, fallback) {
   try {
-    const v = JSON.parse(localStorage.getItem(key) || 'null');
-    return v == null ? fallback : v;
+    const v = JSON.parse(ToolStorage.getItem(key) || 'null');
+    if(v==null||typeof v!==typeof fallback||Array.isArray(v)!==Array.isArray(fallback))return fallback;
+    return v;
   } catch { return fallback; }
 }
-function fncWriteJson(key, value) { localStorage.setItem(key, JSON.stringify(value)); }
+function fncWriteJson(key, value) { ToolStorage.setItem(key, JSON.stringify(value)); }
 function fncProfiles() {
   const raw = fncReadJson(FNC_PROFILE_KEY, []);
-  return Array.isArray(raw) ? raw : [];
+  return Array.isArray(raw) ? raw.filter(p=>p&&typeof p.id==='string'&&Array.isArray(p.fields)&&p.fields.every(f=>f&&typeof f==='object')) : [];
 }
 function fncSaveProfiles(items) { fncWriteJson(FNC_PROFILE_KEY, items); }
 function fncBindings() {
@@ -41,83 +42,6 @@ function fncSelectedProfileId() { return $('fncProfileSelect') ? $('fncProfileSe
 function fncSelectedProfile() {
   const id = fncSelectedProfileId();
   return fncProfiles().find(p => p.id === id) || null;
-}
-
-function fncInjectStyles() {
-  if ($('fncStyles')) return;
-  const style = document.createElement('style');
-  style.id = 'fncStyles';
-  style.textContent = `
-    .fm-collapsible { position: relative; }
-    .fm-collapse-head { display:flex; align-items:flex-start; gap:10px; }
-    .fm-collapse-head > div:first-child { flex:1; min-width:0; }
-    .fm-collapse-btn {
-      width:34px; height:32px; padding:0; justify-content:center; flex:0 0 auto;
-      background:var(--slate); color:#fff; border-radius:8px;
-    }
-    .fm-collapse-btn:hover:not(:disabled){ background:var(--slate-dark); }
-    .fm-collapse-btn svg { transition: transform .16s ease; }
-    .fm-collapsible.is-collapsed .fm-collapse-btn svg { transform: rotate(-90deg); }
-    .fm-collapse-body { display:flex; flex-direction:column; gap:12px; }
-    .fm-collapsible.is-collapsed .fm-collapse-body { display:none; }
-
-    .fnc-section {
-      background:var(--card); border-radius:var(--radius); padding:14px;
-      box-shadow:0 1px 2px rgba(15,23,42,.06),0 8px 24px -12px rgba(15,23,42,.12);
-      display:flex; flex-direction:column; gap:12px;
-    }
-    .fnc-subtitle { color:var(--muted); font-size:12.5px; line-height:1.45; margin-top:3px; }
-    .fnc-toolbar { display:flex; align-items:end; gap:8px; flex-wrap:wrap; }
-    .fnc-field { display:flex; flex-direction:column; gap:5px; min-width:150px; }
-    .fnc-field.grow { flex:1; min-width:220px; }
-    .fnc-label { font-size:11.5px; font-weight:700; color:var(--muted); }
-    .fnc-section input,.fnc-section select {
-      height:36px; border:1px solid var(--line); border-radius:8px; background:var(--input-bg);
-      color:var(--ink); padding:7px 10px; font:inherit; font-size:13px;
-    }
-    .fnc-section input:focus,.fnc-section select:focus { outline:2px solid rgba(99,102,241,.18); border-color:var(--accent); }
-    .fnc-btn-primary { background:var(--accent); }
-    .fnc-btn-green { background:var(--green); }
-    .fnc-btn-slate { background:var(--slate); }
-    .fnc-btn-red { background:var(--red); }
-    .fnc-btn-amber { background:var(--amber); }
-    .fnc-context {
-      border:1px solid var(--line); border-radius:10px; padding:10px 12px; background:var(--input-bg);
-      display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap;
-      font-size:12px;
-    }
-    .fnc-context b { color:var(--ink); }
-    .fnc-badge { display:inline-flex; align-items:center; padding:3px 8px; border-radius:999px; font-size:11px; font-weight:700; background:var(--chip-bg); }
-    .fnc-badge.ok { color:var(--green-dark); }
-    .fnc-badge.warn { color:var(--amber-dark); }
-    .fnc-badge.bad { color:var(--red-dark); }
-    .fnc-editor { border:1px solid var(--line); border-radius:10px; padding:12px; display:none; flex-direction:column; gap:12px; }
-    .fnc-editor.show { display:flex; }
-    .fnc-editor-head { display:flex; align-items:center; justify-content:space-between; gap:8px; }
-    .fnc-editor-head h3 { font-size:14px; }
-    .fnc-fields-table { width:100%; border-collapse:collapse; font-size:12px; }
-    .fnc-fields-table th { text-align:left; background:var(--thead-bg); color:var(--thead-ink); padding:8px; }
-    .fnc-fields-table td { border-bottom:1px solid var(--td-line); padding:6px; vertical-align:middle; }
-    .fnc-fields-table input,.fnc-fields-table select { width:100%; min-width:90px; }
-    .fnc-fields-table .fnc-check { width:auto; height:auto; }
-    .fnc-source-detail { min-width:170px; }
-    .fnc-source-hint { color:var(--muted); font-size:10.5px; line-height:1.35; margin-top:3px; }
-    .fnc-results { display:none; border:1px solid var(--line); border-radius:10px; overflow:hidden; }
-    .fnc-results.show { display:block; }
-    .fnc-results-head { padding:10px 12px; background:var(--input-bg); display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-    .fnc-results-scroll { overflow:auto; max-height:340px; }
-    .fnc-results table { width:100%; border-collapse:collapse; font-size:12px; }
-    .fnc-results th { position:sticky; top:0; z-index:1; text-align:left; background:var(--thead-bg); color:var(--thead-ink); padding:8px; }
-    .fnc-results td { border-bottom:1px solid var(--td-line); padding:8px; vertical-align:top; }
-    .fnc-issue { color:var(--muted); line-height:1.4; }
-    .fnc-note { font-size:11px; color:var(--muted); line-height:1.45; }
-    @media (max-width:800px){
-      .fnc-fields-table { min-width:920px; }
-      .fnc-toolbar { align-items:stretch; }
-      .fnc-field,.fnc-field.grow { min-width:100%; }
-    }
-  `;
-  document.head.appendChild(style);
 }
 
 function fncMakeCollapsible(section, key, defaultCollapsed = false) {
@@ -144,6 +68,7 @@ function fncMakeCollapsible(section, key, defaultCollapsed = false) {
   const collapsed = Object.prototype.hasOwnProperty.call(prefs, key) ? !!prefs[key] : defaultCollapsed;
   section.classList.toggle('is-collapsed', collapsed);
   const refreshTip = () => {
+    btn.setAttribute('aria-expanded',String(!section.classList.contains('is-collapsed')));
     btn.title = section.classList.contains('is-collapsed')
       ? fncTxt('Expand section', 'Buka section')
       : fncTxt('Collapse section', 'Tutup section');
@@ -391,10 +316,7 @@ function fncRefreshContext() {
   $('fncBind').disabled = !hasFolder || !fncSelectedProfile();
   $('fncUnbind').disabled = !hasFolder || !profile;
   $('fncScan').disabled = !hasFolder || !(profile || fncSelectedProfile());
-  if (profile && $('fncProfileSelect').value !== profile.id) {
-    $('fncProfileSelect').value = profile.id;
-    $('fncEdit').disabled = false; $('fncDelete').disabled = false;
-  }
+  // Keep the selection available for rebinding; the badge reports the effective binding.
 }
 
 function fncBaseName(fileName) {
@@ -470,6 +392,8 @@ function fncScanCurrent() {
 function fncRenderResults(profile) {
   if (!$('fncResultsBody')) return;
   const body = $('fncResultsBody'); body.innerHTML = '';
+  if($('regPanel')&&typeof regFieldEnsureResultHeader==='function')regFieldEnsureResultHeader();
+  if(fncLastScan.some(r=>r.regStatus)){if(typeof regFieldRender==='function')regFieldRender(fncLastScan);return;}
   const rows = fncLastScan || [];
   if (!rows.length) {
     $('fncResultsSummary').textContent = fncTxt('No file results yet.', 'Belum ada hasil file.');
@@ -507,7 +431,6 @@ function fncWireEvents() {
   $('fncScan').addEventListener('click', fncScanCurrent);
 }
 
-fncInjectStyles();
 fncBuildSection();
 
 // Keep the naming context synchronized whenever Folder Manager rerenders after
@@ -516,6 +439,8 @@ if (typeof renderAll === 'function') {
   const fncOriginalRenderAll = renderAll;
   renderAll = function () {
     const result = fncOriginalRenderAll.apply(this, arguments);
+    fncLastScan=[];
+    $('fncResults').classList.remove('show');
     fncRefreshContext();
     return result;
   };

@@ -18,12 +18,21 @@ const htmlFiles = fs.readdirSync(root)
   .filter((name) => name.endsWith('.html'))
   .sort()
   .map((name) => path.join(root, name));
+const clientScripts=[...fs.readdirSync(root).filter(name=>name.endsWith('.js')).map(name=>path.join(root,name)),path.join(root,'scripts/tool-ui.js')];
+for(const file of clientScripts){
+  try{new vm.Script(fs.readFileSync(file,'utf8'),{filename:relative(file)});}
+  catch(error){fail(relative(file),`invalid client JavaScript (${error.message})`);}
+}
+notes.push(`${clientScripts.length} client JavaScript files: syntax checked`);
 
 if (htmlFiles.length === 0) fail('.', 'no root HTML files found');
 
 for (const file of htmlFiles) {
   const name = relative(file);
   const source = fs.readFileSync(file, 'utf8');
+  if(!source.includes('href="styles/tool-ui.css"'))fail(name,'missing shared design system');
+  if(!source.includes('src="scripts/tool-ui.js"'))fail(name,'missing shared UI helpers');
+  if(/fonts\.(googleapis|gstatic)\.com/.test(source))fail(name,'core UI must not depend on remote fonts');
 
   const requiredPatterns = [
     [/^<!doctype html>/i, 'missing HTML5 doctype'],
@@ -125,7 +134,7 @@ const secretPatterns = [
   ['GitHub token', /\bgh[psuro]_[A-Za-z0-9]{30,}\b/g],
   ['private key', /-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g],
 ];
-const scannedFiles = [...htmlFiles, ...markdownFiles, workerPath, path.join(root, 'notion-proxy', 'wrangler.toml')]
+const scannedFiles = [...htmlFiles, ...clientScripts, ...markdownFiles, workerPath, path.join(root, 'notion-proxy', 'wrangler.toml')]
   .filter(fs.existsSync);
 for (const file of new Set(scannedFiles)) {
   const source = fs.readFileSync(file, 'utf8');

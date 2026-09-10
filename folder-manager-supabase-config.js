@@ -16,17 +16,18 @@
   // The Folder Manager core still stores panel state using the transformed
   // Supabase localStorage names. The table list itself is fixed and controlled
   // here so end users never need to know database/table identifiers.
-  localStorage.setItem('fm-supabase-url', FUNCTION_URL);
-  localStorage.setItem('fm-supabase-key', PUBLISHABLE_KEY);
-  localStorage.setItem('fm-supabase-dbs', JSON.stringify(TABLES.map(({ id, label }) => ({ id, label }))));
+  ToolStorage.setItem('fm-supabase-url', FUNCTION_URL);
+  ToolStorage.setItem('fm-supabase-key', PUBLISHABLE_KEY);
+  ToolStorage.setItem('fm-supabase-dbs', JSON.stringify(TABLES.map(({ id, label }) => ({ id, label }))));
 
-  const lastA = localStorage.getItem('fm-supabase-last-a');
-  const lastB = localStorage.getItem('fm-supabase-last-b');
-  if (!VALID_IDS.has(lastA || '')) localStorage.setItem('fm-supabase-last-a', 'standard_folder_project_l1');
-  if (!VALID_IDS.has(lastB || '')) localStorage.setItem('fm-supabase-last-b', 'standard_folder_project_l2');
+  const lastA = ToolStorage.getItem('fm-supabase-last-a');
+  const lastB = ToolStorage.getItem('fm-supabase-last-b');
+  if (!VALID_IDS.has(lastA || '')) ToolStorage.setItem('fm-supabase-last-a', 'standard_folder_project_l1');
+  if (!VALID_IDS.has(lastB || '')) ToolStorage.setItem('fm-supabase-last-b', 'standard_folder_project_l2');
 
   let savedViews = {};
-  try { savedViews = JSON.parse(localStorage.getItem('fm-supabase-cfg') || '{}') || {}; } catch {}
+  try { savedViews = JSON.parse(ToolStorage.getItem('fm-supabase-cfg') || '{}') || {}; } catch {}
+  if(typeof savedViews!=='object'||Array.isArray(savedViews))savedViews={};
   const defaults = {
     standard_folder_personal_l1: { nameCol: 'folder_id', groupCol: '', hidden: [], colW: {}, sort: null },
     standard_folder_personal_l2: { nameCol: 'folder_id', groupCol: 'parent_folder_l1', hidden: [], colW: {}, sort: null },
@@ -41,7 +42,7 @@
       changed = true;
     }
   }
-  if (changed) localStorage.setItem('fm-supabase-cfg', JSON.stringify(savedViews));
+  if (changed) ToolStorage.setItem('fm-supabase-cfg', JSON.stringify(savedViews));
 
   const style = document.createElement('style');
   style.textContent = [
@@ -83,7 +84,7 @@
   };
 
   function currentLang() {
-    return localStorage.getItem('audit-lang') === 'en' ? 'en' : 'id';
+    return ToolStorage.getItem('audit-lang') === 'en' ? 'en' : 'id';
   }
 
   function text() {

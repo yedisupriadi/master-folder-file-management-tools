@@ -17,7 +17,7 @@ function regFieldProfileRaw(){
     if(fields.length)return{fields,delimiter:typeof cfg.delimiter==='string'?cfg.delimiter:''};
   }
   // Backward-compatible migration from the previous single filename-source setting.
-  if(p.filenameSourceField==='letter_id')return{fields:['document_number','document_title'],delimiter:'_'};
+  if(p.filenameSourceField==='letter_id')return{fields:['letter_id'],delimiter:''};
   if(p.filenameSourceField==='document_number')return{fields:['document_number'],delimiter:''};
   return null;
 }
@@ -25,6 +25,7 @@ function regFieldProfile(){
   const cfg=regFieldProfileRaw();
   if(!cfg)return null;
   if(cfg.fields.length===1&&cfg.fields[0]==='letter_id')return cfg;
+  if(cfg.fields.length>2||(cfg.fields.length===2&&(cfg.fields[0]!=='document_number'||cfg.fields[1]!=='document_title')))return null;
   if(!cfg.fields.includes('document_number'))return null;
   if(cfg.fields.length>1&&!cfg.delimiter)return null;
   return cfg;
@@ -56,6 +57,7 @@ function regFieldCandidateFromBase(base){
   const parsed=regFieldParseDocNo(m[1]);
   if(!parsed)return null;
   parsed.documentNumber=m[1];
+  parsed.deptCode=parsed.dept;parsed.typeCode=parsed.type;
   return parsed;
 }
 function regFieldActualTitle(base,candidate,cfg){
@@ -96,10 +98,10 @@ function regFieldChecks(base,row,candidate,cfg){
       checks.push({index,key,label:'Document Number',actual,expected,ok:actual.toLowerCase()===expected.toLowerCase(),sub:regFieldDocNoChecks(actual,expected)});
     }else if(key==='document_title'){
       const actual=actualTitle,expected=String(row.document_title||'');
-      checks.push({index,key,label:'Document Name / Title',actual,expected,ok:regFieldNormText(actual)===regFieldNormText(expected),sub:[]});
+      checks.push({index,key,label:'Document Name / Title',actual,expected,ok:regFieldNormText(actual)===regFieldNormText(regSafeBase(expected)),sub:[]});
     }else if(key==='letter_id'){
       const actual=base,expected=String(row.letter_id||'');
-      checks.push({index,key,label:'Document ID / Letter ID',actual,expected,ok:regFieldNormText(actual)===regFieldNormText(expected),sub:[]});
+      checks.push({index,key,label:'Document ID / Letter ID',actual,expected,ok:regFieldNormText(actual)===regFieldNormText(regSafeBase(expected)),sub:[]});
     }
   });
   return checks;
@@ -113,21 +115,21 @@ function regFieldPersistProfile(cfg){
 function regFieldMigrateStoredProfile(){
   const ps=fncProfiles(),i=ps.findIndex(x=>x.id===REG_ADMIN_PROFILE_ID);if(i<0||ps[i].filenameFieldProfile)return;
   const old=ps[i].filenameSourceField;
-  if(old==='letter_id'){ps[i]={...ps[i],filenameFieldProfile:{fields:['document_number','document_title'],delimiter:'_'},version:REG_FIELD_PROFILE_VERSION};fncSaveProfiles(ps)}
+  if(old==='letter_id'){ps[i]={...ps[i],filenameFieldProfile:{fields:['letter_id'],delimiter:''},version:REG_FIELD_PROFILE_VERSION};fncSaveProfiles(ps)}
   else if(old==='document_number'){ps[i]={...ps[i],filenameFieldProfile:{fields:['document_number'],delimiter:''},version:REG_FIELD_PROFILE_VERSION};fncSaveProfiles(ps)}
 }
 
 function regFieldEnsureEditor(){
   if(!$('regSourceForm'))return;
   $('regSourceForm').innerHTML=`
-    <div class="reg-note">${regEsc(fncTxt('Define the physical filename as one or more register fields. Multi-field filenames are checked field-by-field against the authoritative register.','Definisikan nama file fisik dari satu atau beberapa field register. Filename multi-field diperiksa per field terhadap register authoritative.'))}</div>
+    <div class="reg-note">${regCopy('Define the physical filename as one or more register fields. Multi-field filenames are checked field-by-field against the authoritative register.','Definisikan nama file fisik dari satu atau beberapa field register. Filename multi-field diperiksa per field terhadap register authoritative.')}</div>
     <div class="reg-grid">
       <div class="fnc-field"><label class="fnc-label">Field count</label><select id="regFieldCount"><option value="1">1</option><option value="2">2</option></select></div>
       <div class="fnc-field"><label class="fnc-label">Delimiter</label><input id="regFieldDelimiter" maxlength="5" placeholder=" - "></div>
     </div>
     <div id="regFieldRows" class="reg-grid"></div>
     <div class="reg-box"><span class="fnc-label">Pattern</span><br><code id="regFieldPattern"></code><div class="reg-note" id="regFieldExample" style="margin-top:5px"></div></div>
-    <div class="reg-row" style="justify-content:flex-end"><button id="regFieldCancel" class="fnc-btn-slate">${regEsc(fncTxt('Cancel','Batal'))}</button><button id="regFieldSave" class="fnc-btn-green">${regEsc(fncTxt('Save Filename Fields','Simpan Field Filename'))}</button></div>`;
+    <div class="reg-row" style="justify-content:flex-end"><button id="regFieldCancel" class="fnc-btn-slate">${regCopy('Cancel','Batal')}</button><button id="regFieldSave" class="fnc-btn-green">${regCopy('Save Filename Fields','Simpan Field Filename')}</button></div>`;
   $('regFieldCount').addEventListener('change',()=>regFieldRenderRows());
   $('regFieldDelimiter').addEventListener('input',regFieldEditorPreview);
   $('regFieldCancel').onclick=()=> $('regSourceForm').classList.remove('show');
@@ -185,6 +187,7 @@ regBuildFilename=function(row){return regFieldBuildExpected(row)};
 
 function regFieldEnsureResultHeader(){
   const tr=$('fncResultsBody')?.closest('table')?.querySelector('thead tr');if(!tr)return;
+  if(!regActive()){tr.innerHTML=`<th id="fncRhFile">${regEsc(fncTxt('File','File'))}</th><th id="fncRhStatus">Status</th><th id="fncRhIssues">${regEsc(fncTxt('Findings','Temuan'))}</th>`;return;}
   tr.innerHTML=`<th id="fncRhFile">${regEsc(fncTxt('File','File'))}</th><th>${regEsc(fncTxt('Register Match','Register Match'))}</th><th id="fncRhStatus">${regEsc(fncTxt('Status','Status'))}</th><th id="fncRhIssues">${regEsc(fncTxt('Field Check','Pengecekan Field'))}</th><th>${regEsc(fncTxt('Suggested Filename','Suggestion Filename'))}</th><th id="regActionHead">${regEsc(fncTxt('Action','Aksi'))}</th>`;
 }
 function regFieldStatusMeta(status){
@@ -192,13 +195,13 @@ function regFieldStatusMeta(status){
   if(status==='partial')return{label:fncTxt('PARTIAL MATCH','PARTIAL MATCH'),cls:'warn'};
   if(status==='unregistered')return{label:'UNREGISTERED',cls:'bad'};
   if(status==='ignored')return{label:'IGNORED',cls:'reg-neutral'};
-  return{label:fncTxt('NOT GOVERNED','TIDAK TERGOVERN'),cls:'reg-info'};
+  return{label:'NOT GOVERNED',cls:'reg-info'};
 }
 function regFieldCheckHtml(checks){
   if(!checks||!checks.length)return regEsc(fncTxt('No field diagnostics.','Tidak ada diagnostic field.'));
   return checks.map(c=>{
-    const head=`<div class="reg-field-check ${c.ok?'ok':'bad'}"><b>${c.ok?'✓':'✕'} Field ${c.index+1} — ${regEsc(c.label)}</b><div>${regEsc(fncTxt('File: ','File: ')+ (c.actual||'-'))}</div><div>${regEsc(fncTxt('Register: ','Register: ')+(c.expected||'-'))}</div>`;
-    const sub=c.sub&&c.sub.length?`<div class="reg-subchecks">${c.sub.map(s=>`<span>${s.ok?'✓':'✕'} ${regEsc(s.label)}: ${regEsc(s.actual||'-')}${s.ok?'':` → ${regEsc(s.expected||'-')}`}</span>`).join('')}</div>`:'';
+    const head=`<div class="reg-field-check ${c.ok?'ok':'bad'}"><b>${c.ok?'PASS':'MISMATCH'} Field ${c.index+1} — ${regEsc(c.label)}</b><div>${regEsc(fncTxt('File: ','File: ')+ (c.actual||'-'))}</div><div>${regEsc(fncTxt('Register: ','Register: ')+(c.expected||'-'))}</div>`;
+    const sub=c.sub&&c.sub.length?`<div class="reg-subchecks">${c.sub.map(s=>`<span>${s.ok?'PASS':'MISMATCH'} ${regEsc(s.label)}: ${regEsc(s.actual||'-')}${s.ok?'':` → ${regEsc(s.expected||'-')}`}</span>`).join('')}</div>`:'';
     return head+sub+'</div>';
   }).join('');
 }
@@ -214,10 +217,10 @@ function regFieldRender(rows){
     if(r.regStatus==='unregistered')detail=`<div class="reg-field-check bad"><b>${regEsc(fncTxt('No authoritative register match','Tidak ada register match authoritative'))}</b><div>${regEsc(fncTxt('Candidate: ','Kandidat: ')+(r.candidate?r.candidate.documentNumber:'-'))}</div></div>`;
     else if(r.regStatus==='not_governed')detail=`<div class="reg-field-check"><b>${regEsc(fncTxt('Not governed by this profile','Tidak tergovern oleh profile ini'))}</b></div>`;
     else if(r.regStatus==='ignored')detail=`<div class="reg-field-check"><b>${regEsc(fncTxt('Ignored in current folder','Diabaikan pada folder aktif'))}</b></div>`;
-    else detail=regFieldCheckHtml(r.checks);
+    else detail=`<details${r.regStatus==='partial'?' open':''}><summary>${regEsc(fncTxt('Field comparison','Perbandingan field'))}</summary>${regFieldCheckHtml(r.checks)}${r.regStatus==='partial'&&r.checks.every(c=>c.ok)?`<div>${regEsc(fncTxt('Filename formatting differs from the configured pattern.','Format filename berbeda dari pattern yang dikonfigurasi.'))}</div>`:''}</details>`;
     tr.innerHTML=`<td>${regEsc(r.file)}</td><td>${regEsc(register)}</td><td><span class="fnc-badge ${sm.cls}">${regEsc(sm.label)}</span></td><td class="fnc-issue">${detail}</td><td class="reg-suggestion"><code>${regEsc(suggestion)}</code></td><td><div class="reg-action-buttons"></div></td>`;
     const a=tr.querySelector('.reg-action-buttons');const add=(label,cls,fn)=>{const b=document.createElement('button');b.className=cls;b.textContent=label;b.onclick=fn;a.appendChild(b)};
-    if(r.regStatus==='partial'){add(fncTxt('Rename to Suggestion','Rename Sesuai Suggestion'),'fnc-btn-amber',async()=>{if(await regActionRenameFile(r.file,r.expected))await regScan()});add(fncTxt('View Record','Lihat Record'),'fnc-btn-slate',()=>regActionViewRecord(r))}
+    if(r.regStatus==='partial'){add(fncTxt('Rename to Suggestion','Rename Sesuai Suggestion'),'fnc-btn-amber',async()=>{if(await regActionRenameFile(r.file,r.expected,r.folder))await regScan()});add(fncTxt('View Record','Lihat Record'),'fnc-btn-slate',()=>regActionViewRecord(r))}
     else if(r.regStatus==='pass'){add(fncTxt('View Record','Lihat Record'),'fnc-btn-slate',()=>regActionViewRecord(r))}
     else if(r.regStatus==='unregistered'){add(fncTxt('Register Existing File','Register File Existing'),'fnc-btn-green',()=>regActionRegisterExisting(r));add(fncTxt('Ignore','Abaikan'),'fnc-btn-slate',()=>{regActionSetIgnored(r.file,true);regScan()})}
     else if(r.regStatus==='not_governed'){add(fncTxt('Ignore','Abaikan'),'fnc-btn-slate',()=>{regActionSetIgnored(r.file,true);regScan()})}
@@ -228,25 +231,30 @@ function regFieldRender(rows){
 
 // Replace the previous exact/single-field scan with conservative per-field reconciliation.
 regScan=async function(){
+  if(regBusy||!cur()||!regActive())return;
+  const folder=cur(),scope=fncCurrentKey(),session=regSession;
+  const files=state.entries.filter(e=>e.kind==='file');
   const cfg=regFieldProfile();if(!cfg)return alert(fncTxt('Configure the filename fields first.','Atur field filename terlebih dahulu.'));
   regBusy=true;regRefresh();
   try{
-    const r=await regFetch('/rest/v1/tgm_administration_document_register?select=document_number,document_title,letter_id,is_active&is_active=eq.true&order=document_number.asc');
-    if(!r.ok)throw new Error(await regErr(r));
-    const rows=await r.json();
-    const result=state.entries.filter(e=>e.kind==='file').map(f=>{
+    const rows=await regReadAll('/rest/v1/tgm_administration_document_register?select=document_number,document_title,letter_id,is_active&is_active=eq.true&order=document_number.asc');
+    if(cur()!==folder||fncCurrentKey()!==scope||!regActive()||!regSession||regSession.user?.id!==session?.user?.id||JSON.stringify(regFieldProfile())!==JSON.stringify(cfg))return;
+    const result=files.map(f=>{
       const base=regBase(f.name);
       if(regActionIsIgnored(f.name))return{file:f.name,regStatus:'ignored'};
       const candidate=regFieldCandidateFromBase(base);
+      const exact=rows.filter(record=>regFieldBuildExpected(record,cfg)===base);
+      if(exact.length===1){const record=exact[0];return{file:f.name,regStatus:'pass',record,expected:base,candidate,checks:regFieldChecks(base,record,candidate,cfg),matchKind:'filename'};}
       if(!candidate)return{file:f.name,regStatus:'not_governed'};
       const match=regFieldStrongCandidate(candidate,rows);
       if(!match)return{file:f.name,regStatus:'unregistered',candidate,guessTitle:regFieldActualTitle(base,candidate,cfg)};
       const record=match.row,checks=regFieldChecks(base,record,candidate,cfg),expected=regFieldBuildExpected(record,cfg);
-      const allOk=checks.length>0&&checks.every(x=>x.ok);
+      const allOk=checks.length>0&&checks.every(x=>x.ok)&&base===expected;
       return{file:f.name,regStatus:allOk?'pass':'partial',record,expected,candidate,checks,matchKind:match.kind,guessTitle:regFieldActualTitle(base,candidate,cfg)};
     });
+    result.forEach(row=>{row.folder=folder;});
     fncLastScan=result;$('fncResults').classList.add('show');regFieldRender(result);
-  }catch(e){alert(fncTxt('Register scan failed: ','Scan register gagal: ')+e.message)}finally{regBusy=false;regRefresh()}
+  }catch(e){fncLastScan=[];$('fncResults').classList.remove('show');alert(fncTxt('Administration Document Register could not be scanned. Check your connection or sign in again, then retry. ','Register Dokumen Administrasi gagal dipindai. Periksa koneksi atau masuk kembali, lalu coba lagi. ')+e.message)}finally{regBusy=false;regRefresh()}
 };
 
 // Enhance the matched-record view with title and selected filename profile.
@@ -259,9 +267,5 @@ regFieldMigrateStoredProfile();regFieldEnsureEditor();
 $('regSourceEdit').onclick=regFieldOpenEditor;
 const regFieldOriginalRefresh=regRefresh;
 regRefresh=function(){const out=regFieldOriginalRefresh.apply(this,arguments);regFieldRefreshProfileUi();regFieldEnsureResultHeader();return out};
-if(!$('regFieldStyles')){const s=document.createElement('style');s.id='regFieldStyles';s.textContent=`
-  .reg-field-check{font-size:11px;line-height:1.4;margin-bottom:6px;padding-bottom:5px;border-bottom:1px dashed var(--line)}.reg-field-check:last-child{margin-bottom:0;padding-bottom:0;border-bottom:0}
-  .reg-field-check.ok>b{color:var(--green)}.reg-field-check.bad>b{color:var(--red)}.reg-subchecks{display:flex;gap:7px;flex-wrap:wrap;margin-top:4px;color:var(--muted)}.reg-subchecks span{white-space:nowrap}
-  .reg-suggestion{min-width:260px}.reg-suggestion code{white-space:normal;overflow-wrap:anywhere;font-size:11px}
-`;document.head.appendChild(s)}
+
 regRefresh();

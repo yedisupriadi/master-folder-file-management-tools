@@ -6,73 +6,11 @@
 <meta name="description" content="Audit document file names, cross-check an Excel register, detect duplicates, rename files, flatten folders, and move selected files.">
 <title>File Naming Convention Management</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%2241.325%20309.180%20194.000%20194.000%22%3E%3Cpath%20fill%3D%22%23D27F37%22%20d%3D%22M145.701%2C311.18L145.701%2C501.18C168.217%2C499.429%20189.406%2C489.7%20205.5%2C473.557C223.342%2C455.662%20233.325%2C431.488%20233.325%2C406.18C233.325%2C402.101%20233.066%2C398.051%20232.556%2C394.052L220.371%2C397.164C220.696%2C400.144%20220.862%2C403.154%20220.862%2C406.18C220.862%2C428.141%20212.168%2C449.193%20196.686%2C464.722C186.475%2C474.963%20173.868%2C482.243%20160.186%2C486.013L160.186%2C365.211L184.997%2C446.484L214.733%2C374.871C215.801%2C377.495%20216.736%2C380.173%20217.531%2C382.897L229.623%2C379.808C225.219%2C364.452%20216.989%2C350.325%20205.5%2C338.803C189.406%2C322.66%20168.217%2C312.931%20145.701%2C311.18ZM130.799%2C311.192C108.339%2C312.974%2087.209%2C322.696%2071.15%2C338.803C60.978%2C349.005%2053.36%2C361.25%2048.69%2C374.581L62.936%2C372.454C67.009%2C363.295%2072.746%2C354.868%2079.954%2C347.638C90.13%2C337.432%20102.686%2C330.166%20116.314%2C326.385L116.314%2C358.29L60.258%2C379.275L60.258%2C379.273L45.766%2C384.687C44.156%2C391.674%2043.325%2C398.88%2043.325%2C406.18C43.325%2C431.487%2053.309%2C455.662%2071.15%2C473.557C87.208%2C489.664%20108.338%2C499.385%20130.799%2C501.168L130.799%2C402.295L104.219%2C410.165L108.32%2C424.1L117.421%2C421.405L116.748%2C486.094C102.952%2C482.347%2090.238%2C475.036%2079.954%2C464.721C64.472%2C449.193%2055.777%2C428.14%2055.777%2C406.18C55.777%2C402.839%2055.979%2C399.519%2056.374%2C396.236L75.34%2C389.137L75.34%2C431.621L89.825%2C431.621L89.825%2C383.714L130.799%2C368.376L130.799%2C323.733L130.799%2C311.192ZM163.804%2C327.433C176.088%2C331.432%20187.381%2C338.306%20196.686%2C347.639C200.061%2C351.024%20203.114%2C354.672%20205.824%2C358.535L187.079%2C403.678L163.804%2C327.433Z%22%2F%3E%3C%2Fsvg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #eef2f7;
-    --card: #ffffff;
-    --ink: #1e293b;
-    --muted: #64748b;
-    --line: #e2e8f0;
-    --accent: #6366f1;
-    --accent-dark: #4f46e5;
-    --green: #10b981;
-    --green-dark: #059669;
-    --violet: #8b5cf6;
-    --violet-dark: #7c3aed;
-    --amber: #f59e0b;
-    --amber-dark: #d97706;
-    --sel: #c7d2fe;
-    --radius: 12px;
-    --brand: #034F53;
-    /* permukaan yang sebelumnya di-hardcode → dijadikan variabel agar bisa gelap */
-    --bg-grad-a: #e8edf5;
-    --bg-grad-b: #f4f6fa;
-    --input-bg: #f8fafc;
-    --input-disabled: #f1f5f9;
-    --hover: #f1f5f9;
-    --hover-row: #f0f4ff;
-    --stripe: #fafbfd;
-    --chip-bg: #f1f5f9;
-    --tree-ink: #334155;
-    --thead-bg: #1e293b;
-    --thead-ink: #e2e8f0;
-    --td-line: #f1f5f9;
-    --menu-bg: #ffffff;
-    --overlay: rgba(244,246,250,.62);
-    --panel-inner: #f8fafc;   /* kartu di dalam tool-panel: sedikit beda dari --card */
-    --tip-bg: #0f172a;
-  }
-  html[data-theme="dark"] {
-    --bg: #0b1220;
-    --card: #131c2e;
-    --ink: #e5e9f0;
-    --muted: #93a1b5;
-    --line: #2a3650;
-    --sel: #3b3f7a;
-    --bg-grad-a: #0b1220;
-    --bg-grad-b: #0e1626;
-    --input-bg: #0f1728;
-    --input-disabled: #172136;
-    --hover: #1b2740;
-    --hover-row: #18233c;
-    --stripe: #161f33;
-    --chip-bg: #1f2b45;
-    --tree-ink: #c7d2e5;
-    --thead-bg: #0a1120;
-    --thead-ink: #cdd7e6;
-    --td-line: #212c46;
-    --menu-bg: #172136;
-    --overlay: rgba(11,18,32,.62);
-    --panel-inner: #0f1728;
-    --tip-bg: #263248;
-    --brand: #ffffff;   /* ikon & teks brand jadi putih di dark theme agar lebih terlihat */
-  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: "Lato", "Segoe UI", system-ui, Arial, sans-serif;
+    font-family: var(--font-family);
     font-weight: 400;
     background: linear-gradient(180deg, var(--bg-grad-a) 0%, var(--bg-grad-b) 240px) fixed;
     color: var(--ink);
@@ -592,6 +530,8 @@
     .tp-left { flex: 1 1 auto; width: 100%; }
   }
 </style>
+<link rel="stylesheet" href="styles/tool-ui.css">
+<script src="scripts/tool-ui.js"></script>
 </head>
 <body>
 
@@ -625,7 +565,7 @@
     <!-- kolom kiri: sumber folder, filter, pohon navigasi -->
     <div class="tp-left">
       <div class="tp-head">
-        <button id="btnPick" class="brand-btn tip-left" data-i18n-tip="pickFolderTip" data-tip="Pilih folder yang akan dipindai" aria-label="Pilih Folder"><svg viewBox="48 48 460 460" xmlns="http://www.w3.org/2000/svg"><g transform="translate(-362 -82)"><path d="M529.379 296.292 819.542 296.292 819.542 267.333C819.542 254.592 809.117 244.167 796.375 244.167L622.625 244.167 558.917 201.888C554.862 199.571 550.808 197.833 546.175 197.833L437.292 197.833C424.55 197.833 414.125 208.258 414.125 221L414.125 504.792C414.125 505.95 488.837 323.513 488.837 323.513 495.788 307.296 511.425 296.292 529.379 296.292Z" fill="#D29F37"/><path d="M865.875 342.625C865.875 330.463 857.188 320.617 845.025 319.458L529.379 319.458C520.692 319.458 513.162 324.671 509.688 332.2L431.5 522.167 784.792 522.167 863.558 353.05C865.296 349.575 865.875 346.1 865.875 342.625L865.875 342.625Z" fill="#E8B44C"/></g></svg></button>
+        <button id="btnPick" class="brand-btn tip-left" data-i18n-tip="pickFolderTip" data-tip="Pilih folder yang akan dipindai" aria-label="Pilih Folder"><span data-tool-icon="folder"></span></button>
         <button id="btnGenerate" class="icon-btn" disabled data-i18n-tip="generateTip" data-tip="Pindai folder & tampilkan daftar file" aria-label="Generate"><span class="ico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></span></button>
         <input type="text" id="addressBar" placeholder="Folder terpilih akan tampil di sini..." data-i18n-placeholder="addressBarPh" readonly>
       </div>
@@ -961,7 +901,7 @@
     }
   };
 
-  window.__lang = localStorage.getItem('audit-lang') || 'id';
+  window.__lang = ToolStorage.getItem('audit-lang') || 'id';
 
   function TR(key) {
     const d = I18N[window.__lang] || I18N.id;
@@ -1060,7 +1000,7 @@
 
   window.__setLang = function (lang) {
     window.__lang = (lang === 'en') ? 'en' : 'id';
-    localStorage.setItem('audit-lang', window.__lang);
+    ToolStorage.setItem('audit-lang', window.__lang);
     applyStaticI18n();
     updateLangLabels();
     // minta kedua tabel merender ulang teks dinamis (stats, badge, tree, tombol)
@@ -1072,18 +1012,18 @@
   window.__setTheme = function (theme) {
     const t = (theme === 'dark') ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('audit-theme', t);
+    ToolStorage.setItem('audit-theme', t);
     const tog = document.getElementById('themeToggle');
     if (tog) tog.checked = (t === 'dark');
   };
 
   // init sedini mungkin (data-theme) supaya tak ada flash
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('audit-theme') || 'light');
+  document.documentElement.setAttribute('data-theme', ToolStorage.getItem('audit-theme') || 'light');
 
   document.addEventListener('DOMContentLoaded', () => {
     applyStaticI18n();
     updateLangLabels();
-    window.__setTheme(localStorage.getItem('audit-theme') || 'light');
+    window.__setTheme(ToolStorage.getItem('audit-theme') || 'light');
     const langToggle = document.getElementById('langToggle');
     if (langToggle) langToggle.addEventListener('change', () => window.__setLang(langToggle.checked ? 'en' : 'id'));
     const themeToggle = document.getElementById('themeToggle');
@@ -1191,7 +1131,7 @@ window.__attachColResizers = function (ths, onResize) {
         return; // user batal memilih
       }
       pickedFiles = [];
-      addressBar.value = '📁 ' + dirHandle.name;
+      addressBar.value = '' + dirHandle.name;
       btnGenerate.disabled = false;
       stats.textContent = 'Folder siap. Klik Generate untuk memindai isi folder.';
     } else {
@@ -1250,7 +1190,7 @@ window.__attachColResizers = function (ths, onResize) {
       processEntries(entries);
     } catch (err) {
       stats.textContent = '';
-      showToast('⚠️ Gagal memindai folder: ' + err.message);
+      showToast('Gagal memindai folder: ' + err.message);
     }
     window.__tableLoading('audit', false);
     busy = false;
@@ -1346,11 +1286,11 @@ window.__attachColResizers = function (ths, onResize) {
     try {
       perm = await dirHandle.requestPermission({ mode: 'readwrite' });
     } catch (err) {
-      showToast('⚠️ Tidak bisa meminta izin tulis: ' + err.message);
+      showToast('Tidak bisa meminta izin tulis: ' + err.message);
       return;
     }
     if (perm !== 'granted') {
-      showToast('⚠️ Izin tulis ditolak — flatten dibatalkan.');
+      showToast('Izin tulis ditolak — flatten dibatalkan.');
       return;
     }
 
@@ -1362,7 +1302,7 @@ window.__attachColResizers = function (ths, onResize) {
     try {
       await scanFSA();
     } catch (err) {
-      showToast('⚠️ Gagal memindai: ' + err.message);
+      showToast('Gagal memindai: ' + err.message);
       window.__tableLoading('audit', false);
       busy = false; btnFlatten.disabled = false;
       updateDeleteControls();
@@ -1380,7 +1320,7 @@ window.__attachColResizers = function (ths, onResize) {
 
     // 3. konfirmasi — tindakan ini permanen
     const okConfirm = confirm(
-      '⚠️ FLATTEN FOLDER: "' + dirHandle.name + '"\n\n' +
+      'FLATTEN FOLDER: "' + dirHandle.name + '"\n\n' +
       '• ' + toMove.length + ' file akan DIPINDAHKAN dari subfolder ke folder utama\n' +
       '• Jika ada nama file yang sama, otomatis diberi akhiran (2), (3), dst.\n' +
       '• Semua folder yang menjadi kosong akan DIHAPUS\n\n' +
@@ -1436,10 +1376,10 @@ window.__attachColResizers = function (ths, onResize) {
     btnFlatten.disabled = false;
     updateDeleteControls();
 
-    let msg = '✅ Flatten selesai: ' + moved + ' file dipindahkan, ' + removedDirs + ' folder kosong dihapus';
+    let msg = 'Flatten selesai: ' + moved + ' file dipindahkan, ' + removedDirs + ' folder kosong dihapus';
     if (renamed > 0) msg += ', ' + renamed + ' file di-rename karena nama sama';
     if (failures.length > 0) {
-      msg += ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)';
+      msg += ' — ' + failures.length + ' gagal (lihat console F12)';
       console.warn('Flatten gagal untuk file berikut:\n' + failures.join('\n'));
     }
     showToast(msg);
@@ -1819,8 +1759,8 @@ window.__attachColResizers = function (ths, onResize) {
       lines.push(cells.join('\t'));
     }
     const text = lines.join('\n');
-    const ok   = () => showToast('✅ ' + lines.length + ' baris tersalin — tinggal paste (Ctrl+V) di Excel');
-    const fail = () => showToast('⚠️ Gagal menyalin ke clipboard — coba klik halaman dulu lalu ulangi');
+    const ok   = () => showToast('' + lines.length + ' baris tersalin — tinggal paste (Ctrl+V) di Excel');
+    const fail = () => showToast('Gagal menyalin ke clipboard — coba klik halaman dulu lalu ulangi');
 
     // metode klasik: berfungsi juga saat dibuka via file:// tanpa izin clipboard
     const legacyCopy = () => {
@@ -1892,7 +1832,7 @@ window.__attachColResizers = function (ths, onResize) {
   // ===== Pilih file berdasarkan daftar DOC NO dari register (dipanggil tabel register) =====
   // Mencocokkan: nama file mengandung DOC NO, ATAU DOC NO hasil parse sama persis.
   window.__auditSelectByDocNos = (docNos) => {
-    if (!allRows.length) { showToast(TL('⚠️ Generate a folder first in the Folder Table.', '⚠️ Generate folder dulu di Tabel Folder.')); return 0; }
+    if (!allRows.length) { showToast(TL('Generate a folder first in the Folder Table.', 'Generate folder dulu di Tabel Folder.')); return 0; }
     const list = (docNos || []).map(d => String(d).trim().toLowerCase()).filter(Boolean);
     if (!list.length) return 0;
     selectedDeleteKeys.clear();
@@ -1948,12 +1888,12 @@ window.__attachColResizers = function (ths, onResize) {
 
   btnScanFile.addEventListener('click', async () => {
     if (busy) return;
-    if (!allRows.length) { showToast(TL('⚠️ Pick a folder and click Generate first.', '⚠️ Pilih folder lalu klik Generate dulu.')); return; }
+    if (!allRows.length) { showToast(TL('Pick a folder and click Generate first.', 'Pilih folder lalu klik Generate dulu.')); return; }
     const kw = scanKeyword.value.trim();
-    if (!kw) { showToast(TL('⚠️ Type the keyword to detect first.', '⚠️ Isi dulu kata kunci yang mau dideteksi.')); return; }
+    if (!kw) { showToast(TL('Type the keyword to detect first.', 'Isi dulu kata kunci yang mau dideteksi.')); return; }
     // hanya file PDF yang sedang TAMPIL (mengikuti filter aktif tabel)
     const targets = viewRows.filter(r => r.ext === 'pdf' && (r.handle || r.file));
-    if (!targets.length) { showToast(TL('⚠️ No PDF files in the current table view.', '⚠️ Tidak ada file PDF pada tampilan tabel saat ini.')); return; }
+    if (!targets.length) { showToast(TL('No PDF files in the current table view.', 'Tidak ada file PDF pada tampilan tabel saat ini.')); return; }
 
     busy = true;
     btnScanFile.disabled = true;
@@ -1962,7 +1902,7 @@ window.__attachColResizers = function (ths, onResize) {
     try {
       await ensurePdfJs();
     } catch (err) {
-      showToast('⚠️ ' + err.message);
+      showToast('' + err.message);
       window.__tableLoading('audit', false);
       busy = false; btnScanFile.disabled = false;
       updateDeleteControls();
@@ -1999,8 +1939,8 @@ window.__attachColResizers = function (ths, onResize) {
     render();
     updateDeleteControls();
 
-    let msg = TL('🔍 ' + matched.length + ' of ' + targets.length + ' PDF files contain "' + kw + '"',
-                 '🔍 ' + matched.length + ' dari ' + targets.length + ' file PDF memuat "' + kw + '"');
+    let msg = TL('' + matched.length + ' of ' + targets.length + ' PDF files contain "' + kw + '"',
+                 '' + matched.length + ' dari ' + targets.length + ' file PDF memuat "' + kw + '"');
     if (selectable > 0) msg += TL(' — auto-checked, ready for Delete Selected / Move To', ' — sudah dicentang, siap Hapus Terpilih / Pindahkan');
     else if (matched.length > 0) msg += TL(' (checking needs Edge/Chrome)', ' (centang butuh Edge/Chrome)');
     if (errors > 0) msg += TL(' · ' + errors + ' file(s) failed to read', ' · ' + errors + ' file gagal dibaca');
@@ -2073,15 +2013,15 @@ window.__attachColResizers = function (ths, onResize) {
 
   btnFindDup.addEventListener('click', async () => {
     if (busy) return;
-    if (!allRows.length) { showToast(TL('⚠️ Pick a folder and click Generate first.', '⚠️ Pilih folder lalu klik Generate dulu.')); return; }
+    if (!allRows.length) { showToast(TL('Pick a folder and click Generate first.', 'Pilih folder lalu klik Generate dulu.')); return; }
     if (!(window.crypto && crypto.subtle)) {
-      showToast(TL('⚠️ Duplicate detection needs Edge/Chrome (Web Crypto).', '⚠️ Deteksi duplikat butuh Edge/Chrome (Web Crypto).'));
+      showToast(TL('Duplicate detection needs Edge/Chrome (Web Crypto).', 'Deteksi duplikat butuh Edge/Chrome (Web Crypto).'));
       return;
     }
     const deepPdf = dupMode.value === 'text';
     // hanya file yang sedang TAMPIL (mengikuti filter aktif tabel), sama seperti Scan PDF
     const targets = viewRows.filter(r => r.handle || r.file);
-    if (targets.length < 2) { showToast(TL('⚠️ Need at least 2 files in the current table view.', '⚠️ Butuh minimal 2 file pada tampilan tabel saat ini.')); return; }
+    if (targets.length < 2) { showToast(TL('Need at least 2 files in the current table view.', 'Butuh minimal 2 file pada tampilan tabel saat ini.')); return; }
 
     busy = true;
     btnFindDup.disabled = true;
@@ -2166,7 +2106,7 @@ window.__attachColResizers = function (ths, onResize) {
       window.__tableLoading('audit', false);
       busy = false; btnFindDup.disabled = false;
       updateDeleteControls();
-      showToast('⚠️ ' + err.message);
+      showToast('' + err.message);
       return;
     }
 
@@ -2199,11 +2139,11 @@ window.__attachColResizers = function (ths, onResize) {
 
     let msg;
     if (dupGroupCount === 0) {
-      msg = TL('✅ No duplicate content found among ' + targets.length + ' files.',
-               '✅ Tidak ada duplikat isi di antara ' + targets.length + ' file.');
+      msg = TL('No duplicate content found among ' + targets.length + ' files.',
+               'Tidak ada duplikat isi di antara ' + targets.length + ' file.');
     } else {
-      msg = TL('🔍 ' + dupGroupCount + ' duplicate group(s) · ' + dupFiles + ' file(s) beyond the KEEP copy',
-               '🔍 ' + dupGroupCount + ' grup duplikat · ' + dupFiles + ' file di luar salinan KEEP');
+      msg = TL('' + dupGroupCount + ' duplicate group(s) · ' + dupFiles + ' file(s) beyond the KEEP copy',
+               '' + dupGroupCount + ' grup duplikat · ' + dupFiles + ' file di luar salinan KEEP');
       if (selectable > 0) msg += TL(' — auto-checked, ready for Delete Selected / Move To', ' — sudah dicentang, siap Hapus Terpilih / Pindahkan');
       else msg += TL(' (checking needs Edge/Chrome)', ' (centang butuh Edge/Chrome)');
     }
@@ -2224,8 +2164,8 @@ window.__attachColResizers = function (ths, onResize) {
 
   window.__auditForceMatch = async (pairs) => {
     if (busy) return;
-    if (!allRows.length) { showToast(TL('⚠️ Generate a folder first in the Folder Table.', '⚠️ Generate folder dulu di Tabel Folder.')); return; }
-    if (!dirHandle) { showToast(TL('⚠️ Force Match needs Edge/Chrome (File System Access).', '⚠️ Force Match butuh Edge/Chrome (File System Access).')); return; }
+    if (!allRows.length) { showToast(TL('Generate a folder first in the Folder Table.', 'Generate folder dulu di Tabel Folder.')); return; }
+    if (!dirHandle) { showToast(TL('Force Match needs Edge/Chrome (File System Access).', 'Force Match butuh Edge/Chrome (File System Access).')); return; }
 
     // peta DOC NO → usulan nama; DOC NO yang muncul dengan usulan BERBEDA dilewati (ambigu)
     const map = new Map();
@@ -2239,7 +2179,7 @@ window.__attachColResizers = function (ths, onResize) {
     });
     ambiguous.forEach(k => map.delete(k));
     if (map.size === 0) {
-      showToast(TL('⚠️ No usable DOC NO + Suggested File Name in the register filter.', '⚠️ Tidak ada DOC NO & Usulan Nama File yang bisa dipakai pada filter register.'));
+      showToast(TL('No usable DOC NO + Suggested File Name in the register filter.', 'Tidak ada DOC NO & Usulan Nama File yang bisa dipakai pada filter register.'));
       return;
     }
     // key terpanjang dicek dulu supaya DOC NO yang saling berawalan tidak salah cocok
@@ -2299,11 +2239,11 @@ window.__attachColResizers = function (ths, onResize) {
     try {
       perm = await dirHandle.requestPermission({ mode: 'readwrite' });
     } catch (err) {
-      showToast('⚠️ ' + err.message);
+      showToast('' + err.message);
       return;
     }
     if (perm !== 'granted') {
-      showToast(TL('⚠️ Write permission denied — force match cancelled.', '⚠️ Izin tulis ditolak — force match dibatalkan.'));
+      showToast(TL('Write permission denied — force match cancelled.', 'Izin tulis ditolak — force match dibatalkan.'));
       return;
     }
 
@@ -2345,11 +2285,11 @@ window.__attachColResizers = function (ths, onResize) {
     busy = false;
     updateDeleteControls();
 
-    let msg = TL('✅ ' + renamedCount + ' file(s) renamed to match the register', '✅ ' + renamedCount + ' file di-rename sesuai register');
+    let msg = TL('' + renamedCount + ' file(s) renamed to match the register', '' + renamedCount + ' file di-rename sesuai register');
     if (already > 0) msg += TL(', ' + already + ' already matched', ', ' + already + ' sudah sesuai');
     if (ambiguous.size > 0) msg += TL(', ' + ambiguous.size + ' duplicate DOC NO skipped', ', ' + ambiguous.size + ' DOC NO ganda dilewati');
     if (failures.length > 0) {
-      msg += TL(' — ⚠️ ' + failures.length + ' failed (see console F12)', ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)');
+      msg += TL(' — ' + failures.length + ' failed (see console F12)', ' — ' + failures.length + ' gagal (lihat console F12)');
       console.warn('Force match gagal untuk file berikut:\n' + failures.join('\n'));
     }
     showToast(msg);
@@ -2359,8 +2299,8 @@ window.__attachColResizers = function (ths, onResize) {
   btnMoveTo.addEventListener('click', async () => {
     if (busy) return;
     const rows = getSelectedDeleteRows();
-    if (rows.length === 0) { showToast(TL('⚠️ No files selected.', '⚠️ Belum ada file yang dipilih.')); return; }
-    if (!('showDirectoryPicker' in window)) { showToast(TL('⚠️ Move To needs Edge/Chrome (File System Access).', '⚠️ Move To butuh Edge/Chrome (File System Access).')); return; }
+    if (rows.length === 0) { showToast(TL('No files selected.', 'Belum ada file yang dipilih.')); return; }
+    if (!('showDirectoryPicker' in window)) { showToast(TL('Move To needs Edge/Chrome (File System Access).', 'Move To butuh Edge/Chrome (File System Access).')); return; }
 
     let destDir;
     try {
@@ -2376,12 +2316,12 @@ window.__attachColResizers = function (ths, onResize) {
 
     try {
       if ((await destDir.requestPermission({ mode: 'readwrite' })) !== 'granted') {
-        showToast(TL('⚠️ Write permission denied for destination.', '⚠️ Izin tulis folder tujuan ditolak.')); return;
+        showToast(TL('Write permission denied for destination.', 'Izin tulis folder tujuan ditolak.')); return;
       }
       if (dirHandle && (await dirHandle.requestPermission({ mode: 'readwrite' })) !== 'granted') {
-        showToast(TL('⚠️ Write permission denied for source.', '⚠️ Izin tulis folder sumber ditolak.')); return;
+        showToast(TL('Write permission denied for source.', 'Izin tulis folder sumber ditolak.')); return;
       }
-    } catch (err) { showToast('⚠️ ' + err.message); return; }
+    } catch (err) { showToast('' + err.message); return; }
 
     busy = true;
     updateDeleteControls();
@@ -2427,10 +2367,10 @@ window.__attachColResizers = function (ths, onResize) {
     busy = false;
     updateDeleteControls();
 
-    let msg = TL('✅ ' + moved + ' file(s) moved to "' + destDir.name + '"', '✅ ' + moved + ' file dipindahkan ke "' + destDir.name + '"');
+    let msg = TL('' + moved + ' file(s) moved to "' + destDir.name + '"', '' + moved + ' file dipindahkan ke "' + destDir.name + '"');
     if (renamed > 0) msg += TL(', ' + renamed + ' renamed (name clash)', ', ' + renamed + ' di-rename karena nama sama');
     if (failures.length > 0) {
-      msg += TL(' — ⚠️ ' + failures.length + ' failed (see console F12)', ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)');
+      msg += TL(' — ' + failures.length + ' failed (see console F12)', ' — ' + failures.length + ' gagal (lihat console F12)');
       console.warn('Move gagal untuk file berikut:\n' + failures.join('\n'));
     }
     showToast(msg);
@@ -2450,13 +2390,13 @@ window.__attachColResizers = function (ths, onResize) {
   async function openRowFile(row) {
     try {
       const file = row.handle ? await row.handle.getFile() : row.file;
-      if (!file) { showToast('⚠️ File tidak bisa dibuka dari sesi ini.'); return; }
+      if (!file) { showToast('File tidak bisa dibuka dari sesi ini.'); return; }
       const url = URL.createObjectURL(file);
       const win = window.open(url, '_blank', 'noopener');
-      if (!win) showToast('⚠️ Popup diblokir browser — izinkan popup lalu ulangi.');
+      if (!win) showToast('Popup diblokir browser — izinkan popup lalu ulangi.');
       setTimeout(() => URL.revokeObjectURL(url), 60000);
     } catch (err) {
-      showToast('⚠️ Gagal membuka file: ' + err.message);
+      showToast('Gagal membuka file: ' + err.message);
     }
   }
 
@@ -2484,7 +2424,7 @@ window.__attachColResizers = function (ths, onResize) {
     const preview = rows.slice(0, 12).map(r => '• ' + fileAddress(r.path, r.name)).join('\n');
     const more = rows.length > 12 ? '\n• ... dan ' + (rows.length - 12) + ' file lainnya' : '';
     const okConfirm = confirm(
-      '⚠️ HAPUS ' + label + '\n\n' +
+      'HAPUS ' + label + '\n\n' +
       preview + more + '\n\n' +
       'File akan dihapus permanen dari folder yang dipilih. Tindakan ini TIDAK BISA di-undo. Lanjutkan?'
     );
@@ -2494,11 +2434,11 @@ window.__attachColResizers = function (ths, onResize) {
     try {
       perm = await dirHandle.requestPermission({ mode: 'readwrite' });
     } catch (err) {
-      showToast('⚠️ Tidak bisa meminta izin tulis: ' + err.message);
+      showToast('Tidak bisa meminta izin tulis: ' + err.message);
       return;
     }
     if (perm !== 'granted') {
-      showToast('⚠️ Izin tulis ditolak — hapus file dibatalkan.');
+      showToast('Izin tulis ditolak — hapus file dibatalkan.');
       return;
     }
 
@@ -2534,9 +2474,9 @@ window.__attachColResizers = function (ths, onResize) {
     busy = false;
     updateDeleteControls();
 
-    let msg = '✅ ' + deleted + ' file dihapus';
+    let msg = '' + deleted + ' file dihapus';
     if (failures.length > 0) {
-      msg += ' — ⚠️ ' + failures.length + ' gagal (lihat console F12)';
+      msg += ' — ' + failures.length + ' gagal (lihat console F12)';
       console.warn('Hapus file gagal untuk file berikut:\n' + failures.join('\n'));
     }
     showToast(msg);
@@ -2551,7 +2491,7 @@ window.__attachColResizers = function (ths, onResize) {
     const row = viewRows[+td.dataset.r];
     if (!row) return;
     if (!row.handle) {
-      showToast('⚠️ Rename hanya bisa jika folder dipilih via Edge/Chrome (File System Access)');
+      showToast('Rename hanya bisa jika folder dipilih via Edge/Chrome (File System Access)');
       return;
     }
     startRename(td, row);
@@ -2579,19 +2519,19 @@ window.__attachColResizers = function (ths, onResize) {
       const newName = input.value.trim();
       if (newName === '' || newName === row.name) { finish(); return; }
       if (/[\\/:*?"<>|]/.test(newName)) {
-        showToast('⚠️ Nama file tidak boleh mengandung karakter \\ / : * ? " < > |');
+        showToast('Nama file tidak boleh mengandung karakter \\ / : * ? " < > |');
         finish(); return;
       }
       const clash = allRows.some(r => r !== row && r.path === row.path &&
                                  r.name.toLowerCase() === newName.toLowerCase());
       if (clash) {
-        showToast('⚠️ Sudah ada file bernama "' + newName + '" di folder yang sama');
+        showToast('Sudah ada file bernama "' + newName + '" di folder yang sama');
         finish(); return;
       }
       try {
         const perm = await dirHandle.requestPermission({ mode: 'readwrite' });
         if (perm !== 'granted') {
-          showToast('⚠️ Izin tulis ditolak — rename dibatalkan.');
+          showToast('Izin tulis ditolak — rename dibatalkan.');
           finish(); return;
         }
         const oldName = row.name;
@@ -2604,9 +2544,9 @@ window.__attachColResizers = function (ths, onResize) {
         row.docNo = dr2.docNo; row.rev = dr2.rev;
         row.search = (row.name + '\n' + row.path + '\n' + row.url + '\n' + row.sizeText + '\n' + row.ext).toLowerCase();
         if (window.__spRecrosscheck) window.__spRecrosscheck();
-        showToast('✅ "' + oldName + '" di-rename menjadi "' + newName + '"');
+        showToast('"' + oldName + '" di-rename menjadi "' + newName + '"');
       } catch (err) {
-        showToast('⚠️ Gagal rename: ' + err.message);
+        showToast('Gagal rename: ' + err.message);
       }
       finish();
     };
@@ -2805,7 +2745,7 @@ window.__attachColResizers = function (ths, onResize) {
       openWorkbook(buf, f.name);
     } catch (err) {
       spStats.textContent = '';
-      toastFn(TL('⚠️ Failed to read file: ', '⚠️ Gagal membaca file: ') + err.message);
+      toastFn(TL('Failed to read file: ', 'Gagal membaca file: ') + err.message);
     }
     window.__tableLoading('reg', false);
     fileInput.value = '';
@@ -2829,7 +2769,7 @@ window.__attachColResizers = function (ths, onResize) {
     const def = findTargetSheetName(sheetNames) || sheetNames[0];
     spSheetSelect.value = def;
     renderSheet(def);
-    toastFn(TL('✅ Register loaded from ', '✅ Register dimuat dari ') + sourceName + ' — sheet ' + def);
+    toastFn(TL('Register loaded from ', 'Register dimuat dari ') + sourceName + ' — sheet ' + def);
     return def;
   }
 
@@ -2849,9 +2789,9 @@ window.__attachColResizers = function (ths, onResize) {
     setTimeout(() => { // beri browser kesempatan menggambar overlay sebelum parsing berat
       try {
         renderSheet(name);
-        toastFn(TL('✅ Sheet changed to ', '✅ Sheet diganti ke ') + name);
+        toastFn(TL('Sheet changed to ', 'Sheet diganti ke ') + name);
       } catch (err) {
-        toastFn(TL('⚠️ Failed to read sheet: ', '⚠️ Gagal membaca sheet: ') + err.message);
+        toastFn(TL('Failed to read sheet: ', 'Gagal membaca sheet: ') + err.message);
       }
       window.__tableLoading('reg', false);
     }, 30);
@@ -3049,27 +2989,27 @@ window.__attachColResizers = function (ths, onResize) {
 
   // ===== Pilih file di tabel File Audit berdasarkan DOC NO register (sesuai filter aktif) =====
   btnSelectAudit.addEventListener('click', () => {
-    if (mapDocNoCol < 0) { toastFn(TL('⚠️ Set the Document Number column in Column Mapping first.', '⚠️ Atur kolom Document Number di Mapping Kolom dulu.')); return; }
+    if (mapDocNoCol < 0) { toastFn(TL('Set the Document Number column in Column Mapping first.', 'Atur kolom Document Number di Mapping Kolom dulu.')); return; }
     const docNos = [...new Set(
       viewRows.map(r => (r.cells[mapDocNoCol] || '').trim()).filter(Boolean)
     )];
-    if (!docNos.length) { toastFn(TL('⚠️ No DOC NO in the current filter.', '⚠️ Tidak ada DOC NO pada filter aktif.')); return; }
+    if (!docNos.length) { toastFn(TL('No DOC NO in the current filter.', 'Tidak ada DOC NO pada filter aktif.')); return; }
     const n = window.__auditSelectByDocNos ? window.__auditSelectByDocNos(docNos) : 0;
-    toastFn(TL('✅ ' + n + ' file(s) selected in the Folder Table (from ' + docNos.length + ' DOC NO).',
-               '✅ ' + n + ' file terpilih di Tabel Folder (dari ' + docNos.length + ' DOC NO).'));
+    toastFn(TL('' + n + ' file(s) selected in the Folder Table (from ' + docNos.length + ' DOC NO).',
+               '' + n + ' file terpilih di Tabel Folder (dari ' + docNos.length + ' DOC NO).'));
   });
 
   // ===== Force Match: rename file folder mengikuti Usulan Nama File (DOC NO sama) =====
   // pasangan diambil dari baris register yang LOLOS filter aktif (Company, status, pencarian)
   btnForceMatch.addEventListener('click', () => {
-    if (mapDocNoCol < 0) { toastFn(TL('⚠️ Set the Document Number column in Column Mapping first.', '⚠️ Atur kolom Document Number di Mapping Kolom dulu.')); return; }
+    if (mapDocNoCol < 0) { toastFn(TL('Set the Document Number column in Column Mapping first.', 'Atur kolom Document Number di Mapping Kolom dulu.')); return; }
     const pairs = [];
     viewRows.forEach(r => {
       const dn = (r.cells[mapDocNoCol] || '').trim();
       const sg = (r.cells[1] || '').trim();
       if (dn && sg) pairs.push({ docNo: dn, suggest: sg });
     });
-    if (!pairs.length) { toastFn(TL('⚠️ No rows with DOC NO & Suggested File Name in the current filter.', '⚠️ Tidak ada baris dengan DOC NO & Usulan Nama File pada filter aktif.')); return; }
+    if (!pairs.length) { toastFn(TL('No rows with DOC NO & Suggested File Name in the current filter.', 'Tidak ada baris dengan DOC NO & Usulan Nama File pada filter aktif.')); return; }
     if (window.__auditForceMatch) window.__auditForceMatch(pairs);
   });
 
@@ -3203,7 +3143,7 @@ window.__attachColResizers = function (ths, onResize) {
     if (hiddenCols.size === allowedCols.length) {
       hiddenCols.delete(idx);
       input.checked = true;
-      toastFn('⚠️ Minimal satu kolom harus tetap ditampilkan');
+      toastFn('Minimal satu kolom harus tetap ditampilkan');
       return;
     }
     syncColsControl();
@@ -3465,8 +3405,8 @@ window.__attachColResizers = function (ths, onResize) {
       lines.push(cells.join('\t'));
     }
     const text = lines.join('\n');
-    const ok   = () => toastFn(TL('✅ ' + lines.length + ' register rows copied — paste (Ctrl+V) in Excel', '✅ ' + lines.length + ' baris register tersalin — paste (Ctrl+V) di Excel'));
-    const fail = () => toastFn(TL('⚠️ Failed to copy to clipboard — click the page first then retry', '⚠️ Gagal menyalin ke clipboard — coba klik halaman dulu lalu ulangi'));
+    const ok   = () => toastFn(TL('' + lines.length + ' register rows copied — paste (Ctrl+V) in Excel', '' + lines.length + ' baris register tersalin — paste (Ctrl+V) di Excel'));
+    const fail = () => toastFn(TL('Failed to copy to clipboard — click the page first then retry', 'Gagal menyalin ke clipboard — coba klik halaman dulu lalu ulangi'));
 
     const legacyCopy = () => {
       const ta = document.createElement('textarea');

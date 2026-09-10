@@ -37,7 +37,7 @@ function loadTool(fileName, exportName) {
   const html = fs.readFileSync(path.join(root, fileName), 'utf8');
   assert.equal(/\bTGM\b|trigammametri/i.test(html), false, `${fileName} must not contain TGM branding or private example domains`);
 
-  const scriptMatches = [...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
+  const scriptMatches = [...html.matchAll(/<script(?![^>]*\bsrc=)(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)];
   assert.equal(scriptMatches.length, 1, `${fileName} should contain one inline application script`);
 
   const elements = new Map();
@@ -91,7 +91,7 @@ function loadTool(fileName, exportName) {
     window,
     document,
     navigator: { clipboard: { writeText: async () => {} } },
-    localStorage: makeStorage(),
+    ToolStorage: makeStorage(),
     sessionStorage: makeStorage(),
     location: { href: '' },
     URL,

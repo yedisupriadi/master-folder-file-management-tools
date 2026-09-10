@@ -36,8 +36,8 @@ function flattenSplitFileName(name) {
 }
 
 async function flattenItemExists(dest, name) {
-  try { await dest.getFileHandle(name); return true; } catch {}
-  try { await dest.getDirectoryHandle(name); return true; } catch {}
+  try { await dest.getFileHandle(name); return true; } catch(error) { if(!['NotFoundError','TypeMismatchError'].includes(error.name))throw error; }
+  try { await dest.getDirectoryHandle(name); return true; } catch(error) { if(!['NotFoundError','TypeMismatchError'].includes(error.name))throw error; }
   return false;
 }
 

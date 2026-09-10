@@ -6,70 +6,11 @@
 <meta name="description" content="Manage files and folders, find empty folders, and create folder structures in bulk from a browser-based spreadsheet or Notion database.">
 <title>Folder Management Tool</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%2241.325%20309.180%20194.000%20194.000%22%3E%3Cpath%20fill%3D%22%23D27F37%22%20d%3D%22M145.701%2C311.18L145.701%2C501.18C168.217%2C499.429%20189.406%2C489.7%20205.5%2C473.557C223.342%2C455.662%20233.325%2C431.488%20233.325%2C406.18C233.325%2C402.101%20233.066%2C398.051%20232.556%2C394.052L220.371%2C397.164C220.696%2C400.144%20220.862%2C403.154%20220.862%2C406.18C220.862%2C428.141%20212.168%2C449.193%20196.686%2C464.722C186.475%2C474.963%20173.868%2C482.243%20160.186%2C486.013L160.186%2C365.211L184.997%2C446.484L214.733%2C374.871C215.801%2C377.495%20216.736%2C380.173%20217.531%2C382.897L229.623%2C379.808C225.219%2C364.452%20216.989%2C350.325%20205.5%2C338.803C189.406%2C322.66%20168.217%2C312.931%20145.701%2C311.18ZM130.799%2C311.192C108.339%2C312.974%2087.209%2C322.696%2071.15%2C338.803C60.978%2C349.005%2053.36%2C361.25%2048.69%2C374.581L62.936%2C372.454C67.009%2C363.295%2072.746%2C354.868%2079.954%2C347.638C90.13%2C337.432%20102.686%2C330.166%20116.314%2C326.385L116.314%2C358.29L60.258%2C379.275L60.258%2C379.273L45.766%2C384.687C44.156%2C391.674%2043.325%2C398.88%2043.325%2C406.18C43.325%2C431.487%2053.309%2C455.662%2071.15%2C473.557C87.208%2C489.664%20108.338%2C499.385%20130.799%2C501.168L130.799%2C402.295L104.219%2C410.165L108.32%2C424.1L117.421%2C421.405L116.748%2C486.094C102.952%2C482.347%2090.238%2C475.036%2079.954%2C464.721C64.472%2C449.193%2055.777%2C428.14%2055.777%2C406.18C55.777%2C402.839%2055.979%2C399.519%2056.374%2C396.236L75.34%2C389.137L75.34%2C431.621L89.825%2C431.621L89.825%2C383.714L130.799%2C368.376L130.799%2C323.733L130.799%2C311.192ZM163.804%2C327.433C176.088%2C331.432%20187.381%2C338.306%20196.686%2C347.639C200.061%2C351.024%20203.114%2C354.672%20205.824%2C358.535L187.079%2C403.678L163.804%2C327.433Z%22%2F%3E%3C%2Fsvg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #eef2f7;
-    --card: #ffffff;
-    --ink: #1e293b;
-    --muted: #64748b;
-    --line: #e2e8f0;
-    --accent: #6366f1;
-    --accent-dark: #4f46e5;
-    --green: #10b981;
-    --green-dark: #059669;
-    --violet: #8b5cf6;
-    --violet-dark: #7c3aed;
-    --amber: #f59e0b;
-    --amber-dark: #d97706;
-    --red: #ef4444;
-    --red-dark: #dc2626;
-    --slate: #475569;
-    --slate-dark: #334155;
-    --btn-off: #e2e8f0;       /* tombol nonaktif: terlihat jelas "tidak bisa dipencet" */
-    --btn-off-ink: #94a3b8;
-    --radius: 12px;
-    --brand: #034F53;
-    --bg-grad-a: #e8edf5;
-    --bg-grad-b: #f4f6fa;
-    --input-bg: #f8fafc;
-    --input-disabled: #f1f5f9;
-    --hover: #f1f5f9;
-    --hover-row: #f0f4ff;
-    --stripe: #fafbfd;
-    --chip-bg: #f1f5f9;
-    --thead-bg: #1e293b;
-    --thead-ink: #e2e8f0;
-    --td-line: #f1f5f9;
-    --overlay: rgba(244,246,250,.62);
-  }
-  html[data-theme="dark"] {
-    --bg: #0b1220;
-    --card: #131c2e;
-    --ink: #e5e9f0;
-    --muted: #93a1b5;
-    --line: #2a3650;
-    --bg-grad-a: #0b1220;
-    --bg-grad-b: #0e1626;
-    --input-bg: #0f1728;
-    --input-disabled: #172136;
-    --hover: #1b2740;
-    --hover-row: #18233c;
-    --stripe: #161f33;
-    --chip-bg: #1f2b45;
-    --thead-bg: #0a1120;
-    --thead-ink: #cdd7e6;
-    --td-line: #212c46;
-    --overlay: rgba(11,18,32,.62);
-    --brand: #ffffff;   /* ikon & teks brand jadi putih di dark theme agar lebih terlihat */
-    --btn-off: #202c46;       /* nonaktif di dark: sedikit di atas card, teks redup */
-    --btn-off-ink: #5f6f8a;
-  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    font-family: "Lato", "Segoe UI", system-ui, Arial, sans-serif;
+    font-family: var(--font-family);
     font-weight: 400;
     background: linear-gradient(180deg, var(--bg-grad-a) 0%, var(--bg-grad-b) 240px) fixed;
     color: var(--ink);
@@ -441,6 +382,8 @@
     .tree-pane { width: 100%; max-height: 240px; }
   }
 </style>
+<link rel="stylesheet" href="styles/tool-ui.css">
+<script src="scripts/tool-ui.js"></script>
 </head>
 <body>
 
@@ -677,7 +620,7 @@
       ntSaveCfgTip: 'Simpan kolom nama, induk, kolom yang tampil, lebar kolom, dan sortir untuk database ini',
       ntResetCfg: 'Reset',
       ntResetCfgTip: 'Hapus tampilan tersimpan untuk database ini dan muat ulang apa adanya',
-      ntCfgSavedMark: '💾 tampilan tersimpan',
+      ntCfgSavedMark: 'tampilan tersimpan',
       ntCfgNeedLoad: 'Muat database dulu sebelum menyimpan tampilan.',
       ntCfgResetAsk: 'Hapus tampilan tersimpan untuk database ini?',
       ntResizeTip: 'Geser untuk mengatur lebar kolom (klik ganda = kembalikan otomatis)',
@@ -753,7 +696,7 @@
       ntSaveCfgTip: 'Save the folder-name column, parent, visible columns, column widths, and sort for this database',
       ntResetCfg: 'Reset',
       ntResetCfgTip: 'Delete the saved view for this database and reload it as-is',
-      ntCfgSavedMark: '💾 saved view',
+      ntCfgSavedMark: 'saved view',
       ntCfgNeedLoad: 'Load the database first before saving a view.',
       ntCfgResetAsk: 'Delete the saved view for this database?',
       ntResizeTip: 'Drag to resize the column (double-click = back to automatic)',
@@ -767,7 +710,7 @@
     }
   };
 
-  let lang = localStorage.getItem('audit-lang') || 'id';
+  let lang = ToolStorage.getItem('audit-lang') || 'id';
   const TR = (key) => (I18N[lang] && key in I18N[lang]) ? I18N[lang][key] : I18N.id[key];
   const TL = (en, id) => (lang === 'en' ? en : id);
 
@@ -791,7 +734,7 @@
   }
   function setLang(l) {
     lang = (l === 'en') ? 'en' : 'id';
-    localStorage.setItem('audit-lang', lang);   // key sama dengan tool lain agar preferensi konsisten
+    ToolStorage.setItem('audit-lang', lang);   // key sama dengan tool lain agar preferensi konsisten
     applyStaticI18n();
     updateLangLabels();
     renderCrumbs(); renderRows(); updateClipChip(); updateSheetTarget(); updateStatus();
@@ -800,10 +743,10 @@
   function setTheme(theme) {
     const t = (theme === 'dark') ? 'dark' : 'light';
     document.documentElement.setAttribute('data-theme', t);
-    localStorage.setItem('audit-theme', t);
+    ToolStorage.setItem('audit-theme', t);
     document.getElementById('themeToggle').checked = (t === 'dark');
   }
-  document.documentElement.setAttribute('data-theme', localStorage.getItem('audit-theme') || 'light');
+  document.documentElement.setAttribute('data-theme', ToolStorage.getItem('audit-theme') || 'light');
 
   // ============================ STATE ============================
   const state = {
@@ -864,15 +807,16 @@
   }
   const natSort = (a, b) => a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' });
 
+  async function itemExists(destHandle,name){
+    try{await destHandle.getFileHandle(name);return true;}catch(error){if(!['NotFoundError','TypeMismatchError'].includes(error.name))throw error;}
+    try{await destHandle.getDirectoryHandle(name);return true;}catch(error){if(!['NotFoundError','TypeMismatchError'].includes(error.name))throw error;}
+    return false;
+  }
   async function uniqueName(destHandle, name) {
-    let n = name, i = 2;
-    for (;;) {
-      let exists = false;
-      try { await destHandle.getDirectoryHandle(n); exists = true; } catch {}
-      if (!exists) { try { await destHandle.getFileHandle(n); exists = true; } catch {} }
-      if (!exists) return n;
-      n = name + ' (' + (i++) + ')';
-    }
+    const dot=name.lastIndexOf('.'),base=dot>0?name.slice(0,dot):name,ext=dot>0?name.slice(dot):'';
+    let candidate=name,index=2;
+    while(await itemExists(destHandle,candidate))candidate=base+' ('+(index++)+')'+ext;
+    return candidate;
   }
   // true bila dest = src sendiri atau berada di dalam src (cegah copy tak berujung)
   async function isSelfOrDescendant(srcHandle, destHandle) {
@@ -880,7 +824,7 @@
       if (await srcHandle.isSameEntry(destHandle)) return true;
       const rel = await srcHandle.resolve(destHandle);
       return rel !== null;
-    } catch { return false; }
+    } catch(error) { throw new Error(TL('Could not verify the destination: ','Tidak dapat memverifikasi tujuan: ')+error.message); }
   }
   async function copyDir(srcHandle, destParent, name, prog) {
     const dest = await destParent.getDirectoryHandle(name, { create: true });
@@ -896,7 +840,8 @@
   async function copyFile(srcHandle, destParent, name) {
     const f = await srcHandle.getFile();
     const w = await (await destParent.getFileHandle(name, { create: true })).createWritable();
-    await w.write(f); await w.close();
+    try { await w.write(f); await w.close(); }
+    catch(error){try{await w.abort();}catch{}throw error;}
   }
   function fmtSize(n) {
     if (n == null) return '—';
@@ -917,7 +862,9 @@
     return true;
   }
 
+  let currentLoadVersion = 0;
   async function loadCurrent() {
+    const version=++currentLoadVersion;
     const c = cur(); if (!c) return;
     loading(true, TL('Reading folder...', 'Membaca folder...'));
     try {
@@ -937,10 +884,13 @@
         try { const f = await it.handle.getFile(); it.size = f.size; } catch {}
       }));
       dirs.sort(natSort); files.sort(natSort);
+      if(version!==currentLoadVersion||c!==cur())return;
       state.entries = [...dirs, ...files];   // folder dulu, lalu file — seperti Explorer
       state.selected.clear();
       state.view = 'browse';
     } catch (e) {
+      if(version!==currentLoadVersion||c!==cur())return;
+      state.entries=[];state.selected.clear();
       alert(TL('Failed to read folder: ', 'Gagal membaca folder: ') + e.message);
     }
     loading(false);
@@ -1091,7 +1041,7 @@
   function updateClipChip() {
     const chip = $('clipChip');
     if (!state.clipboard) { chip.classList.remove('show'); return; }
-    chip.textContent = '📋 ' + state.clipboard.items.length + ' item — ' + (state.clipboard.mode === 'cut' ? TL('Cut (will be moved)', 'Cut (akan dipindah)') : TL('Copied', 'Disalin'));
+    chip.textContent = '' + state.clipboard.items.length + ' item — ' + (state.clipboard.mode === 'cut' ? TL('Cut (will be moved)', 'Cut (akan dipindah)') : TL('Copied', 'Disalin'));
     chip.classList.add('show');
   }
 
@@ -1601,6 +1551,7 @@
 
   // ---------- Preview & buat folder ----------
   let pendingPlan = null;
+  let pendingPlanFolder = null;
   async function previewMake() {
     const mode = $('mkMode').value;
     const sep = $('sepInput').value || '_';
@@ -1623,7 +1574,9 @@
       items.push({ path: p, exists });
     }
     loading(false);
+    if(dest!==cur())return;
     pendingPlan = items;
+    pendingPlanFolder = dest;
     const list = $('mkList'); list.innerHTML = '';
     for (const it of items) {
       const div = document.createElement('div');
@@ -1646,6 +1599,7 @@
   }
 
   async function confirmMake() {
+    if(pendingPlanFolder!==cur()){ $('mkModal').classList.remove('show');alert(TL('Folder changed. Preview the folder plan again.','Folder berubah. Preview rencana folder kembali.'));return; }
     const items = (pendingPlan || []).filter(i => !i.exists);
     $('mkModal').classList.remove('show');
     if (!items.length) return;
@@ -1672,12 +1626,12 @@
   // ada state modul-level lagi, kalau tidak kedua panel akan saling menimpa.
   const NT_LS = { url: 'fm-notion-url', key: 'fm-notion-key', dbs: 'fm-notion-dbs', cfg: 'fm-notion-cfg' };
   const ntLastKey = (slot) => 'fm-notion-last-' + slot;   // database terakhir per panel
-  const ntGet = (k) => (localStorage.getItem(k) || '');
+  const ntGet = (k) => (ToolStorage.getItem(k) || '');
 
   // --- dipakai bersama kedua panel ---
-  function ntLoadDbs() { try { return JSON.parse(ntGet(NT_LS.dbs)) || []; } catch { return []; } }
-  function ntSaveDbs(list) { localStorage.setItem(NT_LS.dbs, JSON.stringify(list)); }
-  function ntLoadCfgAll() { try { return JSON.parse(ntGet(NT_LS.cfg)) || {}; } catch { return {}; } }
+  function ntLoadDbs() { try { const value=JSON.parse(ntGet(NT_LS.dbs));return Array.isArray(value)?value.filter(x=>x&&typeof x.id==='string'):[]; } catch { return []; } }
+  function ntSaveDbs(list) { ToolStorage.setItem(NT_LS.dbs, JSON.stringify(list)); }
+  function ntLoadCfgAll() { try { const value=JSON.parse(ntGet(NT_LS.cfg));return value&&typeof value==='object'&&!Array.isArray(value)?value:{}; } catch { return {}; } }
   function ntCfgFor(id) { return ntLoadCfgAll()[id] || null; }
 
   async function ntFetch(action, databaseId, extra) {
@@ -1830,13 +1784,16 @@
       });
     }
 
+    let databaseLoadVersion=0;
     async function loadDatabase() {
+      const version=++databaseLoadVersion;
       const id = dbId();
       if (!id) { alert(TL('Add a database first (+ Database).', 'Tambahkan database dulu (+ Database).')); return; }
-      localStorage.setItem(ntLastKey(slot), id);
+      ToolStorage.setItem(ntLastKey(slot), id);
       loading(true, TL('Loading Notion database...', 'Memuat database Notion...'));
       try {
         const data = await ntFetch('query', id);
+        if(version!==databaseLoadVersion||id!==dbId())return;
         const rows = data.results || [];
         const info = ntColumns(rows);
         S.rows = rows; S.cols = info.cols; S.titleCol = info.titleCol;
@@ -1853,7 +1810,7 @@
         syncCfgBtns();
         renderTable();
       } catch (e) {
-        alert('⚠️ ' + e.message);
+        alert('' + e.message);
       }
       loading(false);
     }
@@ -1868,7 +1825,7 @@
       if (has(cfg.nameCol)) S.nameCol = cfg.nameCol;
       if (has(cfg.groupCol)) S.groupCol = cfg.groupCol;
 
-      const hide = (cfg.hidden || []).filter(has);
+      const hide = (Array.isArray(cfg.hidden)?cfg.hidden:[]).filter(has);
       // jangan pernah sembunyikan semua kolom — tabelnya jadi tak bisa dipakai
       S.hidden = hide.length < S.cols.length ? new Set(hide) : new Set();
 
@@ -1897,10 +1854,10 @@
         sort: sortCol ? { col: sortCol, dir: sortDir[sortCol] } : null,
         savedAt: new Date().toISOString(),
       };
-      localStorage.setItem(NT_LS.cfg, JSON.stringify(all));
+      ToolStorage.setItem(NT_LS.cfg, JSON.stringify(all));
       ntSyncAll();
       updateStatus();
-      q('.nt-status').textContent = '✅ ' + TL('View saved for this database.', 'Tampilan tersimpan untuk database ini.')
+      q('.nt-status').textContent = '' + TL('View saved for this database.', 'Tampilan tersimpan untuk database ini.')
         + '  •  ' + q('.nt-status').textContent;
     }
 
@@ -1910,7 +1867,7 @@
       if (!confirm(TR('ntCfgResetAsk'))) return;
       const all = ntLoadCfgAll();
       delete all[id];
-      localStorage.setItem(NT_LS.cfg, JSON.stringify(all));
+      ToolStorage.setItem(NT_LS.cfg, JSON.stringify(all));
       ntSyncAll();
       // muat ulang dari Notion supaya urutan baris kembali seperti aslinya (sortir mengubah S.rows)
       await loadDatabase();
@@ -2224,7 +2181,7 @@
       const el = q('.nt-status');
       if (!S.rows.length && !S.cols.length) { el.textContent = ''; return; }
       const parts = [];
-      if (S.title) parts.push('📓 ' + S.title);
+      if (S.title) parts.push('' + S.title);
       parts.push(TL(S.rows.length + ' rows', S.rows.length + ' baris'));
       const n = folderNames().length;
       if (hasSel()) {   // urutan harus sama dengan folderNames: sorotan menang lebih dulu
@@ -2235,7 +2192,7 @@
       } else {
         parts.push(TL(n + ' folder(s) from "' + S.nameCol + '"', n + ' folder dari "' + S.nameCol + '"'));
       }
-      if (S.truncated) parts.push(TL('⚠️ truncated at Worker cap', '⚠️ terpotong batas Worker'));
+      if (S.truncated) parts.push(TL('truncated at Worker cap', 'terpotong batas Worker'));
       if (hasCfg()) parts.push(TR('ntCfgSavedMark'));
       el.textContent = parts.join('  •  ');
     }
@@ -2273,7 +2230,7 @@
         const norm = (s) => String(s).replace(/-/g, '').toLowerCase();
         if (list.some(d => norm(d.id) === norm(id))) { alert(TL('That database is already in the list.', 'Database itu sudah ada di daftar.')); return; }
         list.push({ label, id }); ntSaveDbs(list);
-        localStorage.setItem(ntLastKey(slot), id);
+        ToolStorage.setItem(ntLastKey(slot), id);
         ntRenderDbSelectAll();   // daftar database dipakai bersama kedua panel
       });
 
@@ -2285,7 +2242,7 @@
       });
 
       q('.nt-db').addEventListener('change', () => {
-        localStorage.setItem(ntLastKey(slot), dbId());
+        ToolStorage.setItem(ntLastKey(slot), dbId());
         syncCfgBtns();   // tombol Reset ikut database yang sedang dipilih
       });
       q('.nt-load').addEventListener('click', loadDatabase);
@@ -2367,8 +2324,8 @@
   function ntInit() {
     $('ntUrl').value = ntGet(NT_LS.url);
     $('ntKey').value = ntGet(NT_LS.key);
-    $('ntUrl').addEventListener('input', () => localStorage.setItem(NT_LS.url, $('ntUrl').value.trim()));
-    $('ntKey').addEventListener('input', () => localStorage.setItem(NT_LS.key, $('ntKey').value.trim()));
+    $('ntUrl').addEventListener('input', () => ToolStorage.setItem(NT_LS.url, $('ntUrl').value.trim()));
+    $('ntKey').addEventListener('input', () => ToolStorage.setItem(NT_LS.key, $('ntKey').value.trim()));
     $('ntToggleCfg').addEventListener('click', () => $('ntConn').classList.toggle('collapsed'));
 
     const host = $('ntPanels');
@@ -2390,7 +2347,7 @@
   document.addEventListener('DOMContentLoaded', () => {
     applyStaticI18n();
     updateLangLabels();
-    setTheme(localStorage.getItem('audit-theme') || 'light');
+    setTheme(ToolStorage.getItem('audit-theme') || 'light');
     $('langToggle').addEventListener('change', e => setLang(e.target.checked ? 'en' : 'id'));
     $('themeToggle').addEventListener('change', e => setTheme(e.target.checked ? 'dark' : 'light'));
 
