@@ -15,6 +15,7 @@ A collection of browser-based utilities for document controllers and project tea
 | Aconex Multi Document Number Search | Turn document-number lists into chunked `docno:(... OR ...)` queries for Aconex Document Register Search. |
 | SharePoint Link Cleaner | Convert SharePoint sharing links in bulk into clean file URLs and their parent folder URLs. |
 | URL Builder | Build SharePoint file URLs from a folder and file-name list, with CSV/TSV output and optional screenshot OCR. |
+| Batch File Copy / Move | Paste Windows file paths from Excel and copy or move the referenced local/synced files into a chosen destination folder, with collision handling and CSV logging. |
 
 The interface supports Indonesian and English, plus light and dark themes.
 

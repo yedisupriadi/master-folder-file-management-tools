@@ -5,7 +5,7 @@
   "description": "Browser-based utilities for document control, file naming, folder management, SharePoint links, and Aconex searches.",
   "type": "module",
   "scripts": {
-    "check": "node scripts/validate.mjs && node scripts/test-supabase-folder-standards.mjs && node scripts/test-sharepoint-tools.mjs && node scripts/test-worker.mjs && node scripts/test-register.mjs && node scripts/test-filesystem.mjs",
+    "check": "node scripts/validate.mjs && node scripts/test-supabase-folder-standards.mjs && node scripts/test-sharepoint-tools.mjs && node scripts/test-worker.mjs && node scripts/test-register.mjs && node scripts/test-filesystem.mjs && node scripts/test-batch-file-transfer.mjs",
     "validate": "node scripts/validate.mjs",
     "test:browser": "node scripts/browser-audit.mjs"
   },

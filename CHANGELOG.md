@@ -19,6 +19,7 @@ All notable changes to this project will be documented here. The format follows 
 - Aconex multi-document-number search query generator.
 - SharePoint Link Cleaner for converting sharing links into clean file and folder URLs.
 - URL Builder for batch-generating SharePoint file URLs, exporting CSV/TSV, and optionally extracting file names from screenshots with browser-based OCR.
+- Batch File Copy / Move tool for pasting Windows file paths from Excel, granting local folder access, batch copying or moving files, handling name collisions, verifying MOVE copies before source deletion, and exporting a CSV log.
 - Direct handoff of the first cleaned folder URL from SharePoint Link Cleaner to URL Builder.
 - Dependency-free validation for HTML metadata, local links, DOM IDs, and JavaScript syntax.
 - Automated Cloudflare Worker behavior tests and GitHub Actions validation.
