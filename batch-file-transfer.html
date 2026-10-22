@@ -47,7 +47,7 @@
   .field label{font-size:12px;color:var(--muted);font-weight:600}
   select{width:100%}
   .safety{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:10px;padding:9px 10px;border:1px dashed var(--line);border-radius:8px}
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px 0}
+  .stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin:16px 0}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
   .stat b{display:block;font-size:19px}
   .stat span{font-size:11px;color:var(--muted)}
@@ -66,6 +66,8 @@
   td.path{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:11.5px;overflow-wrap:anywhere;max-width:530px}
   .badge{display:inline-block;padding:3px 7px;border-radius:4px;font-size:11px;font-weight:650}
   .badge.ready,.badge.copied,.badge.moved{background:var(--color-success-bg);color:var(--color-success)}
+  .badge.missing,.badge.invalidRoot{background:var(--color-danger-bg);color:var(--color-danger)}
+  .badge.unverified,.badge.checking{background:var(--color-hover);color:var(--muted)}
   .badge.warn,.badge.skipped,.badge.duplicate{background:var(--color-warning-bg);color:var(--color-warning)}
   .badge.error{background:var(--color-danger-bg);color:var(--color-danger)}
   .empty{padding:22px;text-align:center;color:var(--muted);font-size:12px}
@@ -165,13 +167,15 @@
           </select>
         </div>
       </div>
-      <div class="safety" id="moveWarning" data-i18n="moveWarning">Mode Move melakukan copy → verifikasi ukuran file → baru menghapus file sumber. Gunakan Copy terlebih dahulu untuk uji pertama.</div>
+      <div class="safety" id="moveWarning" data-i18n="moveWarning">PERHATIAN: Move dari folder OneDrive Sync dapat menghapus file asli di SharePoint Online. Gunakan Copy untuk dokumen proyek.</div>
     </aside>
   </section>
 
   <div class="stats">
     <div class="stat"><b id="statTotal">0</b><span data-i18n="statTotal">Input</span></div>
-    <div class="stat"><b id="statReady">0</b><span data-i18n="statReady">Ready</span></div>
+    <div class="stat"><b id="statReady">0</b><span data-i18n="statReady">Found / Ready</span></div>
+    <div class="stat"><b id="statMissing">0</b><span data-i18n="statMissing">Missing</span></div>
+    <div class="stat"><b id="statDuplicate">0</b><span data-i18n="statDuplicate">Duplicate</span></div>
     <div class="stat"><b id="statDone">0</b><span data-i18n="statDone">Completed</span></div>
     <div class="stat"><b id="statError">0</b><span data-i18n="statError">Error / Skip</span></div>
   </div>
@@ -228,17 +232,17 @@
       foldersHint:'Source Root harus merupakan folder induk yang ada di semua path yang dipaste. Untuk contoh Anda, pilih folder sinkronisasi “J02560 Pomalaa EPC Mine Infrastructure - Documents”.',
       sourceRoot:'Source Root', targetFolder:'Target Folder', notSelected:'Belum dipilih', select:'Pilih',
       optionsTitle:'3. Opsi transfer', operation:'Operation', copy:'Copy', move:'Move', collision:'Jika nama sudah ada', skip:'Skip', rename:'Rename otomatis', overwrite:'Overwrite',
-      moveWarning:'Mode Move melakukan copy → verifikasi ukuran file → baru menghapus file sumber. Gunakan Copy terlebih dahulu untuk uji pertama.',
-      statTotal:'Input', statReady:'Ready', statDone:'Completed', statError:'Error / Skip',
+      moveWarning:'PERHATIAN: Move dari folder OneDrive Sync dapat menghapus file asli di SharePoint Online. Gunakan Copy untuk dokumen proyek. Sumber dihapus setelah verifikasi ukuran file.',
+      statTotal:'Input', statReady:'Found / Ready', statMissing:'Missing', statDuplicate:'Duplicate', statDone:'Completed', statError:'Error / Skip',
       privacy:'File hanya dibaca dan ditulis melalui File System Access API di browser Anda. Daftar path dan isi file tidak dikirim ke repository atau server.',
       run:'Start Batch Transfer', previewTitle:'Preview / Result', downloadLog:'Download Log CSV',
       colFile:'File', colSource:'Source Path', colTarget:'Target Name', colStatus:'Status', colMessage:'Message',
       emptyState:'Paste path lalu klik Preview List.',
-      ready:'READY', duplicate:'DUPLICATE', invalidRoot:'ROOT MISMATCH', copied:'COPIED', moved:'MOVED', skipped:'SKIPPED', error:'ERROR',
+      ready:'FOUND', unverified:'NOT CHECKED', checking:'CHECKING', missing:'MISSING', duplicate:'DUPLICATE', invalidRoot:'ROOT MISMATCH', copied:'COPIED', moved:'MOVED', skipped:'SKIPPED', error:'ERROR',
       msgReady:'Siap diproses.', msgDuplicate:'Path duplikat pada input; baris ini akan dilewati.',
       needPaths:'Paste minimal satu alamat file.', needFolders:'Pilih Source Root dan Target Folder terlebih dahulu.',
       rootMismatch:'Nama Source Root tidak ditemukan di path ini.',
-      confirmMove:'MOVE akan menghapus file sumber setelah copy berhasil dan ukuran file target terverifikasi. Lanjutkan?',
+      confirmMove:'PERINGATAN: MOVE menghapus file sumber setelah copy berhasil. Jika sumber berada di folder OneDrive Sync, penghapusan dapat tersinkronisasi ke SharePoint Online. Lanjutkan?',
       running:'Memproses', done:'Selesai', cancelled:'Pemilihan folder dibatalkan.',
       transferFinished:'Batch selesai.', sourcePickError:'Tidak dapat membuka Source Root', targetPickError:'Tidak dapat membuka Target Folder'
     },
@@ -254,17 +258,17 @@
       foldersHint:'Source Root must be a parent folder present in every pasted path. In your case, select the synced “J02560 Pomalaa EPC Mine Infrastructure - Documents” folder.',
       sourceRoot:'Source Root', targetFolder:'Target Folder', notSelected:'Not selected', select:'Select',
       optionsTitle:'3. Transfer options', operation:'Operation', copy:'Copy', move:'Move', collision:'If the name already exists', skip:'Skip', rename:'Auto rename', overwrite:'Overwrite',
-      moveWarning:'Move performs copy → file-size verification → source deletion. Use Copy first for your initial test.',
-      statTotal:'Input', statReady:'Ready', statDone:'Completed', statError:'Error / Skip',
+      moveWarning:'WARNING: Moving files out of a OneDrive-synced folder can delete the originals in SharePoint Online. Use Copy for project documents. Move removes the source after verifying the destination file size.',
+      statTotal:'Input', statReady:'Found / Ready', statMissing:'Missing', statDuplicate:'Duplicate', statDone:'Completed', statError:'Error / Skip',
       privacy:'Files are read and written only through the browser File System Access API. Paths and file contents are not sent to the repository or a server.',
       run:'Start Batch Transfer', previewTitle:'Preview / Result', downloadLog:'Download Log CSV',
       colFile:'File', colSource:'Source Path', colTarget:'Target Name', colStatus:'Status', colMessage:'Message',
       emptyState:'Paste paths and click Preview List.',
-      ready:'READY', duplicate:'DUPLICATE', invalidRoot:'ROOT MISMATCH', copied:'COPIED', moved:'MOVED', skipped:'SKIPPED', error:'ERROR',
+      ready:'FOUND', unverified:'NOT CHECKED', checking:'CHECKING', missing:'MISSING', duplicate:'DUPLICATE', invalidRoot:'ROOT MISMATCH', copied:'COPIED', moved:'MOVED', skipped:'SKIPPED', error:'ERROR',
       msgReady:'Ready to process.', msgDuplicate:'Duplicate path in the input; this row will be skipped.',
       needPaths:'Paste at least one file path.', needFolders:'Select Source Root and Target Folder first.',
       rootMismatch:'The Source Root name was not found in this path.',
-      confirmMove:'MOVE deletes each source file after a successful copy and destination size verification. Continue?',
+      confirmMove:'WARNING: MOVE deletes the source after copying. For OneDrive-synced folders, this deletion can sync to SharePoint Online. Continue?',
       running:'Processing', done:'Completed', cancelled:'Folder selection was cancelled.',
       transferFinished:'Batch completed.', sourcePickError:'Could not open Source Root', targetPickError:'Could not open Target Folder'
     }
@@ -276,6 +280,7 @@
   let rows = [];
   let results = [];
   let running = false;
+  let previewing = false;
 
   const tr = key => (I18N[lang] && I18N[lang][key]) ?? I18N.id[key] ?? key;
 
@@ -311,23 +316,45 @@
     }
   }
 
-  function previewRows() {
+  async function previewRows() {
+    if (running || previewing) return;
     rows = Core.parseRows($('pathInput').value).map((row, index) => {
       const fileName = Core.fileNameFromPath(row.path);
-      let status = row.duplicate ? 'duplicate' : 'ready';
-      let message = row.duplicate ? tr('msgDuplicate') : tr('msgReady');
-      if (!row.duplicate && sourceRoot) {
-        try { Core.relativePartsForRoot(row.path, sourceRoot.name); }
-        catch { status = 'invalidRoot'; message = tr('rootMismatch'); }
-      }
-      return { index: index + 1, path: row.path, fileName, duplicate: row.duplicate, status, message, targetName: fileName };
+      return {
+        index: index + 1, path: row.path, fileName, duplicate: row.duplicate,
+        status: row.duplicate ? 'duplicate' : (sourceRoot ? 'checking' : 'unverified'),
+        message: row.duplicate ? tr('msgDuplicate') : (sourceRoot ? '' : tr('needFolders')),
+        targetName: fileName
+      };
     });
     results = [];
+    if (!sourceRoot) { render(); return; }
+    previewing = true;
     render();
+    try {
+      for (const row of rows) {
+        if (row.duplicate) continue;
+        try {
+          Core.relativePartsForRoot(row.path, sourceRoot.name);
+          const found = await Core.inspectOne({
+            sourceRoot, targetDir, absolutePath: row.path, collision: $('collision').value
+          });
+          row.status = found.status;
+          row.targetName = found.targetName;
+          row.message = found.message;
+        } catch (error) {
+          row.status = 'invalidRoot';
+          row.message = error?.message || tr('rootMismatch');
+        }
+      }
+    } finally {
+      previewing = false;
+      render();
+    }
   }
 
   function statusLabel(status) {
-    const key = {ready:'ready',duplicate:'duplicate',invalidRoot:'invalidRoot',copied:'copied',moved:'moved',skipped:'skipped',error:'error'}[status] || status;
+    const key = {ready:'ready',unverified:'unverified',checking:'checking',missing:'missing',duplicate:'duplicate',invalidRoot:'invalidRoot',copied:'copied',moved:'moved',skipped:'skipped',error:'error'}[status] || status;
     return tr(key);
   }
 
@@ -375,10 +402,15 @@
       : rows.filter(r => r.status !== 'ready').length;
     $('statTotal').textContent = rows.length;
     $('statReady').textContent = ready;
+    $('statMissing').textContent = rows.filter(r => r.status === 'missing').length;
+    $('statDuplicate').textContent = rows.filter(r => r.status === 'duplicate').length;
     $('statDone').textContent = done;
     $('statError').textContent = issue;
 
-    $('runBtn').disabled = running || !FSA_OK || !sourceRoot || !targetDir || !rows.some(r => r.status === 'ready');
+    $('runBtn').disabled = running || previewing || !FSA_OK || !sourceRoot || !targetDir || !rows.some(r => r.status === 'ready');
+    for (const id of ['pathInput','previewBtn','clearBtn','sourceBtn','targetBtn','operation','collision']) {
+      $(id).disabled = running || previewing;
+    }
     $('csvBtn').disabled = results.length === 0;
   }
 
@@ -387,7 +419,7 @@
       const handle = await window.showDirectoryPicker({ mode:'readwrite', id: kind === 'source' ? 'batch-source-root' : 'batch-target-folder' });
       if (kind === 'source') sourceRoot = handle;
       else targetDir = handle;
-      previewRows();
+      await previewRows();
     } catch (error) {
       if (error && error.name === 'AbortError') return;
       alert((kind === 'source' ? tr('sourcePickError') : tr('targetPickError')) + ': ' + (error?.message || error));
@@ -395,11 +427,13 @@
   }
 
   async function runTransfer() {
-    if (running) return;
+    if (running || previewing) return;
     if (!rows.length) { alert(tr('needPaths')); return; }
     if (!sourceRoot || !targetDir) { alert(tr('needFolders')); return; }
     if ($('operation').value === 'move' && !confirm(tr('confirmMove'))) return;
 
+    const operation = $('operation').value;
+    const collision = $('collision').value;
     running = true;
     results = [];
     $('progressWrap').classList.add('show');
@@ -412,8 +446,8 @@
       $('progressText').textContent = tr('running') + ' ' + (i + 1) + ' / ' + total;
       $('progressBar').style.width = Math.round((i / total) * 100) + '%';
 
-      if (row.duplicate) {
-        results.push({ ...base, status:'duplicate', message:tr('msgDuplicate') });
+      if (row.status !== 'ready') {
+        results.push({ ...base, status:row.status, message:row.message || tr('msgDuplicate') });
         render();
         continue;
       }
@@ -424,8 +458,8 @@
           sourceRoot,
           targetDir,
           absolutePath:row.path,
-          operation:$('operation').value,
-          collision:$('collision').value
+          operation,
+          collision
         });
         results.push({
           ...base,
@@ -485,15 +519,15 @@
     if (!running) {
       rows = Core.parseRows($('pathInput').value).map((r, i) => ({
         index:i + 1, path:r.path, fileName:Core.fileNameFromPath(r.path), targetName:Core.fileNameFromPath(r.path),
-        duplicate:r.duplicate, status:r.duplicate ? 'duplicate' : 'ready',
-        message:r.duplicate ? tr('msgDuplicate') : tr('msgReady')
+        duplicate:r.duplicate, status:r.duplicate ? 'duplicate' : 'unverified',
+        message:r.duplicate ? tr('msgDuplicate') : tr('needFolders')
       }));
       results = [];
       render();
     }
   });
-  $('operation').addEventListener('change', render);
-  $('collision').addEventListener('change', render);
+  $('operation').addEventListener('change', () => { if (sourceRoot) previewRows(); else render(); });
+  $('collision').addEventListener('change', () => { if (sourceRoot) previewRows(); else render(); });
   $('langToggle').addEventListener('change', event => {
     lang = event.target.checked ? 'en' : 'id';
     ToolStorage.setItem('audit-lang', lang);

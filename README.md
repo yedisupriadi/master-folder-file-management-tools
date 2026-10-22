@@ -15,7 +15,7 @@ A collection of browser-based utilities for document controllers and project tea
 | Aconex Multi Document Number Search | Turn document-number lists into chunked `docno:(... OR ...)` queries for Aconex Document Register Search. |
 | SharePoint Link Cleaner | Convert SharePoint sharing links in bulk into clean file URLs and their parent folder URLs. |
 | URL Builder | Build SharePoint file URLs from a folder and file-name list, with CSV/TSV output and optional screenshot OCR. |
-| Batch File Copy / Move | Paste Windows file paths from Excel and copy or move the referenced local/synced files into a chosen destination folder, with collision handling and CSV logging. |
+| Batch File Copy / Move | Paste Windows file paths from Excel and copy/move local/synced files with source-existence preflight (found/missing/duplicate), collision handling, progress, and CSV logging. |
 
 The interface supports Indonesian and English, plus light and dark themes.
 
@@ -43,6 +43,23 @@ python -m http.server 8000
 Open <http://localhost:8000/>. Localhost is recommended because browser security rules restrict several file-system, clipboard, and cryptographic APIs on `file://` pages.
 
 No `npm install` step is needed.
+
+## Batch File Copy / Move (Tool #7)
+
+Open `batch-file-transfer.html` in Microsoft Edge/Chrome using HTTPS or `http://localhost:8000/`.
+Paste full **local Windows file paths** copied from Excel (one per line). Choose the
+synced **Source Root** (its folder name must occur in the pasted paths), then choose
+the destination. **Preview List** checks actual source handles, missing files, duplicates
+and destination conflicts without reading file contents. Run **Copy** and export the CSV log.
+
+The browser can show only the selected directory's **name**, not its complete Windows
+path. Select the correct matching parent folder, especially if multiple folders share
+the same name. Online-only files may download from OneDrive during actual transfer.
+
+**Important:** `Move` deletes the local source after a size-verified copy.
+If the source folder is OneDrive-synced, deletion can propagate to SharePoint Online.
+Use `Copy` for production SharePoint documents. File contents are processed locally
+and are not uploaded to GitHub or this application.
 
 ## Usage notes
 

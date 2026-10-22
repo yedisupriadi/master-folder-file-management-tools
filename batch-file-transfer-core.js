@@ -119,6 +119,27 @@
     return { parent, handle, fileName, relative };
   };
 
+  // Preflight checks handles only; online-only OneDrive files are not hydrated.
+  api.inspectOne = async function inspectOne({ sourceRoot, targetDir, absolutePath, collision = 'skip' }) {
+    try {
+      const source = await api.resolveSourceFile(sourceRoot, absolutePath);
+      const plan = targetDir
+        ? await api.pickDestinationName(targetDir, source.fileName, collision)
+        : { action: 'write', name: source.fileName, exists: false };
+      return {
+        status: plan.action === 'skip' ? 'skipped' : 'ready',
+        targetName: plan.name,
+        message: plan.action === 'skip' ? 'Destination already exists.' : 'Source file found.'
+      };
+    } catch (error) {
+      return {
+        status: ['NotFoundError', 'TypeMismatchError'].includes(error?.name) ? 'missing' : 'error',
+        targetName: api.fileNameFromPath(absolutePath),
+        message: error?.message || String(error)
+      };
+    }
+  };
+
   api.copyFile = async function copyFile(sourceFileHandle, targetDir, targetName) {
     const sourceFile = await sourceFileHandle.getFile();
     const targetHandle = await targetDir.getFileHandle(targetName, { create: true });
