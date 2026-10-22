@@ -72,6 +72,18 @@ sub.files.set('A.pdf',makeFile('A.pdf','alpha'));
 sub.files.set('B.pdf',makeFile('B.pdf','bravo'));
 const target = makeDir('Target');
 
+const foundPreview = await Core.inspectOne({
+  sourceRoot:root,targetDir:target,absolutePath:'C:\\Somewhere\\Root\\Sub\\A.pdf',collision:'skip'
+});
+assert.equal(foundPreview.status,'ready');
+assert.equal(foundPreview.targetName,'A.pdf');
+const missingPreview = await Core.inspectOne({
+  sourceRoot:root,targetDir:target,absolutePath:'C:\\Somewhere\\Root\\Sub\\NoFile.pdf'
+});
+assert.equal(missingPreview.status,'missing');
+assert.equal(sub.files.has('A.pdf'),true);
+console.log('✓ Preflight distinguishes existing and missing source files without changing them');
+
 let out = await Core.transferOne({
   sourceRoot:root,targetDir:target,absolutePath:'C:\\Somewhere\\Root\\Sub\\A.pdf',operation:'copy',collision:'skip'
 });
@@ -79,6 +91,17 @@ assert.equal(out.status,'copied');
 assert.equal(await (await target.files.get('A.pdf').getFile()).text(),'alpha');
 assert.equal(sub.files.has('A.pdf'),true);
 console.log('✓ Copy writes and verifies the destination without deleting the source');
+
+const skipPreview = await Core.inspectOne({
+  sourceRoot:root,targetDir:target,absolutePath:'C:\\Somewhere\\Root\\Sub\\A.pdf',collision:'skip'
+});
+assert.equal(skipPreview.status,'skipped');
+const renamePreview = await Core.inspectOne({
+  sourceRoot:root,targetDir:target,absolutePath:'C:\\Somewhere\\Root\\Sub\\A.pdf',collision:'rename'
+});
+assert.equal(renamePreview.status,'ready');
+assert.equal(renamePreview.targetName,'A (2).pdf');
+console.log('✓ Preflight detects destination collisions and auto-renaming');
 
 out = await Core.transferOne({
   sourceRoot:root,targetDir:target,absolutePath:'C:\\Somewhere\\Root\\Sub\\B.pdf',operation:'move',collision:'skip'
