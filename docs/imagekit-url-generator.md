@@ -15,7 +15,7 @@ Architecture:
       -> type=file, fileType=image, skip, limit=250
       -> NO path parameter, so the entire account's Media Library is searched
 
-When **All Accounts** is selected, the browser queries each account separately, follows all pagination pages, combines results with AccountID+FileID identity, and derives folder metadata from the API filePath. A failure for one account does **not** discard other accounts; the page reports failures, and the CSV file name receives PARTIAL when any account failed.
+When **All Accounts** is selected, the browser queries each account separately, follows all pagination pages, combines results with AccountID+FileID identity, and derives folder metadata from the API filePath. A failure for one account does **not** discard other accounts; the page reports failures, and the CSV file name receives PARTIAL when any account failed or the run was cancelled.
 
 ## Step 1 — Generate a read-only ImageKit private API key per account
 
