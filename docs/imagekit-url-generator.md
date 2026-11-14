@@ -1,29 +1,37 @@
-# Tool #8 — ImageKit URL Generator
+# Tool #8 — Multi-Account ImageKit URL Manager
 
-Tool #8 lists all image URLs in one ImageKit folder using a read-only API relay, then provides thumbnails, search, copy and CSV export.
+Tool #8 displays image URLs from **one ImageKit account or all registered accounts**, covering **all folders and subfolders** automatically.
+
+It uses the existing static GitHub Pages website and a read-only Supabase Edge Function as a server-side proxy. There are **no new database tables, migrations, or third-party dependencies**.
 
 Architecture:
 
-    GitHub Pages (imagekit-url-generator.html)
-       -> POST with temporary Tool Access Token
-    Supabase Edge Function (imagekit-url-generator)
-       -> ImageKit private key from Supabase secrets
-    ImageKit GET /v1/files (path, fileType=image, limit=250, skip)
+    GitHub Pages / imagekit-url-generator.html
+      -> POST {action:"accounts"} with Tool Access Token
+    Supabase Edge Function / imagekit-url-generator
+      -> Returns public account id + display label (NEVER the private API key)
+      -> POST {action:"files",accountId:"tgm",skip:0}
+    ImageKit GET https://api.imagekit.io/v1/files
+      -> type=file, fileType=image, skip, limit=250
+      -> NO path parameter, so the entire account's Media Library is searched
 
-**Never enter your ImageKit private key on GitHub Pages.** It must stay server-side.
+When **All Accounts** is selected, the browser queries each account separately, follows all pagination pages, combines results with AccountID+FileID identity, and derives folder metadata from the API filePath. A failure for one account does **not** discard other accounts; the page reports failures, and the CSV file name receives PARTIAL when any account failed.
 
-## Step 1 — Create a restricted ImageKit API key
+## Step 1 — Generate a read-only ImageKit private API key per account
 
-1. Sign in to https://imagekit.io/dashboard
-2. Go to Developer Options → API Keys.
-3. Create a **restricted private API key**, allowing only **Media management: Read only**.
-4. Save it in a secure password manager. It is not a public key and must never be committed to the repository.
+1. Open https://imagekit.io/dashboard and switch to the desired ImageKit account.
+2. Developer Options → API Keys → create a **restricted API key**.
+3. Grant only **Media Management: Read only** permission.
+4. Record the private key in a secure password manager, then repeat for your other ImageKit accounts.
+5. Never share private keys in a chat, screenshot, GitHub repository or the browser URL Manager page.
 
-## Step 2 — Generate a separate Tool Access Token
+ImageKit public keys are not sufficient for listing private Media Library assets.
 
-This access token is **not** your ImageKit private key; it controls who can use the tool.
+## Step 2 — Generate one separate Tool Access Token
 
-On Windows, open PowerShell and run:
+This token is **not an ImageKit key**. It protects the backend from public visitors. One Tool Access Token grants access to **all registered accounts**; it is intended for one trusted owner or a small trusted team.
+
+Open Windows PowerShell:
 
     $bytes = New-Object byte[] 32
     $rng = [Security.Cryptography.RandomNumberGenerator]::Create()
@@ -31,78 +39,98 @@ On Windows, open PowerShell and run:
     $rng.Dispose()
     [Convert]::ToBase64String($bytes)
 
-Copy the output (44 characters) to your password manager. Do not paste it in GitHub.
+Save the generated token in your password manager.
 
-## Step 3 — Configure Supabase secrets
+## Step 3 — Add multi-account secrets in Supabase
 
-The repository already uses Supabase project reference **slqplzovrotfiohcijap** for Folder Management. Reusing this project avoids adding another SaaS service, provided that you own it and approve this scope.
+Use https://supabase.com/dashboard and select the authorized Supabase project. This repository currently has an endpoint defaulting to **slqplzovrotfiohcijap**, because Folder Management already uses that project.
 
-1. Open https://supabase.com/dashboard and select your intended project.
-2. Open **Edge Functions → Secrets**.
-3. Add two secrets (spell names exactly):
-   - IMAGEKIT_PRIVATE_KEY = restricted ImageKit private key from Step 1.
-   - IMAGEKIT_URL_TOOL_TOKEN = separate random access token from Step 2 (at least 32 characters).
-4. Save secrets. They are stored server-side, not in GitHub or the browser.
+Navigate to **Edge Functions → Secrets**. Add the following values (names exact):
 
-Note: Supabase secrets are project-scoped, so other functions in the same Supabase project technically have access to them. Consider a separate project when stronger isolation is required.
+1. IMAGEKIT_URL_TOOL_TOKEN = your 44-character token from Step 2.
+2. IMAGEKIT_PRIVATE_KEY_TGM = the restricted private key for ImageKit account TGM.
+3. IMAGEKIT_PRIVATE_KEY_TERRAVET = the restricted private key for ImageKit account Terravet.
+4. IMAGEKIT_PRIVATE_KEY_TNL = the restricted private key for ImageKit account TNL.
+5. IMAGEKIT_ACCOUNTS = JSON array of account *descriptors* below (no actual API keys in this JSON):
 
-## Step 4 — Deploy only the Tool #8 Edge Function
+    [{"id":"tgm","label":"TGM","secretName":"IMAGEKIT_PRIVATE_KEY_TGM"},{"id":"terravet","label":"Terravet","secretName":"IMAGEKIT_PRIVATE_KEY_TERRAVET"},{"id":"tnl","label":"TNL","secretName":"IMAGEKIT_PRIVATE_KEY_TNL"}]
 
-**Dashboard method:** Add an Edge Function named **imagekit-url-generator** containing the code in supabase/functions/imagekit-url-generator/index.ts. Disable Supabase JWT verification for this function because it uses its own dedicated access-token check.
+Enter the JSON as **one line** in the secret value field. Edit the registry and secret variables to match your actual accounts. Do not create fictitious keys or accounts in Supabase; the above is a configuration example.
 
-**CLI method:** After the PR is reviewed and merged, open PowerShell from the repository root in VS Code and run:
+- Account id: lowercase, begins with a letter, 2–40 characters, and can contain a–z, 0–9, underscore and hyphen.
+- Account label: readable display name, up to 80 characters.
+- secretName: a separate environment variable named IMAGEKIT_PRIVATE_KEY_ followed by uppercase letters, numbers or underscores.
+- Up to 30 accounts per configured registry.
+- The backend rejects missing keys, duplicates, malformed JSON, and unknown account IDs.
+
+**Single-account backward compatibility:** If IMAGEKIT_ACCOUNTS is absent, the function uses legacy secret IMAGEKIT_PRIVATE_KEY under account id default. Once you add IMAGEKIT_ACCOUNTS, the explicit registry replaces the fallback and every referenced secret must be configured.
+
+**Security note:** Supabase environment secrets are project-scoped. Other functions in the same Supabase project can technically read them, so a separate project is appropriate if stronger tenant isolation is required. The static website never receives the private keys.
+
+## Step 4 — Deploy only the ImageKit Edge Function
+
+The existing website and other tools do not need to be redeployed separately, but **the Edge Function must be deployed** with the new backend source.
+
+### Recommended: Supabase Dashboard
+
+1. Open the intended Supabase project.
+2. Open Edge Functions and choose the function named imagekit-url-generator (create it if absent).
+3. Update the function source using the repository file at:
+   supabase/functions/imagekit-url-generator/index.ts
+4. Deploy the function.
+5. Disable built-in JWT verification for this function; it independently enforces IMAGEKIT_URL_TOOL_TOKEN on each POST request. Do **not** remove that token check.
+
+### Alternative: CLI after reviewing the changes
+
+Inside the local repository folder in VS Code PowerShell, use the documented CLI (check help for current flags):
 
     npx supabase --help
+    npx supabase functions deploy --help
     npx supabase login
     npx supabase functions deploy imagekit-url-generator --project-ref slqplzovrotfiohcijap --no-verify-jwt
 
-Check npx supabase functions deploy --help if your CLI flags have changed. Do not deploy other functions or run database migrations. The function requires the independent access token even though JWT verification is disabled.
+This command deploys ONLY imagekit-url-generator. It does not migrate a database or change other functions. If you use a different project, replace the project ref and the endpoint URL in the Tool #8 page.
 
-The function URL for the existing project is:
+## Step 5 — Use Tool #8
 
-    https://slqplzovrotfiohcijap.supabase.co/functions/v1/imagekit-url-generator
+1. Open https://yedisupriadi.github.io/master-folder-file-management-tools/imagekit-url-generator.html
+2. Enter your **Tool Access Token**, not any ImageKit private key.
+3. Click **Muat Daftar Akun / Load Accounts**; it shows account labels from the secured backend.
+4. Select **Semua Akun / All Accounts** (default), or one account.
+5. Click **Fetch All Image URLs**. The tool calls each ImageKit account and retrieves pages of up to 250 files until complete.
+6. Use the **Folder filter** and search field, or copy a URL, copy all URLs, copy filtered URLs, or export CSV.
 
-If you deployed to a different Supabase project, update the endpoint field in Tool #8.
+CSV columns: AccountID, AccountName, FolderPath, FileName, ImageURL, FileID, FilePath, CreatedAt, Width, Height, SizeBytes, Private.
 
-## Step 5 — Generate URLs
-
-1. Open **Tool #8** from the homepage.
-2. Verify the Supabase Edge Function URL.
-3. Paste the separate **Tool Access Token**, not your ImageKit key.
-4. Click **Muat Folder** to list folders at root (/), or enter e.g. /261002/ in Folder Path.
-5. Click **Generate URLs**. The tool loads 250 assets per request until complete.
-6. View/search files, copy one URL, copy all URLs, copy filtered URLs or export a UTF-8 CSV.
-
-The table displays 100 rows per page; CSV/export includes the entire loaded result. Only immediate folder images are listed (not subfolders). Private files can require signed delivery URLs and may not render in the preview.
+A file URL can be private and require an ImageKit signed URL to display. This tool does not expose signed URLs or modify private files; private-image previews are disabled. CSV output contains the original URL and private flag.
 
 ## Troubleshooting
 
-| Issue | Action |
+| Symptom | Likely cause / fix |
 | --- | --- |
-| 404 / Failed to fetch | Deploy the function, then check its name, Supabase project and URL. |
-| 401 Access token invalid | Paste the separate Tool Access Token, not ImageKit API Key. |
-| 503 Not configured | Check the two Supabase secrets and token length. |
-| ImageKit credentials invalid | Check ImageKit restricted Media Read permissions. |
-| CORS/403 | Open from https://yedisupriadi.github.io or localhost; any other deployment origin must be explicitly reviewed and allowlisted. |
-| Zero results | Confirm ImageKit folder path; subfolders are not recursively searched. |
-| 429 | ImageKit rate-limited the request; browser retries twice then surfaces the error. |
-| Image does not load | Check ImageKit private/signed URL media delivery settings. |
+| Load Accounts returns 404 / Failed to fetch | Edge Function not deployed, wrong project ref, or network issue. |
+| 401 Access token invalid | The separate IMAGEKIT_URL_TOOL_TOKEN is missing/wrong; do not use ImageKit private key in browser. |
+| 503 Registry not configured | Check IMAGEKIT_ACCOUNTS JSON and every IMAGEKIT_PRIVATE_KEY_* secret. |
+| ImageKit credentials invalid | Check the selected account's restricted key and read-only permission. |
+| 403 Origin not allowed | Open from the approved GitHub Pages domain or localhost. |
+| No files for one account | Check that the account has images and the API key belongs to that account. |
+| 429 rate limited | The tool retries twice, then marks that account as failed. |
+| PARTIAL in downloaded CSV name | One or more accounts failed; the remaining accounts were exported, not a complete data set. |
+| URLs do not show previews | Check file privacy/delivery settings; private files require signed URLs. |
 
-## Security and QA
+## Security and operational limitations
 
-- Browser never handles or saves the ImageKit private key.
-- Separate Tool Access Token stays in page memory (not localStorage).
-- Server validates token, origin, method, action, path and pagination before calling ImageKit.
-- ImageKit API is read-only (GET list/files); no upload, rename or delete.
-- The read-only ImageKit key can still list other folders in the same account; do not share the tool token with strangers.
-- Origin allowlisting and CORS are not authentication; the secret token provides access control.
-- For multiple individual users, replace the shared token with proper Supabase Auth / RBAC.
-- Rotate the token if leaked; revoke the restricted ImageKit key if exposed.
-- Run npm run check and a browser smoke test with a disposable ImageKit folder. Automated checks do not exercise a live account.
+- No private API keys or access tokens are embedded in GitHub Pages or stored in browser localStorage.
+- The browser submits a separate user-supplied Tool Access Token to the allowlisted Supabase endpoint; server verifies it before calling ImageKit.
+- The backend performs read-only ImageKit GET API calls, and accepts only accounts/files actions.
+- Origin/CORS is not authentication. The shared token grants access to all registered accounts. For multiple independent users, implement per-user login, RBAC and account-specific authorization before wider rollout.
+- API calls from the browser are sequential **per account**, limiting request bursts and keeping account failures independent.
+- No live credentials are used by automated tests. Run npm run check and then a smoke test with real, owner-authorized account keys after deployment.
+- CSV exports are snapshots; a later upload requires clicking Fetch again. Avoid excessively frequent refreshes for large libraries.
 
-Official documentation:
+Official references:
 - https://imagekit.io/docs/api-keys
 - https://imagekit.io/docs/api-overview
 - https://supabase.com/docs/guides/functions/secrets
-- https://supabase.com/docs/guides/functions/deploy
 - https://supabase.com/docs/guides/functions/function-configuration
+- https://supabase.com/docs/guides/functions/deploy
