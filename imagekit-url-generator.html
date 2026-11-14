@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="List ImageKit image URLs by folder, copy links, preview media, and export to CSV safely through a read-only API relay.">
+<meta name="referrer" content="no-referrer">
+<title>ImageKit URL Generator</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;padding:22px 26px;min-height:100vh;background:var(--bg);color:var(--ink)}
+  .page{max-width:1220px;margin:auto}
+  .topbar{position:fixed;top:14px;right:18px;z-index:20;display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);padding:6px 10px;border-radius:9px;box-shadow:var(--shadow-sm)}
+  .toggle{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:12px;font-weight:650}
+  .toggle .on{color:var(--brand)}
+  .switch{position:relative;display:inline-flex;width:42px;height:22px}
+  .switch input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;z-index:1}
+  .slider{position:absolute;inset:0;border-radius:20px;background:#aab6c4;pointer-events:none}
+  .slider:before{content:"";position:absolute;width:16px;height:16px;left:3px;top:3px;border-radius:50%;background:#fff;transition:transform .15s}
+  .switch input:checked + .slider{background:var(--brand)}
+  .switch input:checked + .slider:before{transform:translateX(20px)}
+  .divider{height:20px;width:1px;background:var(--line)}
+  .home{display:inline-block;margin:5px 0 12px;text-decoration:none;color:var(--brand);font-size:13px;font-weight:700}
+  header{display:flex;gap:14px;margin-bottom:20px;align-items:flex-start}
+  .hero-icon{display:flex;align-items:center;justify-content:center;flex:0 0 44px;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--brand)}
+  h1{margin:0}
+  .subtitle{max-width:900px;color:var(--muted);font-size:13px;margin-top:4px}
+  .notice{padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--color-info-bg);font-size:12.5px;margin-bottom:14px}
+  .notice strong{color:var(--color-info)}
+  .columns{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:14px;margin-bottom:14px}
+  .card{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--card);box-shadow:var(--shadow-sm)}
+  h2{font-size:16px;margin:0 0 5px}
+  .hint{color:var(--muted);font-size:12px;line-height:1.5;margin:3px 0 12px}
+  .field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+  label{font-size:12px;font-weight:650;color:var(--muted)}
+  input,select{width:100%;height:37px;border:1px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--ink);font-size:13px;padding:7px 10px}
+  input:focus,select:focus{outline:2px solid var(--color-selected);border-color:var(--accent)}
+  .fieldline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
+  .fieldline .field{margin:0}
+  button{font-size:12.5px;font-weight:650;border:1px solid var(--line);border-radius:7px;padding:9px 12px;cursor:pointer;background:var(--card);color:var(--ink)}
+  button:hover:not(:disabled){background:var(--color-hover)}
+  button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  button:disabled{cursor:not-allowed;opacity:.5}
+  .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .primary:hover:not(:disabled){background:var(--accent-dark)}
+  .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+  .mono{font-family:Consolas,ui-monospace,monospace;font-size:11.5px;overflow-wrap:anywhere}
+  .status{min-height:40px;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12.5px;background:var(--input-bg);margin:12px 0}
+  .status.error{background:var(--color-danger-bg);color:var(--color-danger)}
+  .status.good{background:var(--color-success-bg);color:var(--color-success)}
+  .summary{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+  .summary h2{margin:0}
+  .summary small{color:var(--muted)}
+  .results-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
+  .results-actions .field{min-width:260px;flex:1;margin:0}
+  .tablewrap{overflow:auto;max-height:600px;border:1px solid var(--line);border-radius:8px}
+  table{border-collapse:collapse;min-width:870px;width:100%;font-size:12px}
+  th{background:var(--thead-bg);text-align:left;position:sticky;top:0;z-index:1}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+  td.name{min-width:200px;font-weight:650;overflow-wrap:anywhere}
+  td.url{max-width:500px;overflow-wrap:anywhere}
+  td.url a{color:var(--accent);text-decoration:none}
+  td.url a:hover{text-decoration:underline}
+  .thumb{height:42px;width:58px;object-fit:contain;background:var(--input-bg);border-radius:5px;border:1px solid var(--line)}
+  .placeholder{color:var(--muted);font-size:12px}
+  .private{font-size:10px;color:var(--color-warning);font-weight:700;white-space:nowrap}
+  .pagination{display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:12px;font-size:12px;color:var(--muted)}
+  .footnote{margin-top:14px;color:var(--muted);font-size:11.5px}
+  .footnote a{color:var(--accent)}
+  [hidden]{display:none!important}
+  @media(max-width:850px){body{padding:14px 12px}.topbar{position:static;width:max-content;margin:0 0 14px auto}.columns{grid-template-columns:1fr}.fieldline{grid-template-columns:1fr}.results-actions .field{min-width:100%}}
+</style>
+<link rel="stylesheet" href="styles/tool-ui.css">
+<script src="scripts/tool-ui.js"></script>
+</head>
+<body>
+<div class="topbar">
+  <label class="toggle"><span id="labID">ID</span><span class="switch"><input id="langToggle" type="checkbox" aria-label="Bahasa / Language"><span class="slider"></span></span><span id="labEN">EN</span></label>
+  <span class="divider"></span>
+  <label class="toggle"><span>☀</span><span class="switch"><input id="themeToggle" type="checkbox" aria-label="Light / Dark"><span class="slider"></span></span><span>☾</span></label>
+</div>
+<main class="page">
+  <a href="index.html" class="home">← <span data-t="home">Home</span></a>
+  <header>
+    <div class="hero-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><path d="m3 21 5-6 4 4 4-6 5 8Z"/></svg></div>
+    <div><h1 data-t="title">ImageKit URL Generator</h1><div class="subtitle" data-t="subtitle">Ambil URL semua gambar dari satu folder ImageKit, tampilkan preview, lalu copy atau export CSV.</div></div>
+  </header>
+  <div class="notice"><strong data-t="securityTitle">Keamanan:</strong> <span data-t="securityText">Jangan masukkan Private API Key ImageKit di halaman ini. Gunakan token akses Tool #8 yang dibuat pada Supabase. Token hanya disimpan dalam memori halaman saat dibuka, bukan di GitHub atau localStorage.</span></div>
+
+  <div class="columns">
+    <section class="card">
+      <h2 data-t="connectTitle">1. Koneksi ImageKit (aman)</h2>
+      <p class="hint" data-t="connectHint">Backend read-only harus dikonfigurasi satu kali. Lihat petunjuk setup di bagian bawah halaman.</p>
+      <div class="field">
+        <label for="endpoint" data-t="endpointLabel">Supabase Edge Function URL</label>
+        <input id="endpoint" type="url" spellcheck="false" autocomplete="off" value="https://slqplzovrotfiohcijap.supabase.co/functions/v1/imagekit-url-generator">
+      </div>
+      <div class="field">
+        <label for="accessToken" data-t="tokenLabel">Tool Access Token (BUKAN ImageKit Private API Key)</label>
+        <input id="accessToken" type="password" autocomplete="new-password" placeholder="Token dari Supabase secret IMAGEKIT_URL_TOOL_TOKEN">
+      </div>
+      <p class="hint" data-t="connectDetail">Token ini diperlukan untuk mencegah pengunjung website publik mengakses daftar file Anda. Tidak ada kredensial yang disimpan browser.</p>
+    </section>
+    <section class="card">
+      <h2 data-t="folderTitle">2. Pilih folder</h2>
+      <p class="hint" data-t="folderHint">Isi path folder ImageKit, misalnya /261002/. Untuk folder di root, klik Muat Folder lalu pilih dari daftar.</p>
+      <div class="fieldline">
+        <div class="field">
+          <label for="browsePath" data-t="browseLabel">Browse folder induk</label>
+          <input id="browsePath" value="/" spellcheck="false" placeholder="/">
+        </div>
+        <button id="browseBtn" data-t="browse">Muat Folder</button>
+      </div>
+      <div class="field" style="margin-top:12px">
+        <label for="folderSelect" data-t="selectLabel">Folder yang tersedia</label>
+        <select id="folderSelect"><option value="" data-t="selectEmpty">Muat folder terlebih dahulu</option></select>
+      </div>
+      <div class="field">
+        <label for="folderPath" data-t="pathLabel">Folder untuk generate URL</label>
+        <input id="folderPath" value="/261002/" spellcheck="false" placeholder="/261002/">
+      </div>
+      <div class="toolbar">
+        <button class="primary" id="generateBtn" data-t="generate">Generate URLs</button>
+        <button id="cancelBtn" disabled data-t="cancel">Batalkan</button>
+        <button id="clearBtn" data-t="clear">Bersihkan hasil</button>
+      </div>
+    </section>
+  </div>
+
+  <div id="status" class="status" role="status" aria-live="polite">Siap. Masukkan token dan pilih folder.</div>
+
+  <section class="card">
+    <div class="summary"><h2 data-t="results">3. Daftar URL ImageKit</h2><small id="countSummary">0 file</small></div>
+    <div class="results-actions">
+      <div class="field"><label for="searchBox" data-t="searchLabel">Cari berdasarkan nama atau path</label><input id="searchBox" type="search" data-ph="searchPlaceholder" placeholder="Cari gambar ..." disabled></div>
+      <button id="copyAllBtn" disabled data-t="copyAll">Copy Semua URL</button>
+      <button id="copyFilteredBtn" disabled data-t="copyFiltered">Copy URL Filter</button>
+      <button id="csvBtn" disabled data-t="csv">Export CSV (Excel)</button>
+    </div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th data-t="preview">Preview</th><th data-t="fileName">Nama File</th><th data-t="imageUrl">ImageKit URL</th><th data-t="dimensions">Dimensi</th><th data-t="fileSize">Ukuran</th><th data-t="action">Aksi</th></tr></thead>
+        <tbody id="fileRows"><tr><td colspan="6" class="placeholder" id="emptyText">Belum ada hasil. Klik Generate URLs untuk mulai.</td></tr></tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <button id="prevBtn" disabled data-t="prev">Sebelumnya</button>
+      <span id="pageInfo">0 / 0</span>
+      <button id="nextBtn" disabled data-t="next">Berikutnya</button>
+    </div>
+    <p class="footnote"><span data-t="tableNote">Tabel menampilkan 100 file per halaman agar tetap cepat. Copy Semua URL dan Export CSV mencakup seluruh hasil, termasuk halaman lainnya. Folder yang dipilih tidak termasuk subfolder.</span> <a href="docs/imagekit-url-generator.md" data-t="setupLink">Panduan setup API dan keamanan</a></p>
+  </section>
+</main>
+<script>
+(() => {
+  'use strict';
+  const COPY = {
+    id: {
+      home:'Home',title:'ImageKit URL Generator',subtitle:'Ambil URL semua gambar dari satu folder ImageKit, tampilkan preview, lalu copy atau export CSV.',
+      securityTitle:'Keamanan:',securityText:'Jangan masukkan Private API Key ImageKit di halaman ini. Gunakan token akses Tool #8 yang dibuat pada Supabase. Token hanya disimpan dalam memori halaman saat dibuka, bukan di GitHub atau localStorage.',
+      connectTitle:'1. Koneksi ImageKit (aman)',connectHint:'Backend read-only perlu dikonfigurasi satu kali. Lihat panduan setup di bawah.',
+      endpointLabel:'Supabase Edge Function URL',tokenLabel:'Tool Access Token (BUKAN ImageKit Private API Key)',connectDetail:'Token diperlukan agar pengunjung website publik tidak bisa melihat daftar file Anda. Tidak ada kredensial yang disimpan di browser.',
+      folderTitle:'2. Pilih folder',folderHint:'Masukkan path folder ImageKit, contoh /261002/. Untuk folder root, klik Muat Folder lalu pilih nama folder.',browseLabel:'Browse folder induk',browse:'Muat Folder',selectLabel:'Folder yang tersedia',selectEmpty:'Muat folder terlebih dahulu',
+      pathLabel:'Folder untuk generate URL',generate:'Generate URLs',cancel:'Batalkan',clear:'Bersihkan hasil',results:'3. Daftar URL ImageKit',searchLabel:'Cari berdasarkan nama atau path',searchPlaceholder:'Cari gambar ...',
+      copyAll:'Copy Semua URL',copyFiltered:'Copy URL Filter',csv:'Export CSV (Excel)',preview:'Preview',fileName:'Nama File',imageUrl:'ImageKit URL',dimensions:'Dimensi',fileSize:'Ukuran',action:'Aksi',
+      prev:'Sebelumnya',next:'Berikutnya',tableNote:'Tabel menampilkan 100 file per halaman agar tetap cepat. Copy Semua URL dan Export CSV mencakup seluruh hasil, termasuk halaman lainnya. Folder yang dipilih tidak termasuk subfolder.',
+      setupLink:'Panduan setup API dan keamanan',empty:'Belum ada hasil. Klik Generate URLs untuk mulai.',ready:'Siap. Masukkan token dan pilih folder.',
+      tokenMissing:'Masukkan Tool Access Token (minimal 32 karakter).',endpointInvalid:'Masukkan URL Supabase Edge Function yang valid.',pathInvalid:'Masukkan path folder yang valid.',loadingFolders:'Mengambil daftar folder ...',
+      noFolders:'Folder kosong atau tidak ditemukan.',folderLoaded:'Folder tersedia: ',loading:'Mengambil halaman ',loaded:'Berhasil mengambil ',files:' gambar dari ',
+      stopped:'Pengambilan dibatalkan.',cleared:'Hasil dibersihkan.',failed:'Gagal: ',copy:'Copy URL',copied:'URL tersalin.',copyFailed:'Clipboard tidak tersedia. Gunakan HTTPS dan izinkan akses clipboard.',
+      allCopied:'Semua URL disalin: ',filteredCopied:'URL filter disalin: ',csvDone:'CSV berhasil diunduh.',noUrls:'Tidak ada URL untuk disalin.',noMatches:'Tidak ada gambar yang cocok.',
+      page:'Halaman ',private:'Private — perlu signed URL',authHelp:'Token salah atau server belum dikonfigurasi. Periksa panduan setup.',connectionHelp:'Function belum di-deploy atau koneksi gagal. Lihat panduan setup.'
+    },
+    en: {
+      home:'Home',title:'ImageKit URL Generator',subtitle:'Get image URLs from any ImageKit folder, preview media, copy links, and export CSV.',
+      securityTitle:'Security:',securityText:'Never enter your ImageKit Private API Key here. Use the separate Tool #8 access token configured in Supabase. It is kept in memory only, not GitHub or localStorage.',
+      connectTitle:'1. Secure ImageKit connection',connectHint:'One-time read-only backend setup is required. Follow the setup guide below.',
+      endpointLabel:'Supabase Edge Function URL',tokenLabel:'Tool Access Token (NOT your ImageKit Private API Key)',connectDetail:'The token prevents public visitors from browsing your media files. No credentials are saved in browser storage.',
+      folderTitle:'2. Select folder',folderHint:'Enter a folder path, e.g. /261002/. Click Load Folders to browse the root.',browseLabel:'Parent folder to browse',browse:'Load Folders',selectLabel:'Available folders',selectEmpty:'Load folders first',
+      pathLabel:'Folder to generate URLs for',generate:'Generate URLs',cancel:'Cancel',clear:'Clear results',results:'3. ImageKit URL list',searchLabel:'Search by name or path',searchPlaceholder:'Search images ...',
+      copyAll:'Copy All URLs',copyFiltered:'Copy Filtered URLs',csv:'Export CSV (Excel)',preview:'Preview',fileName:'File Name',imageUrl:'ImageKit URL',dimensions:'Dimensions',fileSize:'Size',action:'Action',
+      prev:'Previous',next:'Next',tableNote:'100 files are displayed per page for performance. Copy All and Export CSV include every result, across pages. Only files directly in the selected folder are included.',
+      setupLink:'API and security setup guide',empty:'No results yet. Click Generate URLs.',ready:'Ready. Enter your token and select a folder.',
+      tokenMissing:'Enter your Tool Access Token (at least 32 characters).',endpointInvalid:'Enter a valid Supabase Edge Function URL.',pathInvalid:'Enter a valid folder path.',loadingFolders:'Loading folders ...',
+      noFolders:'No folders found.',folderLoaded:'Available folders: ',loading:'Loading page ',loaded:'Successfully loaded ',files:' images from ',
+      stopped:'Loading cancelled.',cleared:'Results cleared.',failed:'Failed: ',copy:'Copy URL',copied:'URL copied.',copyFailed:'Clipboard unavailable. Use HTTPS and allow clipboard access.',
+      allCopied:'All URLs copied: ',filteredCopied:'Filtered URLs copied: ',csvDone:'CSV downloaded.',noUrls:'No URLs to copy.',noMatches:'No matching images.',
+      page:'Page ',private:'Private — signed URL needed',authHelp:'Access token is incorrect or backend is not configured. Check the setup guide.',connectionHelp:'The function is not deployed or the network is unavailable. See the setup guide.'
+    }
+  };
+  const $ = (id) => document.getElementById(id);
+  let lang = ToolStorage.getItem('audit-lang') === 'en' ? 'en' : 'id';
+  let items = [];
+  let page = 0;
+  let busy = false;
+  let controller = null;
+  const pageSize = 100;
+  const t = (key) => COPY[lang][key] || key;
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  function normalizePath(raw) {
+    if (typeof raw !== 'string' || raw.length > 500 || /[\\?#\0]/.test(raw)) return '';
+    const path = raw.trim().replace(/\/+/g, '/');
+    if (!path || path.split('/').includes('..')) return '';
+    const clean = path.replace(/^\/+|\/+$/g, '');
+    return '/' + clean + (clean ? '/' : '');
+  }
+
+  function validEndpoint() {
+    const value = $('endpoint').value.trim();
+    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/functions\/v1\/imagekit-url-generator\/?$/i.test(value) &&
+        !/^http:\/\/(localhost|127\.0\.0\.1):\d+\/functions\/v1\/imagekit-url-generator\/?$/i.test(value)) return '';
+    return value.replace(/\/$/, '');
+  }
+
+  function setStatus(message, level) {
+    const el = $('status');
+    el.textContent = message;
+    el.className = 'status' + (level ? ' ' + level : '');
+  }
+
+  function setBusy(value) {
+    busy = value;
+    $('browseBtn').disabled = value;
+    $('generateBtn').disabled = value;
+    $('cancelBtn').disabled = !value;
+    $('folderSelect').disabled = value;
+    $('clearBtn').disabled = value;
+  }
+
+  async function api(action, path, skip, signal) {
+    const endpoint = validEndpoint();
+    if (!endpoint) throw new Error(t('endpointInvalid'));
+    const token = $('accessToken').value;
+    if (token.length < 32) throw new Error(t('tokenMissing'));
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const res = await fetch(endpoint, {
+        method:'POST',
+        mode:'cors',
+        cache:'no-store',
+        redirect:'error',
+        referrerPolicy:'no-referrer',
+        headers:{'Content-Type':'application/json','x-tool-token':token},
+        body:JSON.stringify({action:action,path:path,skip:skip}),
+        signal:signal,
+      });
+      let body;
+      try { body = await res.json(); } catch { throw new Error(t('connectionHelp')); }
+      if (res.status === 429 && attempt < 2) {
+        const delay = Math.min(Math.max(Number(body.retryAfterMs) || 1500, 1000), 5000);
+        await sleep(delay);
+        if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
+        continue;
+      }
+      if (!res.ok || !body.ok || !Array.isArray(body.items)) {
+        let message = body.error || ('HTTP ' + res.status);
+        if (res.status === 401 || res.status === 503) message += ' ' + t('authHelp');
+        throw new Error(message);
+      }
+      if (body.skip !== skip || body.action !== action || body.path !== path) throw new Error('Invalid API pagination response');
+      return body;
+    }
+    throw new Error('Too many requests');
+  }
+
+  async function fetchAll(action, path, signal) {
+    const collected = [];
+    let skip = 0;
+    for (let p = 0; p < 4000; p++) {
+      if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
+      setStatus(t('loading') + (p + 1) + ' • ' + collected.length + ' ' + (action === 'folders' ? 'folders' : 'files'));
+      const res = await api(action, path, skip, signal);
+      collected.push(...res.items);
+      if (!res.hasMore) return collected;
+      if (!Number.isSafeInteger(res.nextSkip) || res.nextSkip <= skip) throw new Error('Invalid pagination offset');
+      skip = res.nextSkip;
+    }
+    throw new Error('Too many pages; export was not completed');
+  }
+
+  async function loadFolders() {
+    if (busy) return;
+    const path = normalizePath($('browsePath').value);
+    if (!path) return setStatus(t('pathInvalid'), 'error');
+    controller = new AbortController();
+    setBusy(true);
+    setStatus(t('loadingFolders'));
+    try {
+      const folders = await fetchAll('folders', path, controller.signal);
+      const select = $('folderSelect');
+      select.replaceChildren();
+      const placeholder = new Option(t('selectEmpty'), '');
+      select.add(placeholder);
+      const used = new Set();
+      for (const item of folders) {
+        const name = item.name.trim();
+        if (!name) continue;
+        const childPath = normalizePath(path + name + '/');
+        if (!childPath || used.has(childPath)) continue;
+        used.add(childPath);
+        select.add(new Option(name + ' (' + childPath + ')', childPath));
+      }
+      setStatus(folders.length ? t('folderLoaded') + used.size : t('noFolders'), folders.length ? 'good' : '');
+    } catch (err) {
+      setStatus(err.name === 'AbortError' ? t('stopped') : t('failed') + err.message, err.name === 'AbortError' ? '' : 'error');
+    } finally {
+      controller = null;
+      setBusy(false);
+    }
+  }
+
+  async function generate() {
+    if (busy) return;
+    const path = normalizePath($('folderPath').value);
+    if (!path) return setStatus(t('pathInvalid'), 'error');
+    controller = new AbortController();
+    setBusy(true);
+    try {
+      const files = await fetchAll('files', path, controller.signal);
+      const seen = new Set();
+      items = files.filter((file) => {
+        const key = file.fileId || file.url || file.filePath;
+        if (!file.url || seen.has(key)) return false;
+        seen.add(key);
+        return true;
+      });
+      page = 0;
+      $('searchBox').value = '';
+      render();
+      setStatus(t('loaded') + items.length + t('files') + path, 'good');
+    } catch (err) {
+      setStatus(err.name === 'AbortError' ? t('stopped') : t('failed') + (err instanceof TypeError ? t('connectionHelp') : err.message), err.name === 'AbortError' ? '' : 'error');
+    } finally {
+      controller = null;
+      setBusy(false);
+    }
+  }
+
+  function filtered() {
+    const query = $('searchBox').value.trim().toLowerCase();
+    return query ? items.filter((item) => (item.name + ' ' + item.filePath).toLowerCase().includes(query)) : items;
+  }
+
+  function cell(row, cls, value) {
+    const td = document.createElement('td');
+    if (cls) td.className = cls;
+    td.textContent = value == null ? '' : String(value);
+    row.appendChild(td);
+    return td;
+  }
+
+  function render() {
+    const all = filtered();
+    const maxPage = Math.max(1, Math.ceil(all.length / pageSize));
+    page = Math.min(page, maxPage - 1);
+    const rows = $('fileRows');
+    rows.replaceChildren();
+    if (!all.length) {
+      const tr = document.createElement('tr');
+      const td = cell(tr, 'placeholder', items.length ? t('noMatches') : t('empty'));
+      td.colSpan = 6;
+      rows.appendChild(tr);
+    }
+    for (const file of all.slice(page * pageSize, (page + 1) * pageSize)) {
+      const tr = document.createElement('tr');
+      const visual = cell(tr, '', '');
+      if (file.thumbnailUrl || file.url) {
+        const img = document.createElement('img');
+        img.className = 'thumb';
+        img.loading = 'lazy';
+        img.alt = file.name;
+        img.referrerPolicy = 'no-referrer';
+        img.src = file.thumbnailUrl || file.url;
+        visual.appendChild(img);
+      }
+      const name = cell(tr, 'name', file.name);
+      if (file.isPrivateFile) {
+        const badge = document.createElement('div');
+        badge.className = 'private';
+        badge.textContent = t('private');
+        name.appendChild(badge);
+      }
+      const linkCell = cell(tr, 'url', '');
+      const link = document.createElement('a');
+      link.href = file.url;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = file.url;
+      linkCell.appendChild(link);
+      cell(tr, '', file.width && file.height ? file.width + ' × ' + file.height : '—');
+      cell(tr, '', Number.isFinite(file.size) ? (file.size / 1024).toFixed(1) + ' KB' : '—');
+      const action = cell(tr, '', '');
+      const btn = document.createElement('button');
+      btn.textContent = t('copy');
+      btn.addEventListener('click', () => copyText(file.url, t('copied')));
+      action.appendChild(btn);
+      rows.appendChild(tr);
+    }
+    $('countSummary').textContent = all.length + ' / ' + items.length + ' file';
+    $('pageInfo').textContent = t('page') + (all.length ? page + 1 : 0) + ' / ' + (all.length ? maxPage : 0);
+    $('prevBtn').disabled = page <= 0;
+    $('nextBtn').disabled = page + 1 >= maxPage;
+    $('searchBox').disabled = !items.length;
+    $('copyAllBtn').disabled = !items.length;
+    $('copyFilteredBtn').disabled = !all.length;
+    $('csvBtn').disabled = !items.length;
+  }
+
+  async function copyText(value, message) {
+    if (!value) return setStatus(t('noUrls'), 'error');
+    try {
+      await navigator.clipboard.writeText(value);
+      setStatus(message, 'good');
+    } catch {
+      setStatus(t('copyFailed'), 'error');
+    }
+  }
+
+  function csvCell(value) {
+    let text = value == null ? '' : String(value);
+    if (/^[\s]*[=+\-@\t\r]/.test(text)) text = "'" + text;
+    return '"' + text.replace(/"/g, '""') + '"';
+  }
+
+  function exportCSV() {
+    if (!items.length) return;
+    const fields = ['FileID', 'FileName', 'ImageURL', 'FilePath', 'CreatedAt', 'Width', 'Height', 'SizeBytes', 'Private'];
+    const keyMap = ['fileId', 'name', 'url', 'filePath', 'createdAt', 'width', 'height', 'size', 'isPrivateFile'];
+    const csv = '\uFEFF' + fields.join(',') + '\r\n' + items.map((item) => keyMap.map((key) => csvCell(item[key])).join(',')).join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
+    const link = document.createElement('a');
+    const path = normalizePath($('folderPath').value).replace(/[^a-zA-Z0-9_-]+/g, '_');
+    link.href = url;
+    link.download = 'ImageKit_URLs_' + (path || 'root') + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1500);
+    setStatus(t('csvDone'), 'good');
+  }
+
+  function setLang(value) {
+    lang = value === 'en' ? 'en' : 'id';
+    ToolStorage.setItem('audit-lang', lang);
+    document.documentElement.lang = lang;
+    $('langToggle').checked = lang === 'en';
+    $('labID').classList.toggle('on', lang === 'id');
+    $('labEN').classList.toggle('on', lang === 'en');
+    document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
+    document.querySelectorAll('[data-ph]').forEach((el) => { el.placeholder = t(el.dataset.ph); });
+    document.title = t('title');
+    render();
+  }
+  function setTheme(value) {
+    const next = value === 'dark' ? 'dark' : 'light';
+    ToolStorage.setItem('audit-theme', next);
+    document.documentElement.dataset.theme = next;
+    $('themeToggle').checked = next === 'dark';
+  }
+
+  $('browseBtn').addEventListener('click', loadFolders);
+  $('generateBtn').addEventListener('click', generate);
+  $('cancelBtn').addEventListener('click', () => { if (controller) controller.abort(); });
+  $('clearBtn').addEventListener('click', () => {
+    items = []; page = 0; $('searchBox').value = ''; render(); setStatus(t('cleared'));
+  });
+  $('folderSelect').addEventListener('change', () => { if ($('folderSelect').value) $('folderPath').value = $('folderSelect').value; });
+  $('searchBox').addEventListener('input', () => { page = 0; render(); });
+  $('prevBtn').addEventListener('click', () => { page--; render(); });
+  $('nextBtn').addEventListener('click', () => { page++; render(); });
+  $('copyAllBtn').addEventListener('click', () => copyText(items.map((item) => item.url).join('\n'), t('allCopied') + items.length));
+  $('copyFilteredBtn').addEventListener('click', () => { const subset = filtered(); copyText(subset.map((item) => item.url).join('\n'), t('filteredCopied') + subset.length); });
+  $('csvBtn').addEventListener('click', exportCSV);
+  $('langToggle').addEventListener('change', (event) => setLang(event.target.checked ? 'en' : 'id'));
+  $('themeToggle').addEventListener('change', (event) => setTheme(event.target.checked ? 'dark' : 'light'));
+  setTheme(ToolStorage.getItem('audit-theme'));
+  setLang(lang);
+  setStatus(t('ready'));
+})();
+</script>
+</body>
+</html>
