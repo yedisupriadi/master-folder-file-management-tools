@@ -214,6 +214,7 @@
   let accounts = [];
   let items = [];
   let failures = [];
+  let incomplete = false;
   let page = 0;
   let busy = false;
   let controller = null;
@@ -325,6 +326,7 @@
     setBusy(true);
     items = [];
     failures = [];
+    incomplete = false;
     page = 0;
     $("searchBox").value = "";
     $("failureBox").hidden = true;
@@ -349,6 +351,7 @@
       }
       fillFolderFilter();
       render();
+      incomplete = cancelled || failures.length > 0;
       showFailures();
       if (cancelled) {
         setStatus(t("canceled"), "warn");
@@ -358,6 +361,7 @@
         setStatus(t("loaded") + items.length + t("files") + successful + t("accounts"), "good");
       }
     } catch (error) {
+      incomplete = true;
       if (error.name === "AbortError") setStatus(t("canceled"), "warn");
       else setStatus(t("failed") + (error instanceof TypeError ? t("connectionHelp") : error.message), "error");
     } finally {
@@ -474,12 +478,12 @@
     const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
     const link = document.createElement("a");
     link.href = url;
-    link.download = "ImageKit_All_URLs_" + new Date().toISOString().slice(0, 10) + (failures.length ? "_PARTIAL" : "") + ".csv";
+    link.download = "ImageKit_All_URLs_" + new Date().toISOString().slice(0, 10) + (incomplete ? "_PARTIAL" : "") + ".csv";
     document.body.appendChild(link);
     link.click();
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
-    setStatus(t("csvDone") + (failures.length ? " " + t("partial") : ""), failures.length ? "warn" : "good");
+    setStatus(t("csvDone") + (incomplete ? " " + t("partial") : ""), incomplete ? "warn" : "good");
   }
 
   function setLang(value) {
@@ -512,7 +516,7 @@
   $("generateBtn").addEventListener("click", generate);
   $("cancelBtn").addEventListener("click", () => { if (controller) controller.abort(); });
   $("clearBtn").addEventListener("click", () => {
-    items = []; failures = []; page = 0; $("searchBox").value = "";
+    items = []; failures = []; incomplete = false; page = 0; $("searchBox").value = "";
     $("failureBox").hidden = true; fillFolderFilter(); render(); setStatus(t("cleared"));
   });
   $("folderFilter").addEventListener("change", () => { page = 0; render(); });
