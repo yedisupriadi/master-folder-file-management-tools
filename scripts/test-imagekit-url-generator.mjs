@@ -187,6 +187,7 @@ assert.ok(ui.includes('id="folderFilter"'));
 assert.ok(ui.includes("core.toCSV(items)"));
 assert.ok(ui.includes("core.mergeAccountFiles(items.concat(fetched))"));
 assert.ok(ui.includes('id="failureBox"'));
+assert.ok(ui.includes('incomplete ? "_PARTIAL" : ""'),"cancelled exports must be marked partial");
 assert.ok(ui.includes('docs/imagekit-url-generator.md'));
 assert.ok(!ui.includes("api.imagekit.io"));
 assert.ok(!ui.includes("IMAGEKIT_PRIVATE_KEY"));
