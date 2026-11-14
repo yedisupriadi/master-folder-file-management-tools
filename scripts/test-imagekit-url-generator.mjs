@@ -168,7 +168,7 @@ const merged=core.mergeAccountFiles([
   {...imageItem(1),accountId:"tgm",accountName:"Trigamma Metri"},
 ]);
 assert.equal(merged.length,2,"file IDs on separate accounts must never collide");
-assert.equal(merged[0].folderPath,"/261005/sub/"===core.folderOf({filePath:"/261005/sub/example.png"})?"/261002/":"/261002/");
+assert.equal(merged[0].folderPath,"/261002/");
 assert.equal(merged[1].folderPath,"/different/");
 assert.equal(core.folderOf({filePath:"/261005/sub/example.png"}),"/261005/sub/");
 assert.deepEqual(JSON.parse(JSON.stringify(core.uniqueFolders(merged))),["/261002/","/different/"]);
