@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="List ImageKit image URLs by folder, copy links, preview media, and export to CSV safely through a read-only API relay.">
+<meta name="description" content="Multi-account ImageKit URL Manager: list images across every folder, filter by account and folder, copy URLs and export CSV.">
 <meta name="referrer" content="no-referrer">
-<title>ImageKit URL Generator</title>
+<title>ImageKit URL Manager</title>
 <style>
   *{box-sizing:border-box}
   body{margin:0;padding:22px 26px;min-height:100vh;background:var(--bg);color:var(--ink)}
   .page{max-width:1220px;margin:auto}
-  .topbar{position:fixed;top:14px;right:18px;z-index:20;display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);padding:6px 10px;border-radius:9px;box-shadow:var(--shadow-sm)}
+  .topbar{position:fixed;top:14px;right:18px;z-index:20;display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);padding:6px 10px;border-radius:9px;box-shadow:var(--shadow-sm)}
   .toggle{display:flex;gap:7px;align-items:center;color:var(--muted);font-size:12px;font-weight:650}
   .toggle .on{color:var(--brand)}
   .switch{position:relative;display:inline-flex;width:42px;height:22px}
@@ -25,7 +25,7 @@
   .hero-icon{display:flex;align-items:center;justify-content:center;flex:0 0 44px;height:44px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--brand)}
   h1{margin:0}
   .subtitle{max-width:900px;color:var(--muted);font-size:13px;margin-top:4px}
-  .notice{padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--color-info-bg);font-size:12.5px;margin-bottom:14px}
+  .notice{padding:11px 14px;border:1px solid var(--line);border-radius:8px;background:var(--color-info-bg);font-size:12.5px;line-height:1.5;margin-bottom:14px}
   .notice strong{color:var(--color-info)}
   .columns{display:grid;grid-template-columns:minmax(320px,1fr) minmax(320px,1fr);gap:14px;margin-bottom:14px}
   .card{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--card);box-shadow:var(--shadow-sm)}
@@ -35,8 +35,6 @@
   label{font-size:12px;font-weight:650;color:var(--muted)}
   input,select{width:100%;height:37px;border:1px solid var(--line);border-radius:7px;background:var(--input-bg);color:var(--ink);font-size:13px;padding:7px 10px}
   input:focus,select:focus{outline:2px solid var(--color-selected);border-color:var(--accent)}
-  .fieldline{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:8px}
-  .fieldline .field{margin:0}
   button{font-size:12.5px;font-weight:650;border:1px solid var(--line);border-radius:7px;padding:9px 12px;cursor:pointer;background:var(--card);color:var(--ink)}
   button:hover:not(:disabled){background:var(--color-hover)}
   button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -44,23 +42,25 @@
   .primary{background:var(--accent);color:#fff;border-color:var(--accent)}
   .primary:hover:not(:disabled){background:var(--accent-dark)}
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
-  .mono{font-family:Consolas,ui-monospace,monospace;font-size:11.5px;overflow-wrap:anywhere}
-  .status{min-height:40px;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12.5px;background:var(--input-bg);margin:12px 0}
+  .status{min-height:40px;display:flex;align-items:center;border:1px solid var(--line);border-radius:8px;padding:9px 11px;font-size:12.5px;background:var(--input-bg);margin:12px 0;white-space:pre-line;overflow-wrap:anywhere}
   .status.error{background:var(--color-danger-bg);color:var(--color-danger)}
   .status.good{background:var(--color-success-bg);color:var(--color-success)}
+  .status.warn{background:var(--color-warning-bg);color:var(--color-warning)}
+  .failures{border:1px solid var(--color-warning);border-radius:8px;color:var(--color-warning);padding:11px 14px;background:var(--color-warning-bg);font-size:12px;line-height:1.5;margin:12px 0}
   .summary{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
-  .summary h2{margin:0}
-  .summary small{color:var(--muted)}
+  .summary h2{margin:0}.summary small{color:var(--muted)}
   .results-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:end;margin-bottom:12px}
-  .results-actions .field{min-width:260px;flex:1;margin:0}
+  .results-actions .field{min-width:200px;flex:1;margin:0}
+  .results-actions .field.search{flex:2}
   .tablewrap{overflow:auto;max-height:600px;border:1px solid var(--line);border-radius:8px}
-  table{border-collapse:collapse;min-width:870px;width:100%;font-size:12px}
+  table{border-collapse:collapse;min-width:1060px;width:100%;font-size:12px}
   th{background:var(--thead-bg);text-align:left;position:sticky;top:0;z-index:1}
   th,td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
-  td.name{min-width:200px;font-weight:650;overflow-wrap:anywhere}
-  td.url{max-width:500px;overflow-wrap:anywhere}
+  td.name{min-width:180px;font-weight:650;overflow-wrap:anywhere}
+  td.url{max-width:380px;overflow-wrap:anywhere}
   td.url a{color:var(--accent);text-decoration:none}
   td.url a:hover{text-decoration:underline}
+  td.path{max-width:260px;overflow-wrap:anywhere}
   .thumb{height:42px;width:58px;object-fit:contain;background:var(--input-bg);border-radius:5px;border:1px solid var(--line)}
   .placeholder{color:var(--muted);font-size:12px}
   .private{font-size:10px;color:var(--color-warning);font-weight:700;white-space:nowrap}
@@ -68,10 +68,11 @@
   .footnote{margin-top:14px;color:var(--muted);font-size:11.5px}
   .footnote a{color:var(--accent)}
   [hidden]{display:none!important}
-  @media(max-width:850px){body{padding:14px 12px}.topbar{position:static;width:max-content;margin:0 0 14px auto}.columns{grid-template-columns:1fr}.fieldline{grid-template-columns:1fr}.results-actions .field{min-width:100%}}
+  @media(max-width:850px){body{padding:14px 12px}.topbar{position:static;width:max-content;margin:0 0 14px auto}.columns{grid-template-columns:1fr}.results-actions .field{min-width:100%}}
 </style>
 <link rel="stylesheet" href="styles/tool-ui.css">
 <script src="scripts/tool-ui.js"></script>
+<script src="imagekit-url-core.js"></script>
 </head>
 <body>
 <div class="topbar">
@@ -83,64 +84,71 @@
   <a href="index.html" class="home">← <span data-t="home">Home</span></a>
   <header>
     <div class="hero-icon" aria-hidden="true"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><path d="m3 21 5-6 4 4 4-6 5 8Z"/></svg></div>
-    <div><h1 data-t="title">ImageKit URL Generator</h1><div class="subtitle" data-t="subtitle">Ambil URL semua gambar dari satu folder ImageKit, tampilkan preview, lalu copy atau export CSV.</div></div>
+    <div><h1 data-t="title">ImageKit URL Manager</h1><div class="subtitle" data-t="subtitle">Gabungkan URL gambar dari satu atau seluruh akun ImageKit, termasuk semua folder dan subfolder.</div></div>
   </header>
-  <div class="notice"><strong data-t="securityTitle">Keamanan:</strong> <span data-t="securityText">Jangan masukkan Private API Key ImageKit di halaman ini. Gunakan token akses Tool #8 yang dibuat pada Supabase. Token hanya disimpan dalam memori halaman saat dibuka, bukan di GitHub atau localStorage.</span></div>
+  <div class="notice"><strong data-t="securityTitle">Keamanan:</strong> <span data-t="securityText">Private API Key setiap akun hanya disimpan di Supabase Edge Function secrets. Gunakan satu Tool Access Token untuk mengakses akun yang terdaftar. Jangan menaruh Private API Key di halaman ini.</span></div>
 
   <div class="columns">
     <section class="card">
-      <h2 data-t="connectTitle">1. Koneksi ImageKit (aman)</h2>
-      <p class="hint" data-t="connectHint">Backend read-only harus dikonfigurasi satu kali. Lihat petunjuk setup di bagian bawah halaman.</p>
+      <h2 data-t="connectTitle">1. Koneksi aman</h2>
+      <p class="hint" data-t="connectHint">Pengaturan backend satu kali. Token akses disimpan di memori halaman saja, tidak di localStorage.</p>
       <div class="field">
         <label for="endpoint" data-t="endpointLabel">Supabase Edge Function URL</label>
         <input id="endpoint" type="url" spellcheck="false" autocomplete="off" value="https://slqplzovrotfiohcijap.supabase.co/functions/v1/imagekit-url-generator">
       </div>
       <div class="field">
-        <label for="accessToken" data-t="tokenLabel">Tool Access Token (BUKAN ImageKit Private API Key)</label>
-        <input id="accessToken" type="password" autocomplete="new-password" placeholder="Token dari Supabase secret IMAGEKIT_URL_TOOL_TOKEN">
-      </div>
-      <p class="hint" data-t="connectDetail">Token ini diperlukan untuk mencegah pengunjung website publik mengakses daftar file Anda. Tidak ada kredensial yang disimpan browser.</p>
-    </section>
-    <section class="card">
-      <h2 data-t="folderTitle">2. Pilih folder</h2>
-      <p class="hint" data-t="folderHint">Isi path folder ImageKit, misalnya /261002/. Untuk folder di root, klik Muat Folder lalu pilih dari daftar.</p>
-      <div class="fieldline">
-        <div class="field">
-          <label for="browsePath" data-t="browseLabel">Browse folder induk</label>
-          <input id="browsePath" value="/" spellcheck="false" placeholder="/">
-        </div>
-        <button id="browseBtn" data-t="browse">Muat Folder</button>
-      </div>
-      <div class="field" style="margin-top:12px">
-        <label for="folderSelect" data-t="selectLabel">Folder yang tersedia</label>
-        <select id="folderSelect"><option value="" data-t="selectEmpty">Muat folder terlebih dahulu</option></select>
-      </div>
-      <div class="field">
-        <label for="folderPath" data-t="pathLabel">Folder untuk generate URL</label>
-        <input id="folderPath" value="/261002/" spellcheck="false" placeholder="/261002/">
+        <label for="accessToken" data-t="tokenLabel">Tool Access Token (BUKAN ImageKit Private Key)</label>
+        <input id="accessToken" type="password" autocomplete="new-password" placeholder="IMAGEKIT_URL_TOOL_TOKEN">
       </div>
       <div class="toolbar">
-        <button class="primary" id="generateBtn" data-t="generate">Generate URLs</button>
-        <button id="cancelBtn" disabled data-t="cancel">Batalkan</button>
-        <button id="clearBtn" data-t="clear">Bersihkan hasil</button>
+        <button id="loadAccountsBtn" data-t="loadAccounts">Muat Daftar Akun</button>
+        <small id="accountSummary" class="hint" style="margin:0">—</small>
       </div>
+    </section>
+    <section class="card">
+      <h2 data-t="scopeTitle">2. Ambil URL gambar</h2>
+      <p class="hint" data-t="scopeHint">Pilih satu akun atau semua. Seluruh folder dan subfolder dibaca otomatis tanpa memasukkan path folder.</p>
+      <div class="field">
+        <label for="accountSelect" data-t="accountLabel">Akun ImageKit</label>
+        <select id="accountSelect"><option value="*" data-t="allAccounts">Semua Akun</option></select>
+      </div>
+      <div class="toolbar">
+        <button id="generateBtn" class="primary" data-t="generate">Fetch All Image URLs</button>
+        <button id="cancelBtn" disabled data-t="cancel">Batalkan</button>
+        <button id="clearBtn" data-t="clear">Bersihkan Hasil</button>
+      </div>
+      <p class="hint" style="margin-top:12px" data-t="scopeNote">Jika satu akun gagal, hasil akun lain tetap ditampilkan dan akun yang gagal dilaporkan. Hasil parsial tidak dianggap ekspor lengkap.</p>
     </section>
   </div>
 
-  <div id="status" class="status" role="status" aria-live="polite">Siap. Masukkan token dan pilih folder.</div>
+  <div id="status" class="status" role="status" aria-live="polite">Siap. Masukkan Tool Access Token lalu klik Fetch All Image URLs.</div>
+  <div id="failureBox" class="failures" role="alert" hidden></div>
 
   <section class="card">
     <div class="summary"><h2 data-t="results">3. Daftar URL ImageKit</h2><small id="countSummary">0 file</small></div>
     <div class="results-actions">
-      <div class="field"><label for="searchBox" data-t="searchLabel">Cari berdasarkan nama atau path</label><input id="searchBox" type="search" data-ph="searchPlaceholder" placeholder="Cari gambar ..." disabled></div>
+      <div class="field">
+        <label for="folderFilter" data-t="folderLabel">Filter Folder</label>
+        <select id="folderFilter" disabled><option value="*" data-t="allFolders">Semua Folder</option></select>
+      </div>
+      <div class="field search">
+        <label for="searchBox" data-t="searchLabel">Cari akun, nama file, folder, atau URL</label>
+        <input id="searchBox" type="search" data-ph="searchPlaceholder" placeholder="Cari gambar ..." disabled>
+      </div>
       <button id="copyAllBtn" disabled data-t="copyAll">Copy Semua URL</button>
       <button id="copyFilteredBtn" disabled data-t="copyFiltered">Copy URL Filter</button>
       <button id="csvBtn" disabled data-t="csv">Export CSV (Excel)</button>
     </div>
     <div class="tablewrap">
       <table>
-        <thead><tr><th data-t="preview">Preview</th><th data-t="fileName">Nama File</th><th data-t="imageUrl">ImageKit URL</th><th data-t="dimensions">Dimensi</th><th data-t="fileSize">Ukuran</th><th data-t="action">Aksi</th></tr></thead>
-        <tbody id="fileRows"><tr><td colspan="6" class="placeholder" id="emptyText">Belum ada hasil. Klik Generate URLs untuk mulai.</td></tr></tbody>
+        <thead>
+          <tr>
+            <th data-t="preview">Preview</th><th data-t="accountCol">Akun</th><th data-t="folderCol">Folder</th>
+            <th data-t="fileName">Nama File</th><th data-t="imageUrl">ImageKit URL</th>
+            <th data-t="dimensions">Dimensi</th><th data-t="fileSize">Ukuran</th><th data-t="action">Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="fileRows"><tr><td colspan="8" class="placeholder">Belum ada hasil. Klik Fetch All Image URLs.</td></tr></tbody>
       </table>
     </div>
     <div class="pagination">
@@ -148,334 +156,384 @@
       <span id="pageInfo">0 / 0</span>
       <button id="nextBtn" disabled data-t="next">Berikutnya</button>
     </div>
-    <p class="footnote"><span data-t="tableNote">Tabel menampilkan 100 file per halaman agar tetap cepat. Copy Semua URL dan Export CSV mencakup seluruh hasil, termasuk halaman lainnya. Folder yang dipilih tidak termasuk subfolder.</span> <a href="docs/imagekit-url-generator.md" data-t="setupLink">Panduan setup API dan keamanan</a></p>
+    <p class="footnote"><span data-t="tableNote">Tabel 100 file per halaman; ekspor CSV mencakup seluruh gambar yang berhasil diambil. Periksa peringatan kegagalan akun sebelum menggunakan hasil sebagai data lengkap.</span> <a href="docs/imagekit-url-generator.md" data-t="setupLink">Panduan Multi-Account & keamanan</a></p>
   </section>
 </main>
 <script>
 (() => {
-  'use strict';
+  "use strict";
   const COPY = {
     id: {
-      home:'Home',title:'ImageKit URL Generator',subtitle:'Ambil URL semua gambar dari satu folder ImageKit, tampilkan preview, lalu copy atau export CSV.',
-      securityTitle:'Keamanan:',securityText:'Jangan masukkan Private API Key ImageKit di halaman ini. Gunakan token akses Tool #8 yang dibuat pada Supabase. Token hanya disimpan dalam memori halaman saat dibuka, bukan di GitHub atau localStorage.',
-      connectTitle:'1. Koneksi ImageKit (aman)',connectHint:'Backend read-only perlu dikonfigurasi satu kali. Lihat panduan setup di bawah.',
-      endpointLabel:'Supabase Edge Function URL',tokenLabel:'Tool Access Token (BUKAN ImageKit Private API Key)',connectDetail:'Token diperlukan agar pengunjung website publik tidak bisa melihat daftar file Anda. Tidak ada kredensial yang disimpan di browser.',
-      folderTitle:'2. Pilih folder',folderHint:'Masukkan path folder ImageKit, contoh /261002/. Untuk folder root, klik Muat Folder lalu pilih nama folder.',browseLabel:'Browse folder induk',browse:'Muat Folder',selectLabel:'Folder yang tersedia',selectEmpty:'Muat folder terlebih dahulu',
-      pathLabel:'Folder untuk generate URL',generate:'Generate URLs',cancel:'Batalkan',clear:'Bersihkan hasil',results:'3. Daftar URL ImageKit',searchLabel:'Cari berdasarkan nama atau path',searchPlaceholder:'Cari gambar ...',
-      copyAll:'Copy Semua URL',copyFiltered:'Copy URL Filter',csv:'Export CSV (Excel)',preview:'Preview',fileName:'Nama File',imageUrl:'ImageKit URL',dimensions:'Dimensi',fileSize:'Ukuran',action:'Aksi',
-      prev:'Sebelumnya',next:'Berikutnya',tableNote:'Tabel menampilkan 100 file per halaman agar tetap cepat. Copy Semua URL dan Export CSV mencakup seluruh hasil, termasuk halaman lainnya. Folder yang dipilih tidak termasuk subfolder.',
-      setupLink:'Panduan setup API dan keamanan',empty:'Belum ada hasil. Klik Generate URLs untuk mulai.',ready:'Siap. Masukkan token dan pilih folder.',
-      tokenMissing:'Masukkan Tool Access Token (minimal 32 karakter).',endpointInvalid:'Masukkan URL Supabase Edge Function yang valid.',pathInvalid:'Masukkan path folder yang valid.',loadingFolders:'Mengambil daftar folder ...',
-      noFolders:'Folder kosong atau tidak ditemukan.',folderLoaded:'Folder tersedia: ',loading:'Mengambil halaman ',loaded:'Berhasil mengambil ',files:' gambar dari ',
-      stopped:'Pengambilan dibatalkan.',cleared:'Hasil dibersihkan.',failed:'Gagal: ',copy:'Copy URL',copied:'URL tersalin.',copyFailed:'Clipboard tidak tersedia. Gunakan HTTPS dan izinkan akses clipboard.',
-      allCopied:'Semua URL disalin: ',filteredCopied:'URL filter disalin: ',csvDone:'CSV berhasil diunduh.',noUrls:'Tidak ada URL untuk disalin.',noMatches:'Tidak ada gambar yang cocok.',
-      page:'Halaman ',private:'Private — perlu signed URL',authHelp:'Token salah atau server belum dikonfigurasi. Periksa panduan setup.',connectionHelp:'Function belum di-deploy atau koneksi gagal. Lihat panduan setup.'
+      home:"Home",title:"ImageKit URL Manager",subtitle:"Gabungkan URL gambar dari satu atau seluruh akun ImageKit, termasuk semua folder dan subfolder.",
+      securityTitle:"Keamanan:",securityText:"Private API Key setiap akun hanya disimpan di Supabase Edge Function secrets. Gunakan satu Tool Access Token untuk mengakses akun yang terdaftar. Jangan menaruh Private API Key di halaman ini.",
+      connectTitle:"1. Koneksi aman",connectHint:"Pengaturan backend satu kali. Token akses disimpan di memori halaman saja, tidak di localStorage.",
+      endpointLabel:"Supabase Edge Function URL",tokenLabel:"Tool Access Token (BUKAN ImageKit Private Key)",loadAccounts:"Muat Daftar Akun",
+      scopeTitle:"2. Ambil URL gambar",scopeHint:"Pilih satu akun atau semua. Seluruh folder dan subfolder dibaca otomatis tanpa memasukkan path folder.",
+      accountLabel:"Akun ImageKit",allAccounts:"Semua Akun",generate:"Fetch All Image URLs",cancel:"Batalkan",clear:"Bersihkan Hasil",
+      scopeNote:"Jika satu akun gagal, hasil akun lain tetap ditampilkan dan akun yang gagal dilaporkan. Hasil parsial tidak dianggap ekspor lengkap.",
+      results:"3. Daftar URL ImageKit",folderLabel:"Filter Folder",allFolders:"Semua Folder",searchLabel:"Cari akun, nama file, folder, atau URL",searchPlaceholder:"Cari gambar ...",
+      copyAll:"Copy Semua URL",copyFiltered:"Copy URL Filter",csv:"Export CSV (Excel)",preview:"Preview",accountCol:"Akun",folderCol:"Folder",
+      fileName:"Nama File",imageUrl:"ImageKit URL",dimensions:"Dimensi",fileSize:"Ukuran",action:"Aksi",prev:"Sebelumnya",next:"Berikutnya",
+      tableNote:"Tabel 100 file per halaman; ekspor CSV mencakup seluruh gambar yang berhasil diambil. Periksa peringatan kegagalan akun sebelum menggunakan hasil sebagai data lengkap.",
+      setupLink:"Panduan Multi-Account & keamanan",ready:"Siap. Masukkan Tool Access Token lalu klik Fetch All Image URLs.",
+      tokenMissing:"Masukkan Tool Access Token (minimal 32 karakter).",endpointInvalid:"URL Supabase Edge Function tidak valid.",
+      loadingAccounts:"Memuat daftar akun ...",accountsLoaded:"Akun tersedia: ",loading:"Mengambil akun ",loaded:"Selesai: ",files:" gambar dari ",accounts:" akun.",
+      canceled:"Dibatalkan. Hasil yang sudah selesai ditampilkan.",cleared:"Hasil dibersihkan.",failed:"Gagal: ",failedAccounts:"Ada akun yang gagal; CSV hanya berisi data akun yang berhasil:",
+      copy:"Copy URL",copied:"URL tersalin.",copyFailed:"Clipboard tidak tersedia. Gunakan HTTPS dan izinkan clipboard.",
+      allCopied:"Semua URL disalin: ",filteredCopied:"URL filter disalin: ",csvDone:"CSV berhasil diunduh.",noUrls:"Tidak ada URL untuk disalin.",
+      noMatches:"Tidak ada gambar yang cocok.",empty:"Belum ada hasil. Klik Fetch All Image URLs.",page:"Halaman ",private:"Private (butuh signed URL)",
+      authHelp:"Periksa access token serta konfigurasi backend.",connectionHelp:"Function tidak tersedia, CORS dibatasi, atau jaringan bermasalah. Lihat panduan.",
+      partial:"Sebagian akun gagal. Hasil parsial: ",none:"Tidak ada akun ImageKit yang tersedia.",backendOld:"Backend belum mendukung multi-account. Deploy function versi terbaru."
     },
     en: {
-      home:'Home',title:'ImageKit URL Generator',subtitle:'Get image URLs from any ImageKit folder, preview media, copy links, and export CSV.',
-      securityTitle:'Security:',securityText:'Never enter your ImageKit Private API Key here. Use the separate Tool #8 access token configured in Supabase. It is kept in memory only, not GitHub or localStorage.',
-      connectTitle:'1. Secure ImageKit connection',connectHint:'One-time read-only backend setup is required. Follow the setup guide below.',
-      endpointLabel:'Supabase Edge Function URL',tokenLabel:'Tool Access Token (NOT your ImageKit Private API Key)',connectDetail:'The token prevents public visitors from browsing your media files. No credentials are saved in browser storage.',
-      folderTitle:'2. Select folder',folderHint:'Enter a folder path, e.g. /261002/. Click Load Folders to browse the root.',browseLabel:'Parent folder to browse',browse:'Load Folders',selectLabel:'Available folders',selectEmpty:'Load folders first',
-      pathLabel:'Folder to generate URLs for',generate:'Generate URLs',cancel:'Cancel',clear:'Clear results',results:'3. ImageKit URL list',searchLabel:'Search by name or path',searchPlaceholder:'Search images ...',
-      copyAll:'Copy All URLs',copyFiltered:'Copy Filtered URLs',csv:'Export CSV (Excel)',preview:'Preview',fileName:'File Name',imageUrl:'ImageKit URL',dimensions:'Dimensions',fileSize:'Size',action:'Action',
-      prev:'Previous',next:'Next',tableNote:'100 files are displayed per page for performance. Copy All and Export CSV include every result, across pages. Only files directly in the selected folder are included.',
-      setupLink:'API and security setup guide',empty:'No results yet. Click Generate URLs.',ready:'Ready. Enter your token and select a folder.',
-      tokenMissing:'Enter your Tool Access Token (at least 32 characters).',endpointInvalid:'Enter a valid Supabase Edge Function URL.',pathInvalid:'Enter a valid folder path.',loadingFolders:'Loading folders ...',
-      noFolders:'No folders found.',folderLoaded:'Available folders: ',loading:'Loading page ',loaded:'Successfully loaded ',files:' images from ',
-      stopped:'Loading cancelled.',cleared:'Results cleared.',failed:'Failed: ',copy:'Copy URL',copied:'URL copied.',copyFailed:'Clipboard unavailable. Use HTTPS and allow clipboard access.',
-      allCopied:'All URLs copied: ',filteredCopied:'Filtered URLs copied: ',csvDone:'CSV downloaded.',noUrls:'No URLs to copy.',noMatches:'No matching images.',
-      page:'Page ',private:'Private — signed URL needed',authHelp:'Access token is incorrect or backend is not configured. Check the setup guide.',connectionHelp:'The function is not deployed or the network is unavailable. See the setup guide.'
+      home:"Home",title:"ImageKit URL Manager",subtitle:"Combine image URLs from one or all ImageKit accounts, including all folders and subfolders.",
+      securityTitle:"Security:",securityText:"Each ImageKit private key stays in Supabase Edge Function secrets. Use a separate Tool Access Token to access registered accounts. Never paste ImageKit private keys into this page.",
+      connectTitle:"1. Secure connection",connectHint:"One-time backend setup. The access token stays only in page memory, not localStorage.",
+      endpointLabel:"Supabase Edge Function URL",tokenLabel:"Tool Access Token (NOT ImageKit Private Key)",loadAccounts:"Load Accounts",
+      scopeTitle:"2. Retrieve image URLs",scopeHint:"Choose one or all accounts. Every folder and subfolder is included automatically, without entering folder paths.",
+      accountLabel:"ImageKit account",allAccounts:"All Accounts",generate:"Fetch All Image URLs",cancel:"Cancel",clear:"Clear Results",
+      scopeNote:"If one account fails, other accounts still appear and failures are reported. Partial results are not treated as a complete export.",
+      results:"3. ImageKit URL list",folderLabel:"Folder filter",allFolders:"All Folders",searchLabel:"Search account, filename, folder or URL",searchPlaceholder:"Search images ...",
+      copyAll:"Copy All URLs",copyFiltered:"Copy Filtered URLs",csv:"Export CSV (Excel)",preview:"Preview",accountCol:"Account",folderCol:"Folder",
+      fileName:"File Name",imageUrl:"ImageKit URL",dimensions:"Dimensions",fileSize:"Size",action:"Action",prev:"Previous",next:"Next",
+      tableNote:"100 files are displayed per page; CSV includes all successfully loaded images. Review account failures before treating an export as complete.",
+      setupLink:"Multi-account setup & security",ready:"Ready. Enter your Tool Access Token and click Fetch All Image URLs.",
+      tokenMissing:"Enter a Tool Access Token of at least 32 characters.",endpointInvalid:"Invalid Supabase Edge Function URL.",
+      loadingAccounts:"Loading accounts ...",accountsLoaded:"Available accounts: ",loading:"Fetching account ",loaded:"Complete: ",files:" images from ",accounts:" accounts.",
+      canceled:"Cancelled. Completed accounts are shown.",cleared:"Results cleared.",failed:"Failed: ",failedAccounts:"Some accounts failed; CSV only includes successfully fetched accounts:",
+      copy:"Copy URL",copied:"URL copied.",copyFailed:"Clipboard unavailable. Use HTTPS and enable clipboard access.",
+      allCopied:"All URLs copied: ",filteredCopied:"Filtered URLs copied: ",csvDone:"CSV downloaded.",noUrls:"No URLs to copy.",
+      noMatches:"No matching images.",empty:"No results yet. Click Fetch All Image URLs.",page:"Page ",private:"Private (signed URL needed)",
+      authHelp:"Check access token and backend setup.",connectionHelp:"Function unavailable, CORS restricted or network error. See setup guide.",
+      partial:"Some accounts failed. Partial result: ",none:"No configured ImageKit accounts found.",backendOld:"Backend does not yet support multi-account. Deploy the latest function."
     }
   };
   const $ = (id) => document.getElementById(id);
-  let lang = ToolStorage.getItem('audit-lang') === 'en' ? 'en' : 'id';
+  const core = window.ImageKitURLCore;
+  let lang = ToolStorage.getItem("audit-lang") === "en" ? "en" : "id";
+  let accounts = [];
   let items = [];
+  let failures = [];
+  let incomplete = false;
   let page = 0;
   let busy = false;
   let controller = null;
   const pageSize = 100;
   const t = (key) => COPY[lang][key] || key;
-  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-  function normalizePath(raw) {
-    if (typeof raw !== 'string' || raw.length > 500 || /[\\?#\0]/.test(raw)) return '';
-    const path = raw.trim().replace(/\/+/g, '/');
-    if (!path || path.split('/').includes('..')) return '';
-    const clean = path.replace(/^\/+|\/+$/g, '');
-    return '/' + clean + (clean ? '/' : '');
+  function endpointURL() {
+    const url = $("endpoint").value.trim();
+    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/functions\/v1\/imagekit-url-generator\/?$/i.test(url) &&
+        !/^http:\/\/(localhost|127\.0\.0\.1):\d+\/functions\/v1\/imagekit-url-generator\/?$/i.test(url)) return "";
+    return url.replace(/\/$/, "");
   }
 
-  function validEndpoint() {
-    const value = $('endpoint').value.trim();
-    if (!/^https:\/\/[a-z0-9-]+\.supabase\.co\/functions\/v1\/imagekit-url-generator\/?$/i.test(value) &&
-        !/^http:\/\/(localhost|127\.0\.0\.1):\d+\/functions\/v1\/imagekit-url-generator\/?$/i.test(value)) return '';
-    return value.replace(/\/$/, '');
-  }
-
-  function setStatus(message, level) {
-    const el = $('status');
-    el.textContent = message;
-    el.className = 'status' + (level ? ' ' + level : '');
+  function setStatus(message, kind) {
+    $("status").textContent = message;
+    $("status").className = "status" + (kind ? " " + kind : "");
   }
 
   function setBusy(value) {
     busy = value;
-    $('browseBtn').disabled = value;
-    $('generateBtn').disabled = value;
-    $('cancelBtn').disabled = !value;
-    $('folderSelect').disabled = value;
-    $('clearBtn').disabled = value;
+    $("loadAccountsBtn").disabled = value;
+    $("generateBtn").disabled = value;
+    $("cancelBtn").disabled = !value;
+    $("clearBtn").disabled = value;
+    $("accountSelect").disabled = value;
   }
 
-  async function api(action, path, skip, signal) {
-    const endpoint = validEndpoint();
-    if (!endpoint) throw new Error(t('endpointInvalid'));
-    const token = $('accessToken').value;
-    if (token.length < 32) throw new Error(t('tokenMissing'));
+  async function api(payload, signal) {
+    const endpoint = endpointURL();
+    if (!endpoint) throw new Error(t("endpointInvalid"));
+    const token = $("accessToken").value;
+    if (token.length < 32) throw new Error(t("tokenMissing"));
     for (let attempt = 0; attempt < 3; attempt++) {
-      const res = await fetch(endpoint, {
-        method:'POST',
-        mode:'cors',
-        cache:'no-store',
-        redirect:'error',
-        referrerPolicy:'no-referrer',
-        headers:{'Content-Type':'application/json','x-tool-token':token},
-        body:JSON.stringify({action:action,path:path,skip:skip}),
-        signal:signal,
+      const response = await fetch(endpoint, {
+        method:"POST",mode:"cors",cache:"no-store",redirect:"error",referrerPolicy:"no-referrer",
+        headers:{"Content-Type":"application/json","x-tool-token":token},
+        body:JSON.stringify(payload), signal,
       });
-      let body;
-      try { body = await res.json(); } catch { throw new Error(t('connectionHelp')); }
-      if (res.status === 429 && attempt < 2) {
-        const delay = Math.min(Math.max(Number(body.retryAfterMs) || 1500, 1000), 5000);
-        await sleep(delay);
-        if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
+      let data;
+      try { data = await response.json(); }
+      catch { throw new Error(t("connectionHelp")); }
+      if (response.status === 429 && attempt < 2) {
+        await pause(Math.min(Math.max(Number(data.retryAfterMs) || 1500, 1000), 5000));
+        if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
         continue;
       }
-      if (!res.ok || !body.ok || !Array.isArray(body.items)) {
-        let message = body.error || ('HTTP ' + res.status);
-        if (res.status === 401 || res.status === 503) message += ' ' + t('authHelp');
-        throw new Error(message);
+      if (!response.ok || !data.ok) {
+        const reason = String(data.error || ("HTTP " + response.status));
+        throw new Error(reason + (response.status === 401 || response.status === 503 ? " " + t("authHelp") : ""));
       }
-      if (body.skip !== skip || body.action !== action || body.path !== path) throw new Error('Invalid API pagination response');
-      return body;
+      return data;
     }
-    throw new Error('Too many requests');
+    throw new Error("Rate limit retry exhausted");
   }
 
-  async function fetchAll(action, path, signal) {
-    const collected = [];
-    let skip = 0;
-    for (let p = 0; p < 4000; p++) {
-      if (signal.aborted) throw new DOMException('Cancelled', 'AbortError');
-      setStatus(t('loading') + (p + 1) + ' • ' + collected.length + ' ' + (action === 'folders' ? 'folders' : 'files'));
-      const res = await api(action, path, skip, signal);
-      collected.push(...res.items);
-      if (!res.hasMore) return collected;
-      if (!Number.isSafeInteger(res.nextSkip) || res.nextSkip <= skip) throw new Error('Invalid pagination offset');
-      skip = res.nextSkip;
-    }
-    throw new Error('Too many pages; export was not completed');
+  async function refreshAccounts(signal) {
+    setStatus(t("loadingAccounts"));
+    const response = await api({action:"accounts"}, signal);
+    if (!Array.isArray(response.accounts)) throw new Error(t("backendOld"));
+    const received = response.accounts.filter((entry) => entry && typeof entry.id === "string" && typeof entry.label === "string");
+    if (!received.length) throw new Error(t("none"));
+    accounts = received;
+    const selected = $("accountSelect").value;
+    const select = $("accountSelect");
+    select.replaceChildren(new Option(t("allAccounts"), "*"));
+    for (const account of accounts) select.add(new Option(account.label, account.id));
+    select.value = accounts.some((account) => account.id === selected) ? selected : "*";
+    $("accountSummary").textContent = t("accountsLoaded") + accounts.length;
+    return accounts;
   }
 
-  async function loadFolders() {
+  async function loadAccounts() {
     if (busy) return;
-    const path = normalizePath($('browsePath').value);
-    if (!path) return setStatus(t('pathInvalid'), 'error');
     controller = new AbortController();
     setBusy(true);
-    setStatus(t('loadingFolders'));
     try {
-      const folders = await fetchAll('folders', path, controller.signal);
-      const select = $('folderSelect');
-      select.replaceChildren();
-      const placeholder = new Option(t('selectEmpty'), '');
-      select.add(placeholder);
-      const used = new Set();
-      for (const item of folders) {
-        const name = item.name.trim();
-        if (!name) continue;
-        const childPath = normalizePath(path + name + '/');
-        if (!childPath || used.has(childPath)) continue;
-        used.add(childPath);
-        select.add(new Option(name + ' (' + childPath + ')', childPath));
+      await refreshAccounts(controller.signal);
+      setStatus(t("accountsLoaded") + accounts.length, "good");
+    } catch (error) {
+      setStatus(t("failed") + (error instanceof TypeError ? t("connectionHelp") : error.message), "error");
+    } finally { controller = null; setBusy(false); }
+  }
+
+  async function fetchAccount(account, signal) {
+    const result = [];
+    let skip = 0;
+    for (let index = 0; index < 4000; index++) {
+      if (signal.aborted) throw new DOMException("Cancelled", "AbortError");
+      setStatus(t("loading") + account.label + " • page " + (index + 1) + " • " + result.length + " files");
+      const response = await api({action:"files",accountId:account.id,skip}, signal);
+      if (!Array.isArray(response.items) || response.action !== "files" ||
+          response.accountId !== account.id || response.skip !== skip) {
+        throw new Error(t("backendOld"));
       }
-      setStatus(folders.length ? t('folderLoaded') + used.size : t('noFolders'), folders.length ? 'good' : '');
-    } catch (err) {
-      setStatus(err.name === 'AbortError' ? t('stopped') : t('failed') + err.message, err.name === 'AbortError' ? '' : 'error');
-    } finally {
-      controller = null;
-      setBusy(false);
+      result.push(...response.items);
+      if (!response.hasMore) return result;
+      if (!Number.isSafeInteger(response.nextSkip) || response.nextSkip <= skip) {
+        throw new Error("Invalid pagination response.");
+      }
+      skip = response.nextSkip;
     }
+    throw new Error("Too many API pages; account was not included.");
   }
 
   async function generate() {
     if (busy) return;
-    const path = normalizePath($('folderPath').value);
-    if (!path) return setStatus(t('pathInvalid'), 'error');
     controller = new AbortController();
     setBusy(true);
+    items = [];
+    failures = [];
+    incomplete = false;
+    page = 0;
+    $("searchBox").value = "";
+    $("failureBox").hidden = true;
+    render();
+    let cancelled = false;
+    let successful = 0;
     try {
-      const files = await fetchAll('files', path, controller.signal);
-      const seen = new Set();
-      items = files.filter((file) => {
-        const key = file.fileId || file.url || file.filePath;
-        if (!file.url || seen.has(key)) return false;
-        seen.add(key);
-        return true;
-      });
-      page = 0;
-      $('searchBox').value = '';
+      await refreshAccounts(controller.signal);
+      const choice = $("accountSelect").value;
+      const selected = choice === "*" ? accounts : accounts.filter((account) => account.id === choice);
+      for (const account of selected) {
+        if (controller.signal.aborted) { cancelled = true; break; }
+        try {
+          const fetched = await fetchAccount(account, controller.signal);
+          items = core.mergeAccountFiles(items.concat(fetched));
+          successful += 1;
+          render();
+        } catch (error) {
+          if (error.name === "AbortError") { cancelled = true; break; }
+          failures.push({account:account.label, reason:error instanceof TypeError ? t("connectionHelp") : error.message});
+        }
+      }
+      fillFolderFilter();
       render();
-      setStatus(t('loaded') + items.length + t('files') + path, 'good');
-    } catch (err) {
-      setStatus(err.name === 'AbortError' ? t('stopped') : t('failed') + (err instanceof TypeError ? t('connectionHelp') : err.message), err.name === 'AbortError' ? '' : 'error');
+      incomplete = cancelled || failures.length > 0;
+      showFailures();
+      if (cancelled) {
+        setStatus(t("canceled"), "warn");
+      } else if (failures.length) {
+        setStatus(t("partial") + items.length + t("files") + successful + t("accounts"), "warn");
+      } else {
+        setStatus(t("loaded") + items.length + t("files") + successful + t("accounts"), "good");
+      }
+    } catch (error) {
+      incomplete = true;
+      if (error.name === "AbortError") setStatus(t("canceled"), "warn");
+      else setStatus(t("failed") + (error instanceof TypeError ? t("connectionHelp") : error.message), "error");
     } finally {
       controller = null;
       setBusy(false);
     }
   }
 
-  function filtered() {
-    const query = $('searchBox').value.trim().toLowerCase();
-    return query ? items.filter((item) => (item.name + ' ' + item.filePath).toLowerCase().includes(query)) : items;
+  function showFailures() {
+    const box = $("failureBox");
+    box.replaceChildren();
+    if (!failures.length) { box.hidden = true; return; }
+    box.hidden = false;
+    const head = document.createElement("strong");
+    head.textContent = t("failedAccounts");
+    box.appendChild(head);
+    const list = document.createElement("ul");
+    for (const entry of failures) {
+      const li = document.createElement("li");
+      li.textContent = entry.account + ": " + entry.reason;
+      list.appendChild(li);
+    }
+    box.appendChild(list);
+  }
+
+  function fillFolderFilter() {
+    const select = $("folderFilter");
+    select.replaceChildren(new Option(t("allFolders"), "*"));
+    for (const folder of core.uniqueFolders(items)) select.add(new Option(folder, folder));
+    select.value = "*";
+    select.disabled = !items.length;
+  }
+
+  function matchingItems() {
+    return core.filterFiles(items, $("folderFilter").value, $("searchBox").value);
   }
 
   function cell(row, cls, value) {
-    const td = document.createElement('td');
+    const td = document.createElement("td");
     if (cls) td.className = cls;
-    td.textContent = value == null ? '' : String(value);
+    td.textContent = value == null ? "" : String(value);
     row.appendChild(td);
     return td;
   }
 
   function render() {
-    const all = filtered();
+    const all = matchingItems();
     const maxPage = Math.max(1, Math.ceil(all.length / pageSize));
-    page = Math.min(page, maxPage - 1);
-    const rows = $('fileRows');
+    page = Math.max(0, Math.min(page, maxPage - 1));
+    const rows = $("fileRows");
     rows.replaceChildren();
     if (!all.length) {
-      const tr = document.createElement('tr');
-      const td = cell(tr, 'placeholder', items.length ? t('noMatches') : t('empty'));
-      td.colSpan = 6;
+      const tr = document.createElement("tr");
+      const td = cell(tr, "placeholder", items.length ? t("noMatches") : t("empty"));
+      td.colSpan = 8;
       rows.appendChild(tr);
     }
     for (const file of all.slice(page * pageSize, (page + 1) * pageSize)) {
-      const tr = document.createElement('tr');
-      const visual = cell(tr, '', '');
-      if (file.thumbnailUrl || file.url) {
-        const img = document.createElement('img');
-        img.className = 'thumb';
-        img.loading = 'lazy';
+      const tr = document.createElement("tr");
+      const visual = cell(tr, "", "");
+      if (!file.isPrivateFile && (file.thumbnailUrl || file.url)) {
+        const img = document.createElement("img");
+        img.className = "thumb";
+        img.loading = "lazy";
         img.alt = file.name;
-        img.referrerPolicy = 'no-referrer';
+        img.referrerPolicy = "no-referrer";
         img.src = file.thumbnailUrl || file.url;
         visual.appendChild(img);
-      }
-      const name = cell(tr, 'name', file.name);
+      } else if (file.isPrivateFile) visual.textContent = t("private");
+      cell(tr, "", file.accountName);
+      cell(tr, "path", core.folderOf(file));
+      const name = cell(tr, "name", file.name);
       if (file.isPrivateFile) {
-        const badge = document.createElement('div');
-        badge.className = 'private';
-        badge.textContent = t('private');
-        name.appendChild(badge);
+        const label = document.createElement("div");
+        label.className = "private";
+        label.textContent = t("private");
+        name.appendChild(label);
       }
-      const linkCell = cell(tr, 'url', '');
-      const link = document.createElement('a');
+      const urlCell = cell(tr, "url", "");
+      const link = document.createElement("a");
       link.href = file.url;
-      link.target = '_blank';
-      link.rel = 'noopener noreferrer';
+      link.target = "_blank";
+      link.rel = "noopener noreferrer";
       link.textContent = file.url;
-      linkCell.appendChild(link);
-      cell(tr, '', file.width && file.height ? file.width + ' × ' + file.height : '—');
-      cell(tr, '', Number.isFinite(file.size) ? (file.size / 1024).toFixed(1) + ' KB' : '—');
-      const action = cell(tr, '', '');
-      const btn = document.createElement('button');
-      btn.textContent = t('copy');
-      btn.addEventListener('click', () => copyText(file.url, t('copied')));
-      action.appendChild(btn);
+      urlCell.appendChild(link);
+      cell(tr, "", file.width && file.height ? file.width + " × " + file.height : "—");
+      cell(tr, "", Number.isFinite(file.size) ? (file.size / 1024).toFixed(1) + " KB" : "—");
+      const action = cell(tr, "", "");
+      const button = document.createElement("button");
+      button.textContent = t("copy");
+      button.addEventListener("click", () => copyText(file.url, t("copied")));
+      action.appendChild(button);
       rows.appendChild(tr);
     }
-    $('countSummary').textContent = all.length + ' / ' + items.length + ' file';
-    $('pageInfo').textContent = t('page') + (all.length ? page + 1 : 0) + ' / ' + (all.length ? maxPage : 0);
-    $('prevBtn').disabled = page <= 0;
-    $('nextBtn').disabled = page + 1 >= maxPage;
-    $('searchBox').disabled = !items.length;
-    $('copyAllBtn').disabled = !items.length;
-    $('copyFilteredBtn').disabled = !all.length;
-    $('csvBtn').disabled = !items.length;
+    $("countSummary").textContent = all.length + " / " + items.length + " file";
+    $("pageInfo").textContent = t("page") + (all.length ? page + 1 : 0) + " / " + (all.length ? maxPage : 0);
+    $("prevBtn").disabled = page <= 0;
+    $("nextBtn").disabled = page + 1 >= maxPage;
+    $("searchBox").disabled = !items.length;
+    $("copyAllBtn").disabled = !items.length;
+    $("copyFilteredBtn").disabled = !all.length;
+    $("csvBtn").disabled = !items.length;
   }
 
   async function copyText(value, message) {
-    if (!value) return setStatus(t('noUrls'), 'error');
-    try {
-      await navigator.clipboard.writeText(value);
-      setStatus(message, 'good');
-    } catch {
-      setStatus(t('copyFailed'), 'error');
-    }
-  }
-
-  function csvCell(value) {
-    let text = value == null ? '' : String(value);
-    if (/^[\s]*[=+\-@\t\r]/.test(text)) text = "'" + text;
-    return '"' + text.replace(/"/g, '""') + '"';
+    if (!value) return setStatus(t("noUrls"), "error");
+    try { await navigator.clipboard.writeText(value); setStatus(message, "good"); }
+    catch { setStatus(t("copyFailed"), "error"); }
   }
 
   function exportCSV() {
     if (!items.length) return;
-    const fields = ['FileID', 'FileName', 'ImageURL', 'FilePath', 'CreatedAt', 'Width', 'Height', 'SizeBytes', 'Private'];
-    const keyMap = ['fileId', 'name', 'url', 'filePath', 'createdAt', 'width', 'height', 'size', 'isPrivateFile'];
-    const csv = '\uFEFF' + fields.join(',') + '\r\n' + items.map((item) => keyMap.map((key) => csvCell(item[key])).join(',')).join('\r\n');
-    const url = URL.createObjectURL(new Blob([csv], {type:'text/csv;charset=utf-8'}));
-    const link = document.createElement('a');
-    const path = normalizePath($('folderPath').value).replace(/[^a-zA-Z0-9_-]+/g, '_');
+    const csv = core.toCSV(items);
+    const url = URL.createObjectURL(new Blob([csv], {type:"text/csv;charset=utf-8"}));
+    const link = document.createElement("a");
     link.href = url;
-    link.download = 'ImageKit_URLs_' + (path || 'root') + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+    link.download = "ImageKit_All_URLs_" + new Date().toISOString().slice(0, 10) + (incomplete ? "_PARTIAL" : "") + ".csv";
     document.body.appendChild(link);
     link.click();
     link.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1500);
-    setStatus(t('csvDone'), 'good');
+    setStatus(t("csvDone") + (incomplete ? " " + t("partial") : ""), incomplete ? "warn" : "good");
   }
 
   function setLang(value) {
-    lang = value === 'en' ? 'en' : 'id';
-    ToolStorage.setItem('audit-lang', lang);
+    lang = value === "en" ? "en" : "id";
+    ToolStorage.setItem("audit-lang", lang);
     document.documentElement.lang = lang;
-    $('langToggle').checked = lang === 'en';
-    $('labID').classList.toggle('on', lang === 'id');
-    $('labEN').classList.toggle('on', lang === 'en');
-    document.querySelectorAll('[data-t]').forEach((el) => { el.textContent = t(el.dataset.t); });
-    document.querySelectorAll('[data-ph]').forEach((el) => { el.placeholder = t(el.dataset.ph); });
-    document.title = t('title');
+    $("langToggle").checked = lang === "en";
+    $("labID").classList.toggle("on", lang === "id");
+    $("labEN").classList.toggle("on", lang === "en");
+    for (const el of document.querySelectorAll("[data-t]")) el.textContent = t(el.dataset.t);
+    for (const el of document.querySelectorAll("[data-ph]")) el.placeholder = t(el.dataset.ph);
+    const selected = $("accountSelect").value;
+    $("accountSelect").replaceChildren(new Option(t("allAccounts"), "*"));
+    for (const account of accounts) $("accountSelect").add(new Option(account.label, account.id));
+    $("accountSelect").value = selected;
+    fillFolderFilter();
+    showFailures();
     render();
-  }
-  function setTheme(value) {
-    const next = value === 'dark' ? 'dark' : 'light';
-    ToolStorage.setItem('audit-theme', next);
-    document.documentElement.dataset.theme = next;
-    $('themeToggle').checked = next === 'dark';
+    document.title = t("title");
   }
 
-  $('browseBtn').addEventListener('click', loadFolders);
-  $('generateBtn').addEventListener('click', generate);
-  $('cancelBtn').addEventListener('click', () => { if (controller) controller.abort(); });
-  $('clearBtn').addEventListener('click', () => {
-    items = []; page = 0; $('searchBox').value = ''; render(); setStatus(t('cleared'));
+  function setTheme(value) {
+    const chosen = value === "dark" ? "dark" : "light";
+    ToolStorage.setItem("audit-theme", chosen);
+    document.documentElement.dataset.theme = chosen;
+    $("themeToggle").checked = chosen === "dark";
+  }
+
+  $("loadAccountsBtn").addEventListener("click", loadAccounts);
+  $("generateBtn").addEventListener("click", generate);
+  $("cancelBtn").addEventListener("click", () => { if (controller) controller.abort(); });
+  $("clearBtn").addEventListener("click", () => {
+    items = []; failures = []; incomplete = false; page = 0; $("searchBox").value = "";
+    $("failureBox").hidden = true; fillFolderFilter(); render(); setStatus(t("cleared"));
   });
-  $('folderSelect').addEventListener('change', () => { if ($('folderSelect').value) $('folderPath').value = $('folderSelect').value; });
-  $('searchBox').addEventListener('input', () => { page = 0; render(); });
-  $('prevBtn').addEventListener('click', () => { page--; render(); });
-  $('nextBtn').addEventListener('click', () => { page++; render(); });
-  $('copyAllBtn').addEventListener('click', () => copyText(items.map((item) => item.url).join('\n'), t('allCopied') + items.length));
-  $('copyFilteredBtn').addEventListener('click', () => { const subset = filtered(); copyText(subset.map((item) => item.url).join('\n'), t('filteredCopied') + subset.length); });
-  $('csvBtn').addEventListener('click', exportCSV);
-  $('langToggle').addEventListener('change', (event) => setLang(event.target.checked ? 'en' : 'id'));
-  $('themeToggle').addEventListener('change', (event) => setTheme(event.target.checked ? 'dark' : 'light'));
-  setTheme(ToolStorage.getItem('audit-theme'));
+  $("folderFilter").addEventListener("change", () => { page = 0; render(); });
+  $("searchBox").addEventListener("input", () => { page = 0; render(); });
+  $("prevBtn").addEventListener("click", () => { page -= 1; render(); });
+  $("nextBtn").addEventListener("click", () => { page += 1; render(); });
+  $("copyAllBtn").addEventListener("click", () => copyText(items.map((f) => f.url).join("\n"), t("allCopied") + items.length));
+  $("copyFilteredBtn").addEventListener("click", () => {
+    const subset = matchingItems();
+    copyText(subset.map((f) => f.url).join("\n"), t("filteredCopied") + subset.length);
+  });
+  $("csvBtn").addEventListener("click", exportCSV);
+  $("langToggle").addEventListener("change", (event) => setLang(event.target.checked ? "en" : "id"));
+  $("themeToggle").addEventListener("change", (event) => setTheme(event.target.checked ? "dark" : "light"));
+  setTheme(ToolStorage.getItem("audit-theme"));
   setLang(lang);
-  setStatus(t('ready'));
+  setStatus(t("ready"));
 })();
 </script>
 </body>
