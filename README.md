@@ -16,6 +16,7 @@ A collection of browser-based utilities for document controllers and project tea
 | SharePoint Link Cleaner | Convert SharePoint sharing links in bulk into clean file URLs and their parent folder URLs. |
 | URL Builder | Build SharePoint file URLs from a folder and file-name list, with CSV/TSV output and optional screenshot OCR. |
 | Batch File Copy / Move | Paste Windows file paths from Excel and copy/move local/synced files with source-existence preflight (found/missing/duplicate), collision handling, progress, and CSV logging. |
+| ImageKit URL Generator (Tool #8) | Read-only ImageKit folder listing using a secure Supabase Edge Function: preview images, copy URLs, search and export CSV. [Setup and security guide](docs/imagekit-url-generator.md). |
 
 The interface supports Indonesian and English, plus light and dark themes.
 
